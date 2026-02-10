@@ -32,11 +32,11 @@ PORTFOLIO = {
 MONTHLY_BUDGET = 60000
 CASH_RESERVE_PERCENT = 20
 
-# Stock Categories
+# Stock Categories - ORDER MATTERS FOR DISPLAY
 CATEGORIES = {
     "Banking & Finance": ["BANKBEES.NS", "HDFCBANK.NS"],
-    "REITs": ["NXST-RR.NS", "EMBASSY-RR.NS", "BIRET-RR.NS", "MINDSPACE-RR.NS"],
     "IT Sector": ["ITBEES.NS", "TECHM.NS", "TCS.NS", "INFY.NS"],
+    "REITs": ["NXST-RR.NS", "EMBASSY-RR.NS", "BIRET-RR.NS", "MINDSPACE-RR.NS"],
     "Index & Others": ["TMPV.NS", "NIFTYBEES.NS", "M&M.NS", "GOLDBEES.NS", "SILVERBEES.NS", "RELIANCE.NS"]
 }
 
@@ -69,7 +69,7 @@ def get_stock_data(symbol):
 def calculate_rsi(prices, period=14):
     """Calculate RSI indicator"""
     if len(prices) < period:
-        return 50  # Default neutral value
+        return 50
     
     deltas = prices.diff()
     gain = deltas.where(deltas > 0, 0).rolling(window=period).mean()
@@ -142,13 +142,13 @@ def generate_recommendation(symbol, avg_price, current_price, rsi, macd, trend):
     
     # RSI scoring
     if rsi < 30:
-        score += 2  # Oversold - strong buy signal
+        score += 2
     elif rsi < 40:
-        score += 1  # Approaching oversold
+        score += 1
     elif rsi > 70:
-        score -= 2  # Overbought - avoid
+        score -= 2
     elif rsi > 60:
-        score -= 1  # Approaching overbought
+        score -= 1
     
     # MACD scoring
     if macd == "Bullish":
@@ -163,9 +163,9 @@ def generate_recommendation(symbol, avg_price, current_price, rsi, macd, trend):
         score -= 1
     
     # Price action scoring
-    if current_price < avg_price * 0.95:  # 5% below avg
+    if current_price < avg_price * 0.95:
         score += 1
-    elif current_price > avg_price * 1.10:  # 10% above avg
+    elif current_price > avg_price * 1.10:
         score -= 1
     
     # Generate recommendation
@@ -581,10 +581,11 @@ def generate_html_report(portfolio_data, allocations, report_time):
             <div class="summary-grid">
 """
     
-    for category, amount in category_allocations.items():
-        if amount > 0:
-            percent = (amount / total_recommended * 100) if total_recommended > 0 else 0
-            html += f"""
+    # Add ALL category allocations
+    for category in CATEGORIES.keys():
+        amount = category_allocations.get(category, 0)
+        percent = (amount / total_recommended * 100) if total_recommended > 0 else 0
+        html += f"""
                 <div class="summary-item">
                     <div class="label">{category}</div>
                     <div class="value">₹{amount:,.0f}</div>
