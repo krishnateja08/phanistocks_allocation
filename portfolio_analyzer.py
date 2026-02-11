@@ -65,7 +65,7 @@ class StockAnalyzer:
     def calculate_rsi(self, period=14):
         """Calculate Relative Strength Index"""
         if self.data is None or len(self.data) < period:
-            return None
+            return 0
         
         delta = self.data['Close'].diff()
         gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
@@ -73,12 +73,14 @@ class StockAnalyzer:
         
         rs = gain / loss
         rsi = 100 - (100 / (1 + rs))
-        return rsi.iloc[-1]
+        result = rsi.iloc[-1]
+        
+        return 0 if pd.isna(result) else result
     
     def calculate_macd(self):
         """Calculate MACD (Moving Average Convergence Divergence)"""
         if self.data is None or len(self.data) < 26:
-            return None, None, None
+            return 0, 0, 0
         
         exp1 = self.data['Close'].ewm(span=12, adjust=False).mean()
         exp2 = self.data['Close'].ewm(span=26, adjust=False).mean()
@@ -86,24 +88,39 @@ class StockAnalyzer:
         signal = macd.ewm(span=9, adjust=False).mean()
         histogram = macd - signal
         
-        return macd.iloc[-1], signal.iloc[-1], histogram.iloc[-1]
+        macd_val = macd.iloc[-1]
+        signal_val = signal.iloc[-1]
+        histogram_val = histogram.iloc[-1]
+        
+        # Convert NaN to 0
+        macd_val = 0 if pd.isna(macd_val) else macd_val
+        signal_val = 0 if pd.isna(signal_val) else signal_val
+        histogram_val = 0 if pd.isna(histogram_val) else histogram_val
+        
+        return macd_val, signal_val, histogram_val
     
     def calculate_moving_averages(self):
         """Calculate Simple Moving Averages"""
-        if self.data is None:
-            return None, None, None
+        if self.data is None or len(self.data) == 0:
+            return 0, 0, 0, 0
         
-        current_price = self.data['Close'].iloc[-1]
-        sma_20 = self.data['Close'].rolling(window=20).mean().iloc[-1] if len(self.data) >= 20 else None
-        sma_50 = self.data['Close'].rolling(window=50).mean().iloc[-1] if len(self.data) >= 50 else None
-        sma_200 = self.data['Close'].rolling(window=200).mean().iloc[-1] if len(self.data) >= 200 else None
+        current_price = self.data['Close'].iloc[-1] if len(self.data) > 0 else 0
+        sma_20 = self.data['Close'].rolling(window=20).mean().iloc[-1] if len(self.data) >= 20 else 0
+        sma_50 = self.data['Close'].rolling(window=50).mean().iloc[-1] if len(self.data) >= 50 else 0
+        sma_200 = self.data['Close'].rolling(window=200).mean().iloc[-1] if len(self.data) >= 200 else 0
+        
+        # Convert any NaN to 0
+        current_price = 0 if pd.isna(current_price) else current_price
+        sma_20 = 0 if pd.isna(sma_20) else sma_20
+        sma_50 = 0 if pd.isna(sma_50) else sma_50
+        sma_200 = 0 if pd.isna(sma_200) else sma_200
         
         return current_price, sma_20, sma_50, sma_200
     
     def calculate_bollinger_bands(self, period=20):
         """Calculate Bollinger Bands"""
         if self.data is None or len(self.data) < period:
-            return None, None, None
+            return 0, 0, 0
         
         sma = self.data['Close'].rolling(window=period).mean()
         std = self.data['Close'].rolling(window=period).std()
@@ -111,7 +128,16 @@ class StockAnalyzer:
         upper_band = sma + (std * 2)
         lower_band = sma - (std * 2)
         
-        return upper_band.iloc[-1], sma.iloc[-1], lower_band.iloc[-1]
+        upper = upper_band.iloc[-1]
+        middle = sma.iloc[-1]
+        lower = lower_band.iloc[-1]
+        
+        # Convert NaN to 0
+        upper = 0 if pd.isna(upper) else upper
+        middle = 0 if pd.isna(middle) else middle
+        lower = 0 if pd.isna(lower) else lower
+        
+        return upper, middle, lower
     
     def get_fundamental_data(self):
         """Extract fundamental data"""
@@ -143,7 +169,7 @@ class StockAnalyzer:
         
         # RSI Score (20 points)
         rsi = self.calculate_rsi()
-        if rsi:
+        if rsi and rsi > 0:
             if 30 <= rsi <= 70:
                 score += 20
             elif 70 < rsi <= 80:
@@ -153,7 +179,7 @@ class StockAnalyzer:
         
         # MACD Score (20 points)
         macd, signal, histogram = self.calculate_macd()
-        if macd and signal:
+        if macd is not None and signal is not None and histogram is not None:
             if histogram > 0:
                 score += 20
             elif histogram > -0.5:
@@ -161,19 +187,19 @@ class StockAnalyzer:
         
         # Moving Average Score (30 points)
         current, sma_20, sma_50, sma_200 = self.calculate_moving_averages()
-        if current and sma_20:
+        if current and sma_20 and current > 0 and sma_20 > 0:
             if current > sma_20:
                 score += 10
-        if current and sma_50:
+        if current and sma_50 and current > 0 and sma_50 > 0:
             if current > sma_50:
                 score += 10
-        if current and sma_200:
+        if current and sma_200 and current > 0 and sma_200 > 0:
             if current > sma_200:
                 score += 10
         
         # Bollinger Bands Score (15 points)
         upper, middle, lower = self.calculate_bollinger_bands()
-        if current and lower and upper:
+        if current and lower and upper and lower > 0 and upper > lower:
             band_position = (current - lower) / (upper - lower)
             if 0.2 <= band_position <= 0.5:
                 score += 15
@@ -181,15 +207,16 @@ class StockAnalyzer:
                 score += 10
         
         # Price Momentum (15 points)
-        if len(self.data) >= 30:
+        if self.data is not None and len(self.data) >= 30:
             price_change_30d = ((self.data['Close'].iloc[-1] - self.data['Close'].iloc[-30]) / 
                                self.data['Close'].iloc[-30] * 100)
-            if price_change_30d > 5:
-                score += 15
-            elif price_change_30d > 0:
-                score += 10
-            elif price_change_30d > -5:
-                score += 5
+            if not pd.isna(price_change_30d):
+                if price_change_30d > 5:
+                    score += 15
+                elif price_change_30d > 0:
+                    score += 10
+                elif price_change_30d > -5:
+                    score += 5
         
         return round(score, 2)
     
@@ -697,24 +724,38 @@ def generate_html_report(results, monthly_investment):
     results_sorted = sorted(results, key=lambda x: x['combined_score'], reverse=True)
     
     for r in results_sorted:
-        score_class = 'excellent' if r['combined_score'] >= 70 else 'good' if r['combined_score'] >= 55 else 'average' if r['combined_score'] >= 40 else 'poor'
+        # Safely handle None values
+        combined_score = r.get('combined_score', 0) or 0
+        tech_score = r.get('technical_score', 0) or 0
+        fund_score = r.get('fundamental_score', 0) or 0
+        alloc_pct = r.get('allocation_percent', 0) or 0
+        alloc_amt = r.get('allocation_amount', 0) or 0
+        current_price = r.get('current_price', 0) or 0
+        rsi = r.get('rsi', 0) or 0
+        macd = r.get('macd', 0) or 0
+        sma_20 = r.get('sma_20', 0) or 0
+        pe_ratio = r.get('pe_ratio', 0) or 0
+        roe = r.get('roe', 0) or 0
+        div_yield = r.get('dividend_yield', 0) or 0
+        
+        score_class = 'excellent' if combined_score >= 70 else 'good' if combined_score >= 55 else 'average' if combined_score >= 40 else 'poor'
         rec_class = r['recommendation'].lower().replace(' ', '-')
         
         # Technical indicators
         tech_info = f"""
         <div class="technical-indicators">
-            <div>RSI: {r.get('rsi', 0):.1f}</div>
-            <div>MACD: {r.get('macd', 0):.2f}</div>
-            <div>SMA20: ₹{r.get('sma_20', 0):.2f}</div>
+            <div>RSI: {rsi:.1f}</div>
+            <div>MACD: {macd:.2f}</div>
+            <div>SMA20: ₹{sma_20:.2f}</div>
         </div>
         """
         
         # Fundamental data
         fund_info = f"""
         <div class="fundamental-data">
-            <div>P/E: {r.get('pe_ratio', 0):.2f}</div>
-            <div>ROE: {r.get('roe', 0):.1f}%</div>
-            <div>Div Yield: {r.get('dividend_yield', 0):.2f}%</div>
+            <div>P/E: {pe_ratio:.2f}</div>
+            <div>ROE: {roe:.1f}%</div>
+            <div>Div Yield: {div_yield:.2f}%</div>
         </div>
         """
         
@@ -722,12 +763,12 @@ def generate_html_report(results, monthly_investment):
                         <tr>
                             <td class="ticker">{r['ticker']}</td>
                             <td><span class="recommendation {rec_class}">{r['recommendation']}</span></td>
-                            <td><span class="score {score_class}">{r['combined_score']:.1f}</span></td>
-                            <td>{r['technical_score']:.1f}</td>
-                            <td>{r['fundamental_score']:.1f}</td>
-                            <td>{r.get('allocation_percent', 0):.1f}%</td>
-                            <td class="allocation">₹{r.get('allocation_amount', 0):,.0f}</td>
-                            <td>₹{r.get('current_price', 0):.2f}</td>
+                            <td><span class="score {score_class}">{combined_score:.1f}</span></td>
+                            <td>{tech_score:.1f}</td>
+                            <td>{fund_score:.1f}</td>
+                            <td>{alloc_pct:.1f}%</td>
+                            <td class="allocation">₹{alloc_amt:,.0f}</td>
+                            <td>₹{current_price:.2f}</td>
                             <td>{tech_info}</td>
                             <td>{fund_info}</td>
                         </tr>
@@ -827,8 +868,16 @@ def main():
     print("=" * 60)
     
     for r in sorted(results, key=lambda x: x['combined_score'], reverse=True):
-        print(f"\n{r['ticker']:15} | {r['recommendation']:12} | Score: {r['combined_score']:5.1f} | Allocation: ₹{r.get('allocation_amount', 0):,.0f} ({r.get('allocation_percent', 0):.1f}%)")
-        print(f"                 Tech: {r['technical_score']:.1f} | Fund: {r['fundamental_score']:.1f} | Price: ₹{r.get('current_price', 0):.2f}")
+        # Handle None values safely
+        combined = r.get('combined_score', 0) or 0
+        tech = r.get('technical_score', 0) or 0
+        fund = r.get('fundamental_score', 0) or 0
+        alloc_amt = r.get('allocation_amount', 0) or 0
+        alloc_pct = r.get('allocation_percent', 0) or 0
+        price = r.get('current_price', 0) or 0
+        
+        print(f"\n{r['ticker']:15} | {r['recommendation']:12} | Score: {combined:5.1f} | Allocation: ₹{alloc_amt:,.0f} ({alloc_pct:.1f}%)")
+        print(f"                 Tech: {tech:.1f} | Fund: {fund:.1f} | Price: ₹{price:.2f}")
     
     print("\n" + "=" * 60)
     
