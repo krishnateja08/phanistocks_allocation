@@ -30,10 +30,17 @@ PORTFOLIO_STOCKS = [
 # EMAIL CONFIGURATION - FILL THESE IN TO ENABLE EMAIL DELIVERY
 EMAIL_CONFIG = {
     'enabled': False,  # Set to True to enable email sending
-    'recipient_email': "your.email@example.com",  # Your email address
-    'sender_email': "sender.email@gmail.com",  # Gmail account to send from
+    'recipient_email': "your.email@gmail.com",  # Your Gmail address (where you want to receive the report)
+    'sender_email': "sender.email@gmail.com",  # Gmail account to send from (can be same as recipient)
     'sender_password': "your-app-specific-password"  # Gmail App Password (not regular password)
 }
+
+# Note: Both sender and recipient should be Gmail addresses
+# You can use the SAME Gmail address for both sender and recipient
+# Example:
+# 'recipient_email': "myportfolio@gmail.com",  # You receive the report here
+# 'sender_email': "myportfolio@gmail.com",     # Same Gmail sends it
+# 'sender_password': "abcd efgh ijkl mnop"     # App Password from Gmail
 
 class StockAnalyzer:
     def __init__(self, ticker):
