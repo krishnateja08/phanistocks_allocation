@@ -2,7 +2,7 @@
 Stock Portfolio Analysis Script with Technical & Fundamental Analysis
 Author: Portfolio Manager
 Date: February 2026
-Version: 2.0 - Enhanced UI with IST timezone
+Version: 2.0 - Enhanced UI with IST timezone (Overwrite Mode)
 """
 
 import yfinance as yf
@@ -1095,17 +1095,19 @@ def main():
     github_url = f"https://{GITHUB_USERNAME}.github.io/{GITHUB_REPO}/"
     print(f"\n📌 GitHub Pages URL: {github_url}")
     
+    # FIXED: Use fixed filenames that will overwrite
     github_pages_html = generate_github_pages_html(results, MONTHLY_INVESTMENT, github_url)
     with open('index.html', 'w', encoding='utf-8') as f:
         f.write(github_pages_html)
-    print(f"✅ Enhanced GitHub Pages HTML generated: index.html")
+    print(f"✅ GitHub Pages HTML generated: index.html (overwrites existing)")
     
     email_html = generate_email_html(results, MONTHLY_INVESTMENT, github_url)
     
-    report_filename = f"portfolio_analysis_{ist_time.strftime('%Y%m%d_%H%M')}_IST.html"
+    # FIXED: Use fixed filename instead of timestamped
+    report_filename = "portfolio_analysis.html"
     with open(report_filename, 'w', encoding='utf-8') as f:
         f.write(email_html)
-    print(f"✅ Email HTML report generated: {report_filename}")
+    print(f"✅ Email HTML report generated: {report_filename} (overwrites existing)")
     
     json_data = {
         'generated_date_ist': ist_time.isoformat(),
@@ -1115,10 +1117,11 @@ def main():
         'stocks': results
     }
     
-    json_filename = f"portfolio_data_{ist_time.strftime('%Y%m%d_%H%M')}_IST.json"
+    # FIXED: Use fixed filename instead of timestamped
+    json_filename = "portfolio_data.json"
     with open(json_filename, 'w') as f:
         json.dump(json_data, f, indent=2)
-    print(f"✅ JSON data generated: {json_filename}")
+    print(f"✅ JSON data generated: {json_filename} (overwrites existing)")
     
     # Email handling (same logic as original)
     sender_email = os.environ.get('SENDER_EMAIL')
@@ -1162,6 +1165,11 @@ def main():
         print(f"{r['ticker']:15} | {r['recommendation']:12} | Score: {combined:5.1f} | ₹{alloc_amt:>10,.0f} ({alloc_pct:5.1f}%)")
     
     print("\n" + "=" * 80)
+    print("✅ Files Generated (will overwrite on next run):")
+    print(f"   - index.html")
+    print(f"   - portfolio_analysis.html")
+    print(f"   - portfolio_data.json")
+    print("=" * 80)
     
     return results
 
