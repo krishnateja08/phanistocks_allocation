@@ -9,25 +9,25 @@ from email.mime.base import MIMEBase
 from email import encoders
 import os
 
-# Portfolio Configuration
-PORTFOLIO = {
-    "BANKBEES.NS": 586.86,
-    "HDFCBANK.NS": 835.26,
-    "NXST-RR.NS": 162.52,
-    "EMBASSY-RR.NS": 442.78,
-    "BIRET-RR.NS": 334.91,
-    "MINDSPACE-RR.NS": 487.32,
-    "ITBEES.NS": 40.40,
-    "TECHM.NS": 1534.55,
-    "TCS.NS": 3177.00,
-    "INFY.NS": 1524.19,
-    "RELIANCE.NS": 1270.57,
-    "TMPV.NS": 365.53,
-    "NIFTYBEES.NS": 262.72,
-    "M&M.NS": 3174.53,
-    "GOLDBEES.NS": 92.91,
-    "SILVERBEES.NS": 112.65
-}
+# Portfolio Configuration - Just list the stocks to track
+PORTFOLIO_STOCKS = [
+    "BANKBEES.NS",
+    "HDFCBANK.NS",
+    "NXST-RR.NS",
+    "EMBASSY-RR.NS",
+    "BIRET-RR.NS",
+    "MINDSPACE-RR.NS",
+    "ITBEES.NS",
+    "TECHM.NS",
+    "TCS.NS",
+    "INFY.NS",
+    "RELIANCE.NS",
+    "TMPV.NS",
+    "NIFTYBEES.NS",
+    "M&M.NS",
+    "GOLDBEES.NS",
+    "SILVERBEES.NS"
+]
 
 MONTHLY_BUDGET = 60000
 CASH_RESERVE_PERCENT = 20
@@ -133,10 +133,8 @@ def get_technical_indicators(symbol):
         print(f"Error calculating indicators for {symbol}: {e}")
         return {'rsi': 50, 'macd': 'Neutral', 'trend': 'Neutral'}
 
-def generate_recommendation(symbol, avg_price, current_price, rsi, macd, trend):
+def generate_recommendation(symbol, current_price, rsi, macd, trend):
     """Generate buy/hold/avoid recommendation based on technical analysis"""
-    pnl_percent = ((current_price - avg_price) / avg_price) * 100
-    
     # Scoring system
     score = 0
     
@@ -160,12 +158,6 @@ def generate_recommendation(symbol, avg_price, current_price, rsi, macd, trend):
     if trend == "Uptrend":
         score += 1
     elif trend == "Downtrend":
-        score -= 1
-    
-    # Price action scoring
-    if current_price < avg_price * 0.95:
-        score += 1
-    elif current_price > avg_price * 1.10:
         score -= 1
     
     # Generate recommendation
@@ -229,7 +221,7 @@ def generate_html_report(portfolio_data, allocations, report_time):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio Investment Analysis - {report_time}</title>
+    <title>Portfolio Investment Recommendations - {report_time}</title>
     <style>
         * {{
             margin: 0;
@@ -246,26 +238,6 @@ def generate_html_report(portfolio_data, allocations, report_time):
         .container {{
             max-width: 1600px;
             margin: 0 auto;
-        }}
-        
-        .report-time {{
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 20px 30px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }}
-        
-        .report-time h2 {{
-            font-size: 24px;
-            margin-bottom: 8px;
-        }}
-        
-        .report-time p {{
-            font-size: 16px;
-            opacity: 0.9;
         }}
         
         .header {{
@@ -503,39 +475,6 @@ def generate_html_report(portfolio_data, allocations, report_time):
             line-height: 1.5;
         }}
         
-        .summary-box {{
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }}
-        
-        .summary-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }}
-        
-        .summary-item {{
-            background: rgba(255,255,255,0.2);
-            padding: 15px;
-            border-radius: 10px;
-        }}
-        
-        .summary-item .label {{
-            font-size: 14px;
-            opacity: 0.9;
-        }}
-        
-        .summary-item .value {{
-            font-size: 28px;
-            font-weight: bold;
-            margin-top: 5px;
-        }}
-        
         @media (max-width: 768px) {{
             .stocks-grid {{
                 grid-template-columns: 1fr;
@@ -549,16 +488,10 @@ def generate_html_report(portfolio_data, allocations, report_time):
 </head>
 <body>
     <div class="container">
-        <!-- Report Time -->
-        <div class="report-time">
-            <h2>📅 Portfolio Analysis Report</h2>
-            <p>Generated on: {report_time}</p>
-        </div>
-        
         <!-- Header -->
         <div class="header">
-            <h1>📊 Portfolio Investment Analysis</h1>
-            <p style="opacity: 0.9; margin-top: 10px;">Based on Technical & Fundamental Analysis</p>
+            <h1>📊 Portfolio Investment Recommendations</h1>
+            <p style="opacity: 0.9; margin-top: 10px;">Based on Technical Analysis - {report_time}</p>
             <div class="header-info">
                 <div class="info-box">
                     <div class="label">Monthly Budget</div>
@@ -566,34 +499,12 @@ def generate_html_report(portfolio_data, allocations, report_time):
                 </div>
                 <div class="info-box">
                     <div class="label">Recommended Investment</div>
-                    <div class="value">₹{total_recommended:,.2f}</div>
+                    <div class="value">₹{total_recommended:,.0f}</div>
                 </div>
                 <div class="info-box">
                     <div class="label">Keep as Cash</div>
-                    <div class="value">₹{cash_reserve:,.2f} ({CASH_RESERVE_PERCENT}%)</div>
+                    <div class="value">₹{cash_reserve:,.0f} ({CASH_RESERVE_PERCENT}%)</div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Investment Summary -->
-        <div class="summary-box">
-            <h2 style="margin-bottom: 15px;">📈 Investment Allocation Summary</h2>
-            <div class="summary-grid">
-"""
-    
-    # Add ALL category allocations
-    for category in CATEGORIES.keys():
-        amount = category_allocations.get(category, 0)
-        percent = (amount / total_recommended * 100) if total_recommended > 0 else 0
-        html += f"""
-                <div class="summary-item">
-                    <div class="label">{category}</div>
-                    <div class="value">₹{amount:,.0f}</div>
-                    <div style="margin-top: 5px; font-size: 14px;">{percent:.1f}% allocation</div>
-                </div>
-"""
-    
-    html += """
             </div>
         </div>
 """
@@ -606,13 +517,17 @@ def generate_html_report(portfolio_data, allocations, report_time):
             continue
         
         cat_allocation = category_allocations.get(category, 0)
+        cat_percent = (cat_allocation / total_recommended * 100) if total_recommended > 0 else 0
+        
+        # Category icon
+        category_icon = "🏦" if "Banking" in category else ("💻" if "IT" in category else ("🏢" if "REIT" in category else "📊"))
         
         html += f"""
         <!-- {category} -->
         <div class="category-section">
             <div class="category-header">
-                <div class="category-title">{category}</div>
-                <div class="category-allocation">Allocate: ₹{cat_allocation:,.0f}</div>
+                <div class="category-title">{category_icon} {category}</div>
+                <div class="category-allocation">Allocate: ₹{cat_allocation:,.0f} ({cat_percent:.0f}%)</div>
             </div>
             <div class="stocks-grid">
 """
@@ -633,20 +548,20 @@ def generate_html_report(portfolio_data, allocations, report_time):
                     </div>
                     <div class="stock-details">
                         <div class="detail-item">
-                            <span class="detail-label">Your Avg Price</span>
-                            <span class="detail-value">₹{stock['avg_price']:,.2f}</span>
-                        </div>
-                        <div class="detail-item">
                             <span class="detail-label">Current Price</span>
-                            <span class="detail-value {'price-positive' if stock['pnl_percent'] >= 0 else 'price-negative'}">₹{stock['current_price']:,.2f}</span>
+                            <span class="detail-value">₹{stock['current_price']:,.2f}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Your P&L</span>
-                            <span class="detail-value {'price-positive' if stock['pnl_percent'] >= 0 else 'price-negative'}">{stock['pnl_percent']:+.2f}%</span>
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹{stock['week_52_high']:,.0f}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">52W Range</span>
-                            <span class="detail-value">₹{stock['week_52_low']:,.0f}-₹{stock['week_52_high']:,.0f}</span>
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹{stock['week_52_low']:,.0f}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">{stock['dividend_yield']:.1f}%</span>
                         </div>
                     </div>
                     <div class="technical-signals">
@@ -688,17 +603,18 @@ def generate_html_report(portfolio_data, allocations, report_time):
             <h3 style="color: #856404; margin-bottom: 10px;">⚠️ Important Risk Disclaimers</h3>
             <ul style="color: #856404; line-height: 1.8; margin-left: 20px;">
                 <li><strong>Market Volatility:</strong> Markets can be volatile - expect price swings</li>
-                <li><strong>Diversification:</strong> Don't invest all at once - spread over 2-4 weeks</li>
-                <li><strong>Stop Loss:</strong> Maintain 8-10% stop loss from purchase price</li>
-                <li><strong>Review Frequency:</strong> Reassess weekly based on market movements</li>
-                <li><strong>Cash Reserve:</strong> Keep ₹{cash_reserve:,.0f} ({CASH_RESERVE_PERCENT}%) in cash for opportunities</li>
+                <li><strong>Diversification:</strong> Don't invest all ₹{total_recommended:,.0f} in one day - spread over 2-3 weeks</li>
+                <li><strong>Stop Loss:</strong> For individual stocks, maintain 8-10% stop loss from purchase price</li>
+                <li><strong>Review Frequency:</strong> Reassess this plan weekly based on market movements</li>
+                <li><strong>Cash Reserve:</strong> Keep ₹{cash_reserve:,.0f} ({CASH_RESERVE_PERCENT}%) in cash for emergency opportunities or averaging down</li>
                 <li><strong>Not Financial Advice:</strong> This is technical analysis only. Consult your financial advisor</li>
             </ul>
         </div>
         
         <!-- Footer -->
         <div style="text-align: center; margin-top: 30px; padding: 20px; color: #666; font-style: italic;">
-            <p><strong>Remember:</strong> "The stock market is a device for transferring money from the impatient to the patient." - Warren Buffett</p>
+            <p>Analysis Date: {report_time} | Data refreshes every trading day</p>
+            <p style="margin-top: 10px;"><strong>Remember:</strong> "The stock market is a device for transferring money from the impatient to the patient." - Warren Buffett</p>
         </div>
     </div>
 </body>
@@ -707,48 +623,63 @@ def generate_html_report(portfolio_data, allocations, report_time):
     
     return html
 
-def generate_analysis_text(symbol, avg_price, current_price, rsi, macd, trend, recommendation):
+def generate_analysis_text(symbol, current_price, rsi, macd, trend, recommendation):
     """Generate analysis text for each stock"""
-    pnl_percent = ((current_price - avg_price) / avg_price) * 100
+    analysis = f"<strong>📊 Analysis:</strong> "
     
-    analysis = f"<strong>📊 Technical Analysis:</strong> "
+    # Get specific analysis based on stock symbol
+    if symbol == "BANKBEES.NS":
+        analysis += "Banking sector ETF with exposure to top banks. Stable performance with moderate growth potential. "
+    elif symbol == "HDFCBANK.NS":
+        analysis += "Leading private bank with strong fundamentals. Consistent performer in the banking sector. "
+    elif symbol in ["NXST-RR.NS", "EMBASSY-RR.NS", "BIRET-RR.NS", "MINDSPACE-RR.NS"]:
+        analysis += "Quality REIT with stable rental income. Good for passive income seekers. "
+    elif symbol == "ITBEES.NS":
+        analysis += "IT sector ETF providing diversified exposure to technology stocks. "
+    elif symbol in ["TECHM.NS", "TCS.NS", "INFY.NS"]:
+        analysis += "Leading IT services company with global presence. Solid fundamentals. "
+    elif symbol == "RELIANCE.NS":
+        analysis += "Diversified conglomerate with presence in energy, retail, and telecom. "
+    elif symbol == "NIFTYBEES.NS":
+        analysis += "Nifty 50 ETF - Broad market exposure. Best for long-term wealth creation. "
+    elif symbol == "GOLDBEES.NS":
+        analysis += "Gold ETF - Safe haven asset. Good hedge against market volatility. "
+    elif symbol == "SILVERBEES.NS":
+        analysis += "Silver ETF - Industrial and precious metal exposure. "
+    elif symbol == "M&M.NS":
+        analysis += "Leading auto and farm equipment manufacturer. Strong rural demand. "
+    elif symbol == "TMPV.NS":
+        analysis += "Momentum-based ETF tracking high-performing stocks. "
+    else:
+        analysis += "Analyzing technical indicators for investment decision. "
     
     # RSI analysis
     if rsi < 30:
-        analysis += f"RSI at {rsi:.0f} shows oversold condition - strong reversal potential. "
+        analysis += f"RSI at {rsi:.0f} shows oversold - reversal potential. "
     elif rsi < 40:
         analysis += f"RSI at {rsi:.0f} approaching oversold levels. "
     elif rsi > 70:
-        analysis += f"RSI at {rsi:.0f} indicates overbought - caution advised. "
+        analysis += f"RSI at {rsi:.0f} overbought - caution advised. "
     elif rsi > 60:
-        analysis += f"RSI at {rsi:.0f} showing momentum strength. "
+        analysis += f"RSI at {rsi:.0f} showing strength. "
     else:
-        analysis += f"RSI at {rsi:.0f} in neutral zone. "
+        analysis += f"RSI at {rsi:.0f} neutral. "
     
-    # MACD analysis
-    analysis += f"MACD is {macd.lower()}. "
-    
-    # Trend analysis
-    analysis += f"Current trend: {trend}. "
-    
-    # P&L context
-    if pnl_percent > 0:
-        analysis += f"Currently in profit at +{pnl_percent:.2f}%. "
-    else:
-        analysis += f"Currently at {pnl_percent:.2f}%. "
+    # MACD and trend
+    analysis += f"MACD {macd.lower()}, trend: {trend}. "
     
     analysis += "<br><br><strong>💡 Recommendation:</strong> "
     
     # Recommendation text
     if recommendation == "BUY":
         if rsi < 35:
-            analysis += "Strong buy opportunity due to oversold conditions. Consider adding to position."
+            analysis += "Strong buy opportunity. Consider adding to position."
         else:
-            analysis += "Technical indicators support accumulation. Good entry point for long-term investors."
+            analysis += "Technical indicators support accumulation. Good entry point."
     elif recommendation == "HOLD":
-        analysis += "Maintain current position. Wait for clearer technical signals before adding. Monitor closely."
+        analysis += "Maintain watch. Wait for clearer signals before adding."
     else:  # AVOID
-        analysis += "Avoid fresh investment now. Technical indicators suggest weakness. Wait for better entry point."
+        analysis += "Avoid fresh investment. Wait for better entry point."
     
     return analysis
 
@@ -791,7 +722,7 @@ def main():
     # Fetch data for all stocks
     portfolio_data = []
     
-    for symbol, avg_price in PORTFOLIO.items():
+    for symbol in PORTFOLIO_STOCKS:
         print(f"📊 Fetching data for {symbol}...")
         
         stock_data = get_stock_data(symbol)
@@ -806,14 +737,12 @@ def main():
         trend = indicators['trend']
         
         recommendation, rec_class = generate_recommendation(
-            symbol, avg_price, current_price, rsi, macd, trend
+            symbol, current_price, rsi, macd, trend
         )
         
         analysis = generate_analysis_text(
-            symbol, avg_price, current_price, rsi, macd, trend, recommendation
+            symbol, current_price, rsi, macd, trend, recommendation
         )
-        
-        pnl_percent = ((current_price - avg_price) / avg_price) * 100
         
         # Clean display name
         display_name = symbol.replace('.NS', '').replace('-RR', ' REIT')
@@ -821,11 +750,10 @@ def main():
         portfolio_data.append({
             'symbol': symbol,
             'display_name': display_name,
-            'avg_price': avg_price,
             'current_price': current_price,
-            'pnl_percent': pnl_percent,
             'week_52_high': stock_data['week_52_high'],
             'week_52_low': stock_data['week_52_low'],
+            'dividend_yield': stock_data['dividend_yield'],
             'rsi': rsi,
             'macd': macd,
             'trend': trend,
@@ -841,13 +769,13 @@ def main():
     html_report = generate_html_report(portfolio_data, allocations, report_time)
     
     # Save to file
-    output_file = 'index.html'
+    output_file = 'portfolio_recommendations.html'
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html_report)
     
     print(f"✅ Report generated: {output_file}")
     
-    # Send email (configure these in GitHub Secrets)
+    # Send email (configure these in GitHub Secrets or environment variables)
     sender_email = os.environ.get('SENDER_EMAIL')
     sender_password = os.environ.get('SENDER_PASSWORD')
     recipient_email = os.environ.get('RECIPIENT_EMAIL')
