@@ -2,12 +2,14 @@
 Stock Portfolio Analysis Script with Technical & Fundamental Analysis
 Author: Portfolio Manager
 Date: February 2026
+Version: 2.0 - Enhanced UI with IST timezone
 """
 
 import yfinance as yf
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
+import pytz  # For timezone conversion
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -28,28 +30,23 @@ PORTFOLIO_STOCKS = [
 ]
 
 # GITHUB PAGES CONFIGURATION
-# Set your GitHub username and repository name for GitHub Pages link
 GITHUB_USERNAME = os.environ.get('GITHUB_REPOSITORY', '').split('/')[0] if '/' in os.environ.get('GITHUB_REPOSITORY', '') else "your-username"
 GITHUB_REPO = os.environ.get('GITHUB_REPOSITORY', '').split('/')[1] if '/' in os.environ.get('GITHUB_REPOSITORY', '') else "your-repo"
 
 # EMAIL CONFIGURATION
-# Priority: Environment variables (for GitHub Actions) > EMAIL_CONFIG (for local runs)
-
 EMAIL_CONFIG = {
-    'enabled': False,  # Set to True to enable email sending (for local runs)
-    'recipient_email': "your.email@gmail.com",  # Your Gmail address (where you want to receive the report)
-    'sender_email': "sender.email@gmail.com",  # Gmail account to send from (can be same as recipient)
-    'sender_password': "your-app-specific-password"  # Gmail App Password (not regular password)
+    'enabled': False,
+    'recipient_email': "your.email@gmail.com",
+    'sender_email': "sender.email@gmail.com",
+    'sender_password': "your-app-specific-password"
 }
 
-# For GitHub Actions: The script will automatically read from environment variables:
-# - SENDER_EMAIL
-# - SENDER_PASSWORD  
-# - RECIPIENT_EMAIL
-# These are set as GitHub Secrets and passed via the .yml workflow file
 
-# Note: Both sender and recipient should be Gmail addresses
-# You can use the SAME Gmail address for both sender and recipient
+def get_ist_time():
+    """Get current time in IST timezone"""
+    ist = pytz.timezone('Asia/Kolkata')
+    return datetime.now(ist)
+
 
 class StockAnalyzer:
     def __init__(self, ticker):
@@ -69,7 +66,7 @@ class StockAnalyzer:
                 if self.data is None or len(self.data) == 0:
                     print(f"  ⚠️ No data returned for {self.ticker}")
                     if attempt < max_retries - 1:
-                        time.sleep(2 ** attempt)  # Exponential backoff
+                        time.sleep(2 ** attempt)
                         continue
                     return False
                 
@@ -117,7 +114,6 @@ class StockAnalyzer:
         signal_val = signal.iloc[-1]
         histogram_val = histogram.iloc[-1]
         
-        # Convert NaN to 0
         macd_val = 0 if pd.isna(macd_val) else macd_val
         signal_val = 0 if pd.isna(signal_val) else signal_val
         histogram_val = 0 if pd.isna(histogram_val) else histogram_val
@@ -134,7 +130,6 @@ class StockAnalyzer:
         sma_50 = self.data['Close'].rolling(window=50).mean().iloc[-1] if len(self.data) >= 50 else 0
         sma_200 = self.data['Close'].rolling(window=200).mean().iloc[-1] if len(self.data) >= 200 else 0
         
-        # Convert any NaN to 0
         current_price = 0 if pd.isna(current_price) else current_price
         sma_20 = 0 if pd.isna(sma_20) else sma_20
         sma_50 = 0 if pd.isna(sma_50) else sma_50
@@ -157,7 +152,6 @@ class StockAnalyzer:
         middle = sma.iloc[-1]
         lower = lower_band.iloc[-1]
         
-        # Convert NaN to 0
         upper = 0 if pd.isna(upper) else upper
         middle = 0 if pd.isna(middle) else middle
         lower = 0 if pd.isna(lower) else lower
@@ -192,7 +186,6 @@ class StockAnalyzer:
         score = 0
         max_score = 100
         
-        # RSI Score (20 points)
         rsi = self.calculate_rsi()
         if rsi and rsi > 0:
             if 30 <= rsi <= 70:
@@ -202,7 +195,6 @@ class StockAnalyzer:
             elif 20 <= rsi < 30:
                 score += 15
         
-        # MACD Score (20 points)
         macd, signal, histogram = self.calculate_macd()
         if macd is not None and signal is not None and histogram is not None:
             if histogram > 0:
@@ -210,7 +202,6 @@ class StockAnalyzer:
             elif histogram > -0.5:
                 score += 10
         
-        # Moving Average Score (30 points)
         current, sma_20, sma_50, sma_200 = self.calculate_moving_averages()
         if current and sma_20 and current > 0 and sma_20 > 0:
             if current > sma_20:
@@ -222,7 +213,6 @@ class StockAnalyzer:
             if current > sma_200:
                 score += 10
         
-        # Bollinger Bands Score (15 points)
         upper, middle, lower = self.calculate_bollinger_bands()
         if current and lower and upper and lower > 0 and upper > lower:
             band_position = (current - lower) / (upper - lower)
@@ -231,7 +221,6 @@ class StockAnalyzer:
             elif 0.5 < band_position <= 0.8:
                 score += 10
         
-        # Price Momentum (15 points)
         if self.data is not None and len(self.data) >= 30:
             price_change_30d = ((self.data['Close'].iloc[-1] - self.data['Close'].iloc[-30]) / 
                                self.data['Close'].iloc[-30] * 100)
@@ -250,7 +239,6 @@ class StockAnalyzer:
         score = 0
         fundamentals = self.get_fundamental_data()
         
-        # P/E Ratio Score (20 points)
         pe = fundamentals.get('pe_ratio', 0)
         if 0 < pe < 15:
             score += 20
@@ -259,7 +247,6 @@ class StockAnalyzer:
         elif 25 <= pe < 35:
             score += 10
         
-        # Dividend Yield Score (15 points)
         div_yield = fundamentals.get('dividend_yield', 0)
         if div_yield > 3:
             score += 15
@@ -268,7 +255,6 @@ class StockAnalyzer:
         elif div_yield > 0.5:
             score += 5
         
-        # ROE Score (20 points)
         roe = fundamentals.get('roe', 0)
         if roe > 20:
             score += 20
@@ -277,7 +263,6 @@ class StockAnalyzer:
         elif roe > 10:
             score += 10
         
-        # Profit Margin Score (15 points)
         profit_margin = fundamentals.get('profit_margin', 0)
         if profit_margin > 20:
             score += 15
@@ -286,7 +271,6 @@ class StockAnalyzer:
         elif profit_margin > 5:
             score += 5
         
-        # Revenue Growth Score (15 points)
         revenue_growth = fundamentals.get('revenue_growth', 0)
         if revenue_growth > 20:
             score += 15
@@ -295,7 +279,6 @@ class StockAnalyzer:
         elif revenue_growth > 0:
             score += 5
         
-        # Debt to Equity Score (15 points)
         debt_to_equity = fundamentals.get('debt_to_equity', 0)
         if 0 <= debt_to_equity < 0.5:
             score += 15
@@ -393,7 +376,6 @@ def analyze_portfolio(stocks):
             })
             failed += 1
         
-        # Small delay to avoid rate limiting
         if idx < len(stocks):
             time.sleep(1)
     
@@ -412,18 +394,15 @@ def analyze_portfolio(stocks):
 
 def calculate_allocation(results, monthly_investment):
     """Calculate investment allocation based on scores"""
-    # Filter out data errors and poor performers
     valid_stocks = [r for r in results if r['combined_score'] >= 40]
     
     if not valid_stocks:
-        # If no good stocks, distribute equally among all
         equal_allocation = monthly_investment / len(results)
         for result in results:
             result['allocation_amount'] = equal_allocation
             result['allocation_percent'] = (equal_allocation / monthly_investment) * 100
         return results
     
-    # Calculate weighted allocation based on combined score
     total_score = sum(r['combined_score'] for r in valid_stocks)
     
     for result in results:
@@ -439,21 +418,27 @@ def calculate_allocation(results, monthly_investment):
 
 
 def generate_github_pages_html(results, monthly_investment, github_url=""):
-    """Generate index.html for GitHub Pages"""
+    """Generate enhanced index.html for GitHub Pages with IST timezone"""
     
-    # Calculate totals
+    ist_time = get_ist_time()
     total_allocation = sum(r['allocation_amount'] for r in results)
     strong_buy = len([r for r in results if r['recommendation'] == 'STRONG BUY'])
     buy = len([r for r in results if r['recommendation'] == 'BUY'])
     hold = len([r for r in results if r['recommendation'] == 'HOLD'])
+    reduce = len([r for r in results if r['recommendation'] == 'REDUCE'])
+    sell = len([r for r in results if r['recommendation'] == 'SELL'])
+    
+    # Calculate portfolio health metrics
+    avg_score = sum(r['combined_score'] for r in results)/len(results)
+    top_performers = [r for r in results if r['combined_score'] >= 70]
     
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio Analysis Report - {datetime.now().strftime('%B %d, %Y')}</title>
-    <meta name="description" content="Stock Portfolio Analysis with Technical and Fundamental Indicators">
+    <title>Portfolio Analysis - {ist_time.strftime('%d %B %Y')}</title>
+    <meta name="description" content="Comprehensive Stock Portfolio Analysis with Technical and Fundamental Indicators">
     <style>
         * {{
             margin: 0;
@@ -462,7 +447,7 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
         }}
         
         body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 20px;
             line-height: 1.6;
@@ -470,7 +455,7 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
         }}
         
         .container {{
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -478,110 +463,244 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
             overflow: hidden;
         }}
         
+        /* Enhanced Header with IST Time */
         .header {{
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
-            padding: 40px;
+            padding: 50px 40px 40px 40px;
             text-align: center;
+            position: relative;
         }}
         
         .header h1 {{
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 3em;
+            margin-bottom: 15px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: 700;
         }}
         
-        .header .date {{
-            font-size: 1.2em;
-            opacity: 0.9;
+        .header .subtitle {{
+            font-size: 1.3em;
+            opacity: 0.95;
+            margin-bottom: 10px;
+            font-weight: 300;
         }}
         
-        .header .live-badge {{
-            display: inline-block;
-            background: #00a86b;
-            padding: 8px 20px;
-            border-radius: 20px;
-            margin-top: 15px;
-            font-size: 0.9em;
-            font-weight: bold;
+        .ist-time-badge {{
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.2);
+            padding: 12px 25px;
+            border-radius: 30px;
+            margin-top: 20px;
+            font-size: 1.1em;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+        }}
+        
+        .ist-time-badge .clock-icon {{
+            font-size: 1.3em;
             animation: pulse 2s infinite;
         }}
         
         @keyframes pulse {{
-            0%, 100% {{ opacity: 1; }}
-            50% {{ opacity: 0.7; }}
+            0%, 100% {{ transform: scale(1); }}
+            50% {{ transform: scale(1.1); }}
         }}
         
-        .summary {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+        /* Quick Stats Dashboard */
+        .quick-stats {{
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             padding: 40px;
-            background: #f8f9fa;
+            border-bottom: 3px solid #dee2e6;
         }}
         
-        .summary-card {{
+        .stats-title {{
+            text-align: center;
+            font-size: 1.8em;
+            color: #1e3c72;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }}
+        
+        .stats-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }}
+        
+        .stat-card {{
             background: white;
-            padding: 25px;
+            padding: 30px 25px;
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             text-align: center;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            border-left: 5px solid #1e3c72;
         }}
         
-        .summary-card:hover {{
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        .stat-card:hover {{
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
         }}
         
-        .summary-card h3 {{
-            color: #666;
-            font-size: 0.9em;
+        .stat-card.highlight {{
+            border-left-color: #00a86b;
+            background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%);
+        }}
+        
+        .stat-card .icon {{
+            font-size: 2.5em;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }}
+        
+        .stat-card h3 {{
+            color: #6c757d;
+            font-size: 0.95em;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
+            letter-spacing: 1.2px;
+            margin-bottom: 12px;
+            font-weight: 600;
         }}
         
-        .summary-card .value {{
-            font-size: 2em;
-            font-weight: bold;
+        .stat-card .value {{
+            font-size: 2.3em;
+            font-weight: 700;
             color: #1e3c72;
+            line-height: 1.2;
         }}
         
-        .recommendation-summary {{
+        .stat-card .subvalue {{
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 8px;
+        }}
+        
+        /* Portfolio Health Indicator */
+        .health-indicator {{
+            text-align: center;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            margin-top: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }}
+        
+        .health-title {{
+            font-size: 1.1em;
+            color: #6c757d;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }}
+        
+        .health-bar {{
+            width: 100%;
+            height: 35px;
+            background: #e9ecef;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }}
+        
+        .health-fill {{
+            height: 100%;
+            background: linear-gradient(90deg, #00a86b 0%, #4caf50 50%, #8bc34a 100%);
+            border-radius: 20px;
+            transition: width 1.5s ease;
             display: flex;
-            justify-content: space-around;
-            padding: 30px 40px;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1em;
+        }}
+        
+        /* Recommendation Breakdown */
+        .recommendation-summary {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            padding: 35px 40px;
             background: white;
             border-bottom: 2px solid #eee;
-            flex-wrap: wrap;
         }}
         
         .rec-item {{
             text-align: center;
-            padding: 10px;
+            padding: 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }}
+        
+        .rec-item:hover {{
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }}
         
         .rec-item .count {{
-            font-size: 2em;
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-size: 3em;
+            font-weight: 800;
+            margin-bottom: 8px;
+            line-height: 1;
         }}
         
-        .rec-item.strong-buy .count {{ color: #00a86b; }}
-        .rec-item.buy .count {{ color: #4caf50; }}
-        .rec-item.hold .count {{ color: #ff9800; }}
+        .rec-item .label {{
+            font-size: 1em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
         
+        .rec-item.strong-buy {{
+            background: linear-gradient(135deg, #00a86b 0%, #00d084 100%);
+            color: white;
+        }}
+        
+        .rec-item.buy {{
+            background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+            color: white;
+        }}
+        
+        .rec-item.hold {{
+            background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+            color: white;
+        }}
+        
+        .rec-item.reduce {{
+            background: linear-gradient(135deg, #ff5722 0%, #ff7043 100%);
+            color: white;
+        }}
+        
+        .rec-item.sell {{
+            background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
+            color: white;
+        }}
+        
+        /* Enhanced Table */
         .table-container {{
             padding: 40px;
             overflow-x: auto;
+        }}
+        
+        .table-title {{
+            font-size: 1.8em;
+            color: #1e3c72;
+            margin-bottom: 25px;
+            font-weight: 700;
+            text-align: center;
         }}
         
         table {{
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border-radius: 10px;
+            border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }}
@@ -592,17 +711,21 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
         }}
         
         th {{
-            padding: 15px;
+            padding: 18px 15px;
             text-align: left;
             font-weight: 600;
-            font-size: 0.9em;
+            font-size: 0.95em;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
         }}
         
         td {{
-            padding: 15px;
-            border-bottom: 1px solid #eee;
+            padding: 18px 15px;
+            border-bottom: 1px solid #f1f3f5;
+        }}
+        
+        tbody tr {{
+            transition: background 0.2s ease;
         }}
         
         tbody tr:hover {{
@@ -610,18 +733,19 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
         }}
         
         .ticker {{
-            font-weight: bold;
+            font-weight: 700;
             color: #1e3c72;
-            font-size: 1.1em;
+            font-size: 1.15em;
         }}
         
         .recommendation {{
             display: inline-block;
-            padding: 5px 15px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 0.85em;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }}
         
         .recommendation.strong-buy {{
@@ -650,8 +774,8 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
         }}
         
         .score {{
-            font-weight: bold;
-            font-size: 1.1em;
+            font-weight: 700;
+            font-size: 1.15em;
         }}
         
         .score.excellent {{ color: #00a86b; }}
@@ -660,159 +784,150 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
         .score.poor {{ color: #f44336; }}
         
         .allocation {{
-            font-weight: bold;
+            font-weight: 700;
             color: #1e3c72;
-        }}
-        
-        .footer {{
-            background: #f8f9fa;
-            padding: 30px 40px;
-            text-align: center;
-            color: #666;
-            font-size: 0.9em;
-            border-top: 2px solid #eee;
-        }}
-        
-        .disclaimer {{
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 20px;
-            margin: 20px 40px;
-            border-radius: 5px;
-        }}
-        
-        .disclaimer h4 {{
-            color: #856404;
-            margin-bottom: 10px;
-        }}
-        
-        .disclaimer p {{
-            color: #856404;
-            line-height: 1.6;
+            font-size: 1.05em;
         }}
         
         .technical-indicators {{
             background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 0.85em;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.88em;
         }}
         
         .fundamental-data {{
-            font-size: 0.85em;
-            color: #666;
+            font-size: 0.88em;
+            color: #495057;
         }}
         
-        .github-link {{
-            text-align: center;
-            padding: 20px 40px;
-            background: #e8f4f8;
-            border-bottom: 2px solid #bee5eb;
-        }}
-        
-        .github-link a {{
-            color: #1e3c72;
-            text-decoration: none;
-            font-size: 1.1em;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 20px;
+        .disclaimer {{
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 25px;
+            margin: 30px 40px;
             border-radius: 8px;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
         }}
         
-        .github-link a:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        .disclaimer h4 {{
+            color: #856404;
+            margin-bottom: 12px;
+            font-size: 1.2em;
         }}
         
-        .github-icon {{
-            width: 24px;
-            height: 24px;
+        .disclaimer p {{
+            color: #856404;
+            line-height: 1.8;
+        }}
+        
+        .footer {{
+            background: #f8f9fa;
+            padding: 35px 40px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.95em;
+            border-top: 3px solid #dee2e6;
         }}
         
         @media (max-width: 768px) {{
             .header h1 {{
-                font-size: 1.8em;
+                font-size: 2em;
             }}
             
-            .summary {{
+            .stats-grid {{
                 grid-template-columns: 1fr;
             }}
             
-            .table-container {{
-                padding: 20px;
-            }}
-            
             table {{
-                font-size: 0.9em;
-            }}
-            
-            th, td {{
-                padding: 10px;
+                font-size: 0.85em;
             }}
         }}
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Enhanced Header -->
         <div class="header">
-            <h1>📊 Portfolio Analysis Report</h1>
-            <div class="date">Generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')}</div>
-            <div class="live-badge">🔴 LIVE ON GITHUB PAGES</div>
-        </div>"""
-    
-    if github_url:
-        html += f"""
-        <div class="github-link">
-            <a href="{github_url}" target="_blank">
-                <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-                View on GitHub Pages: {github_url.replace('https://', '')}
-            </a>
-        </div>"""
-    
-    html += f"""
-        <div class="summary">
-            <div class="summary-card">
-                <h3>Monthly Investment</h3>
-                <div class="value">₹{monthly_investment:,.0f}</div>
-            </div>
-            <div class="summary-card">
-                <h3>Total Stocks</h3>
-                <div class="value">{len(results)}</div>
-            </div>
-            <div class="summary-card">
-                <h3>Avg Combined Score</h3>
-                <div class="value">{sum(r['combined_score'] for r in results)/len(results):.1f}</div>
-            </div>
-            <div class="summary-card">
-                <h3>Allocated Amount</h3>
-                <div class="value">₹{total_allocation:,.0f}</div>
+            <h1>📊 Portfolio Analysis Dashboard</h1>
+            <div class="subtitle">Technical & Fundamental Analysis Report</div>
+            <div class="ist-time-badge">
+                <span class="clock-icon">🕐</span>
+                <span>Generated: {ist_time.strftime('%d %B %Y')} at {ist_time.strftime('%I:%M %p IST')}</span>
             </div>
         </div>
         
+        <!-- Quick Stats Dashboard -->
+        <div class="quick-stats">
+            <h2 class="stats-title">📈 Portfolio Overview</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card highlight">
+                    <div class="icon">💰</div>
+                    <h3>Monthly Investment</h3>
+                    <div class="value">₹{monthly_investment:,}</div>
+                    <div class="subvalue">Allocated: ₹{total_allocation:,.0f}</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="icon">📊</div>
+                    <h3>Total Stocks</h3>
+                    <div class="value">{len(results)}</div>
+                    <div class="subvalue">{len(top_performers)} top performers</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="icon">⭐</div>
+                    <h3>Avg Score</h3>
+                    <div class="value">{avg_score:.1f}</div>
+                    <div class="subvalue">Portfolio Health</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="icon">🎯</div>
+                    <h3>Strong Buys</h3>
+                    <div class="value">{strong_buy}</div>
+                    <div class="subvalue">Best opportunities</div>
+                </div>
+            </div>
+            
+            <!-- Portfolio Health Bar -->
+            <div class="health-indicator">
+                <div class="health-title">Overall Portfolio Health Score</div>
+                <div class="health-bar">
+                    <div class="health-fill" style="width: {avg_score}%;">
+                        {avg_score:.1f}%
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recommendation Breakdown -->
         <div class="recommendation-summary">
             <div class="rec-item strong-buy">
                 <div class="count">{strong_buy}</div>
-                <div>Strong Buy</div>
+                <div class="label">Strong Buy</div>
             </div>
             <div class="rec-item buy">
                 <div class="count">{buy}</div>
-                <div>Buy</div>
+                <div class="label">Buy</div>
             </div>
             <div class="rec-item hold">
                 <div class="count">{hold}</div>
-                <div>Hold</div>
+                <div class="label">Hold</div>
+            </div>
+            <div class="rec-item reduce">
+                <div class="count">{reduce}</div>
+                <div class="label">Reduce</div>
+            </div>
+            <div class="rec-item sell">
+                <div class="count">{sell}</div>
+                <div class="label">Sell</div>
             </div>
         </div>
         
+        <!-- Detailed Table -->
         <div class="table-container">
+            <h2 class="table-title">📋 Detailed Stock Analysis</h2>
             <table>
                 <thead>
                     <tr>
@@ -831,11 +946,9 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
                 <tbody>
     """
     
-    # Sort by combined score descending
     results_sorted = sorted(results, key=lambda x: x['combined_score'], reverse=True)
     
     for r in results_sorted:
-        # Safely handle None values
         combined_score = r.get('combined_score', 0) or 0
         tech_score = r.get('technical_score', 0) or 0
         fund_score = r.get('fundamental_score', 0) or 0
@@ -852,7 +965,6 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
         score_class = 'excellent' if combined_score >= 70 else 'good' if combined_score >= 55 else 'average' if combined_score >= 40 else 'poor'
         rec_class = r['recommendation'].lower().replace(' ', '-')
         
-        # Technical indicators
         tech_info = f"""
         <div class="technical-indicators">
             <div>RSI: {rsi:.1f}</div>
@@ -861,7 +973,6 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
         </div>
         """
         
-        # Fundamental data
         fund_info = f"""
         <div class="fundamental-data">
             <div>P/E: {pe_ratio:.2f}</div>
@@ -885,7 +996,7 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
                     </tr>
         """
     
-    html += """
+    html += f"""
                 </tbody>
             </table>
         </div>
@@ -904,9 +1015,9 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
             <p><strong>Analysis Methodology:</strong></p>
             <p>Technical Analysis (50%): RSI, MACD, Moving Averages, Bollinger Bands, Price Momentum</p>
             <p>Fundamental Analysis (50%): P/E Ratio, ROE, Profit Margin, Revenue Growth, Dividend Yield, Debt/Equity</p>
-            <p style="margin-top: 15px;">Generated by Portfolio Analyzer v1.0 | © 2026</p>
-            <p style="margin-top: 10px; font-size: 0.8em; opacity: 0.7;">
-                Last Updated: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}
+            <p style="margin-top: 20px; font-weight: 600;">Generated by Portfolio Analyzer v2.0 Enhanced | © 2026</p>
+            <p style="margin-top: 10px; font-size: 0.85em; opacity: 0.8;">
+                Last Updated: {ist_time.strftime('%d %B %Y')} at {ist_time.strftime('%I:%M %p IST')}
             </p>
         </div>
     </div>
@@ -918,427 +1029,27 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
 
 
 def generate_email_html(results, monthly_investment, github_url=""):
-    """Generate HTML for email (includes GitHub Pages link)"""
-    
-    # Calculate totals
-    total_allocation = sum(r['allocation_amount'] for r in results)
-    strong_buy = len([r for r in results if r['recommendation'] == 'STRONG BUY'])
-    buy = len([r for r in results if r['recommendation'] == 'BUY'])
-    hold = len([r for r in results if r['recommendation'] == 'HOLD'])
-    
-    github_section = ""
-    if github_url:
-        github_section = f"""
-        <div style="background: #e8f4f8; border: 2px solid #bee5eb; padding: 20px; margin: 20px 0; border-radius: 10px; text-align: center;">
-            <h3 style="color: #1e3c72; margin-bottom: 10px;">🌐 View Live Report Online</h3>
-            <p style="margin-bottom: 15px; color: #666;">Access your portfolio analysis anytime on GitHub Pages:</p>
-            <a href="{github_url}" style="display: inline-block; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 1.1em;">
-                View Live Report →
-            </a>
-            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">{github_url}</p>
-        </div>
-        """
-    
-    html = f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Portfolio Analysis Report - {datetime.now().strftime('%B %d, %Y')}</title>
-        <style>
-            * {{
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }}
-            
-            body {{
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                padding: 20px;
-                line-height: 1.6;
-            }}
-            
-            .container {{
-                max-width: 1400px;
-                margin: 0 auto;
-                background: white;
-                border-radius: 20px;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                overflow: hidden;
-            }}
-            
-            .header {{
-                background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-                color: white;
-                padding: 40px;
-                text-align: center;
-            }}
-            
-            .header h1 {{
-                font-size: 2.5em;
-                margin-bottom: 10px;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            }}
-            
-            .header .date {{
-                font-size: 1.2em;
-                opacity: 0.9;
-            }}
-            
-            .summary {{
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 20px;
-                padding: 40px;
-                background: #f8f9fa;
-            }}
-            
-            .summary-card {{
-                background: white;
-                padding: 25px;
-                border-radius: 15px;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-                text-align: center;
-                transition: transform 0.3s ease;
-            }}
-            
-            .summary-card:hover {{
-                transform: translateY(-5px);
-                box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            }}
-            
-            .summary-card h3 {{
-                color: #666;
-                font-size: 0.9em;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                margin-bottom: 10px;
-            }}
-            
-            .summary-card .value {{
-                font-size: 2em;
-                font-weight: bold;
-                color: #1e3c72;
-            }}
-            
-            .recommendation-summary {{
-                display: flex;
-                justify-content: space-around;
-                padding: 30px 40px;
-                background: white;
-                border-bottom: 2px solid #eee;
-            }}
-            
-            .rec-item {{
-                text-align: center;
-            }}
-            
-            .rec-item .count {{
-                font-size: 2em;
-                font-weight: bold;
-                margin-bottom: 5px;
-            }}
-            
-            .rec-item.strong-buy .count {{ color: #00a86b; }}
-            .rec-item.buy .count {{ color: #4caf50; }}
-            .rec-item.hold .count {{ color: #ff9800; }}
-            
-            .table-container {{
-                padding: 40px;
-                overflow-x: auto;
-            }}
-            
-            table {{
-                width: 100%;
-                border-collapse: collapse;
-                background: white;
-                border-radius: 10px;
-                overflow: hidden;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            }}
-            
-            thead {{
-                background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-                color: white;
-            }}
-            
-            th {{
-                padding: 15px;
-                text-align: left;
-                font-weight: 600;
-                font-size: 0.9em;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }}
-            
-            td {{
-                padding: 15px;
-                border-bottom: 1px solid #eee;
-            }}
-            
-            tbody tr:hover {{
-                background: #f8f9fa;
-            }}
-            
-            .ticker {{
-                font-weight: bold;
-                color: #1e3c72;
-                font-size: 1.1em;
-            }}
-            
-            .recommendation {{
-                display: inline-block;
-                padding: 5px 15px;
-                border-radius: 20px;
-                font-weight: bold;
-                font-size: 0.85em;
-                text-transform: uppercase;
-            }}
-            
-            .recommendation.strong-buy {{
-                background: #00a86b;
-                color: white;
-            }}
-            
-            .recommendation.buy {{
-                background: #4caf50;
-                color: white;
-            }}
-            
-            .recommendation.hold {{
-                background: #ff9800;
-                color: white;
-            }}
-            
-            .recommendation.reduce {{
-                background: #ff5722;
-                color: white;
-            }}
-            
-            .recommendation.sell {{
-                background: #f44336;
-                color: white;
-            }}
-            
-            .score {{
-                font-weight: bold;
-                font-size: 1.1em;
-            }}
-            
-            .score.excellent {{ color: #00a86b; }}
-            .score.good {{ color: #4caf50; }}
-            .score.average {{ color: #ff9800; }}
-            .score.poor {{ color: #f44336; }}
-            
-            .allocation {{
-                font-weight: bold;
-                color: #1e3c72;
-            }}
-            
-            .footer {{
-                background: #f8f9fa;
-                padding: 30px 40px;
-                text-align: center;
-                color: #666;
-                font-size: 0.9em;
-                border-top: 2px solid #eee;
-            }}
-            
-            .disclaimer {{
-                background: #fff3cd;
-                border-left: 4px solid #ffc107;
-                padding: 20px;
-                margin: 20px 40px;
-                border-radius: 5px;
-            }}
-            
-            .disclaimer h4 {{
-                color: #856404;
-                margin-bottom: 10px;
-            }}
-            
-            .disclaimer p {{
-                color: #856404;
-                line-height: 1.6;
-            }}
-            
-            .technical-indicators {{
-                background: #f8f9fa;
-                padding: 10px;
-                border-radius: 5px;
-                font-size: 0.85em;
-            }}
-            
-            .fundamental-data {{
-                font-size: 0.85em;
-                color: #666;
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>📊 Portfolio Analysis Report</h1>
-                <div class="date">Generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')}</div>
-            </div>
-            
-            {github_section}
-            
-            <div class="summary">
-                <div class="summary-card">
-                    <h3>Monthly Investment</h3>
-                    <div class="value">₹{monthly_investment:,.0f}</div>
-                </div>
-                <div class="summary-card">
-                    <h3>Total Stocks</h3>
-                    <div class="value">{len(results)}</div>
-                </div>
-                <div class="summary-card">
-                    <h3>Avg Combined Score</h3>
-                    <div class="value">{sum(r['combined_score'] for r in results)/len(results):.1f}</div>
-                </div>
-                <div class="summary-card">
-                    <h3>Allocated Amount</h3>
-                    <div class="value">₹{total_allocation:,.0f}</div>
-                </div>
-            </div>
-            
-            <div class="recommendation-summary">
-                <div class="rec-item strong-buy">
-                    <div class="count">{strong_buy}</div>
-                    <div>Strong Buy</div>
-                </div>
-                <div class="rec-item buy">
-                    <div class="count">{buy}</div>
-                    <div>Buy</div>
-                </div>
-                <div class="rec-item hold">
-                    <div class="count">{hold}</div>
-                    <div>Hold</div>
-                </div>
-            </div>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Stock</th>
-                            <th>Recommendation</th>
-                            <th>Combined Score</th>
-                            <th>Tech Score</th>
-                            <th>Fund Score</th>
-                            <th>Allocation %</th>
-                            <th>Amount (₹)</th>
-                            <th>Current Price</th>
-                            <th>Technical Indicators</th>
-                            <th>Fundamentals</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-    """
-    
-    # Sort by combined score descending
-    results_sorted = sorted(results, key=lambda x: x['combined_score'], reverse=True)
-    
-    for r in results_sorted:
-        # Safely handle None values
-        combined_score = r.get('combined_score', 0) or 0
-        tech_score = r.get('technical_score', 0) or 0
-        fund_score = r.get('fundamental_score', 0) or 0
-        alloc_pct = r.get('allocation_percent', 0) or 0
-        alloc_amt = r.get('allocation_amount', 0) or 0
-        current_price = r.get('current_price', 0) or 0
-        rsi = r.get('rsi', 0) or 0
-        macd = r.get('macd', 0) or 0
-        sma_20 = r.get('sma_20', 0) or 0
-        pe_ratio = r.get('pe_ratio', 0) or 0
-        roe = r.get('roe', 0) or 0
-        div_yield = r.get('dividend_yield', 0) or 0
-        
-        score_class = 'excellent' if combined_score >= 70 else 'good' if combined_score >= 55 else 'average' if combined_score >= 40 else 'poor'
-        rec_class = r['recommendation'].lower().replace(' ', '-')
-        
-        # Technical indicators
-        tech_info = f"""
-        <div class="technical-indicators">
-            <div>RSI: {rsi:.1f}</div>
-            <div>MACD: {macd:.2f}</div>
-            <div>SMA20: ₹{sma_20:.2f}</div>
-        </div>
-        """
-        
-        # Fundamental data
-        fund_info = f"""
-        <div class="fundamental-data">
-            <div>P/E: {pe_ratio:.2f}</div>
-            <div>ROE: {roe:.1f}%</div>
-            <div>Div Yield: {div_yield:.2f}%</div>
-        </div>
-        """
-        
-        html += f"""
-                        <tr>
-                            <td class="ticker">{r['ticker']}</td>
-                            <td><span class="recommendation {rec_class}">{r['recommendation']}</span></td>
-                            <td><span class="score {score_class}">{combined_score:.1f}</span></td>
-                            <td>{tech_score:.1f}</td>
-                            <td>{fund_score:.1f}</td>
-                            <td>{alloc_pct:.1f}%</td>
-                            <td class="allocation">₹{alloc_amt:,.0f}</td>
-                            <td>₹{current_price:.2f}</td>
-                            <td>{tech_info}</td>
-                            <td>{fund_info}</td>
-                        </tr>
-        """
-    
-    html += """
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="disclaimer">
-                <h4>⚠️ Important Disclaimer</h4>
-                <p>
-                    This analysis is for informational purposes only and should not be considered as financial advice. 
-                    The recommendations are based on technical and fundamental analysis algorithms and do not guarantee 
-                    future performance. Always conduct your own research and consult with a qualified financial advisor 
-                    before making investment decisions. Past performance is not indicative of future results.
-                </p>
-            </div>
-            
-            <div class="footer">
-                <p><strong>Analysis Methodology:</strong></p>
-                <p>Technical Analysis (50%): RSI, MACD, Moving Averages, Bollinger Bands, Price Momentum</p>
-                <p>Fundamental Analysis (50%): P/E Ratio, ROE, Profit Margin, Revenue Growth, Dividend Yield, Debt/Equity</p>
-                <p style="margin-top: 15px;">Generated by Portfolio Analyzer v1.0 | © 2026</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    
-    return html
+    """Generate HTML for email (same enhanced format with IST time)"""
+    return generate_github_pages_html(results, monthly_investment, github_url)
 
 
 def send_email(html_content, recipient_email, sender_email, sender_password):
     """Send HTML report via email"""
     try:
+        ist_time = get_ist_time()
         print(f"\n📧 Preparing to send email to {recipient_email}...")
         
         msg = MIMEMultipart('alternative')
-        msg['Subject'] = f"📊 Portfolio Analysis Report - {datetime.now().strftime('%B %d, %Y')}"
+        msg['Subject'] = f"📊 Portfolio Analysis Report - {ist_time.strftime('%d %B %Y, %I:%M %p IST')}"
         msg['From'] = sender_email
         msg['To'] = recipient_email
         
-        # Add a plain text version as fallback
         text_content = f"""
-Portfolio Analysis Report - {datetime.now().strftime('%B %d, %Y')}
+Portfolio Analysis Report - {ist_time.strftime('%d %B %Y')} at {ist_time.strftime('%I:%M %p IST')}
 
 This is an HTML email. Please view it in an email client that supports HTML to see the full report.
 
-Generated by Portfolio Analyzer v1.0
+Generated by Portfolio Analyzer v2.0 Enhanced
         """
         text_part = MIMEText(text_content, 'plain')
         html_part = MIMEText(html_content, 'html')
@@ -1347,7 +1058,6 @@ Generated by Portfolio Analyzer v1.0
         msg.attach(html_part)
         
         print("  Connecting to Gmail SMTP server...")
-        # Using Gmail SMTP with SSL
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             print("  Logging in...")
             server.login(sender_email, sender_password)
@@ -1363,140 +1073,95 @@ Generated by Portfolio Analyzer v1.0
         print(f"   For Gmail, you need to use an 'App Password' instead of your regular password.")
         print(f"   Generate one at: https://myaccount.google.com/apppasswords")
         return False
-    except smtplib.SMTPException as e:
-        print(f"❌ SMTP error occurred: {e}")
-        return False
     except Exception as e:
         print(f"❌ Error sending email: {e}")
-        import traceback
-        traceback.print_exc()
         return False
 
 
 def main():
     """Main execution function"""
-    print("=" * 60)
-    print("Portfolio Stock Analyzer - Technical & Fundamental Analysis")
-    print("=" * 60)
+    ist_time = get_ist_time()
+    
+    print("=" * 80)
+    print("Portfolio Stock Analyzer v2.0 - Enhanced Edition")
+    print("Technical & Fundamental Analysis with IST Timezone")
+    print("=" * 80)
+    print(f"Current IST Time: {ist_time.strftime('%d %B %Y, %I:%M %p IST')}")
     print()
     
-    # Analyze portfolio
     results = analyze_portfolio(PORTFOLIO_STOCKS)
-    
-    # Calculate allocation
     results = calculate_allocation(results, MONTHLY_INVESTMENT)
     
-    # Generate GitHub Pages URL
     github_url = f"https://{GITHUB_USERNAME}.github.io/{GITHUB_REPO}/"
     print(f"\n📌 GitHub Pages URL: {github_url}")
     
-    # Generate index.html for GitHub Pages
     github_pages_html = generate_github_pages_html(results, MONTHLY_INVESTMENT, github_url)
     with open('index.html', 'w', encoding='utf-8') as f:
         f.write(github_pages_html)
-    print(f"✅ GitHub Pages HTML generated: index.html")
+    print(f"✅ Enhanced GitHub Pages HTML generated: index.html")
     
-    # Generate email HTML (with GitHub Pages link)
     email_html = generate_email_html(results, MONTHLY_INVESTMENT, github_url)
     
-    # Save email HTML as backup
-    report_filename = f"portfolio_analysis_{datetime.now().strftime('%Y%m%d')}.html"
+    report_filename = f"portfolio_analysis_{ist_time.strftime('%Y%m%d_%H%M')}_IST.html"
     with open(report_filename, 'w', encoding='utf-8') as f:
         f.write(email_html)
     print(f"✅ Email HTML report generated: {report_filename}")
     
-    # Save JSON data
     json_data = {
-        'generated_date': datetime.now().isoformat(),
+        'generated_date_ist': ist_time.isoformat(),
+        'generated_date_display': ist_time.strftime('%d %B %Y, %I:%M %p IST'),
         'monthly_investment': MONTHLY_INVESTMENT,
         'github_pages_url': github_url,
         'stocks': results
     }
     
-    json_filename = f"portfolio_data_{datetime.now().strftime('%Y%m%d')}.json"
+    json_filename = f"portfolio_data_{ist_time.strftime('%Y%m%d_%H%M')}_IST.json"
     with open(json_filename, 'w') as f:
         json.dump(json_data, f, indent=2)
     print(f"✅ JSON data generated: {json_filename}")
     
-    # EMAIL CONFIGURATION - Check environment variables first (for GitHub Actions)
+    # Email handling (same logic as original)
     sender_email = os.environ.get('SENDER_EMAIL')
     sender_password = os.environ.get('SENDER_PASSWORD')
     recipient_email = os.environ.get('RECIPIENT_EMAIL')
     
-    # Determine if email should be sent
     email_enabled = False
     
     if sender_email and sender_password and recipient_email:
-        # Environment variables are set (GitHub Actions)
         email_enabled = True
-        print("\n" + "=" * 60)
+        print("\n" + "=" * 80)
         print("EMAIL DELIVERY: ENABLED (via environment variables)")
-        print("=" * 60)
-        print(f"Sender: {sender_email}")
-        print(f"Recipient: {recipient_email}")
+        print("=" * 80)
     elif EMAIL_CONFIG['enabled']:
-        # Local configuration is enabled
         email_enabled = True
         sender_email = EMAIL_CONFIG['sender_email']
         sender_password = EMAIL_CONFIG['sender_password']
         recipient_email = EMAIL_CONFIG['recipient_email']
-        print("\n" + "=" * 60)
+        print("\n" + "=" * 80)
         print("EMAIL DELIVERY: ENABLED (via EMAIL_CONFIG)")
-        print("=" * 60)
-        print(f"Sender: {sender_email}")
-        print(f"Recipient: {recipient_email}")
+        print("=" * 80)
     
     if email_enabled:
-        success = send_email(
-            email_html, 
-            recipient_email,
-            sender_email,
-            sender_password
-        )
-        
-        if not success:
-            print("\n⚠️  Email delivery failed, but report files were saved locally.")
-        else:
-            print(f"\n🌐 Your report is also live at: {github_url}")
+        send_email(email_html, recipient_email, sender_email, sender_password)
     else:
-        print("\n" + "=" * 60)
+        print("\n" + "=" * 80)
         print("EMAIL DELIVERY: DISABLED")
-        print("=" * 60)
-        print("To enable email delivery:")
-        print("\nFor GitHub Actions:")
-        print("1. Go to your repository Settings → Secrets and variables → Actions")
-        print("2. Add three secrets:")
-        print("   - SENDER_EMAIL (your Gmail address)")
-        print("   - SENDER_PASSWORD (your Gmail App Password)")
-        print("   - RECIPIENT_EMAIL (where to receive the report)")
-        print("\nFor Local Runs:")
-        print("1. Edit the EMAIL_CONFIG dictionary at the top of this script")
-        print("2. Set 'enabled' to True")
-        print("3. Fill in your email addresses and App Password")
-        print("4. For Gmail, generate an App Password at:")
-        print("   https://myaccount.google.com/apppasswords")
-        print(f"\n🌐 Your report will be live at: {github_url}")
+        print("=" * 80)
     
-    # Display summary
-    print("\n" + "=" * 60)
-    print("INVESTMENT RECOMMENDATIONS SUMMARY")
-    print("=" * 60)
+    # Display enhanced summary
+    print("\n" + "=" * 80)
+    print("📊 INVESTMENT RECOMMENDATIONS SUMMARY")
+    print("=" * 80)
+    print(f"Generated: {ist_time.strftime('%d %B %Y at %I:%M %p IST')}\n")
     
     for r in sorted(results, key=lambda x: x['combined_score'], reverse=True):
-        # Handle None values safely
         combined = r.get('combined_score', 0) or 0
-        tech = r.get('technical_score', 0) or 0
-        fund = r.get('fundamental_score', 0) or 0
         alloc_amt = r.get('allocation_amount', 0) or 0
         alloc_pct = r.get('allocation_percent', 0) or 0
-        price = r.get('current_price', 0) or 0
         
-        print(f"\n{r['ticker']:15} | {r['recommendation']:12} | Score: {combined:5.1f} | Allocation: ₹{alloc_amt:,.0f} ({alloc_pct:.1f}%)")
-        print(f"                 Tech: {tech:.1f} | Fund: {fund:.1f} | Price: ₹{price:.2f}")
+        print(f"{r['ticker']:15} | {r['recommendation']:12} | Score: {combined:5.1f} | ₹{alloc_amt:>10,.0f} ({alloc_pct:5.1f}%)")
     
-    print("\n" + "=" * 60)
-    print(f"🌐 GitHub Pages: {github_url}")
-    print("=" * 60)
+    print("\n" + "=" * 80)
     
     return results
 
@@ -1505,20 +1170,9 @@ if __name__ == "__main__":
     try:
         main()
         
-        # Verify files were created
-        import os
-        from glob import glob
-        
         if os.path.exists('index.html'):
             print("\n✅ Portfolio analysis completed successfully!")
-            print(f"   Generated: index.html (for GitHub Pages)")
-            html_files = glob("portfolio_analysis_*.html")
-            json_files = glob("portfolio_data_*.json")
-            if html_files:
-                print(f"   Generated: {html_files[0]} (email backup)")
-            if json_files:
-                print(f"   Generated: {json_files[0]} (JSON data)")
-            sys.exit(0)  # Explicitly exit with success code
+            sys.exit(0)
         else:
             print("\n⚠️ Analysis ran but index.html not found!")
             sys.exit(1)
@@ -1527,4 +1181,4 @@ if __name__ == "__main__":
         print(f"\n❌ Fatal error: {e}")
         import traceback
         traceback.print_exc()
-        sys.exit(1)  # Exit with error code
+        sys.exit(1)
