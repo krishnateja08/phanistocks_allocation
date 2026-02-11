@@ -842,4 +842,27 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+        
+        # Verify files were created
+        import os
+        from glob import glob
+        
+        html_files = glob("portfolio_analysis_*.html")
+        json_files = glob("portfolio_data_*.json")
+        
+        if html_files and json_files:
+            print("\n✅ Portfolio analysis completed successfully!")
+            print(f"   Generated: {html_files[0]}")
+            print(f"   Generated: {json_files[0]}")
+            sys.exit(0)  # Explicitly exit with success code
+        else:
+            print("\n⚠️ Analysis ran but files not found!")
+            sys.exit(1)
+            
+    except Exception as e:
+        print(f"\n❌ Fatal error: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)  # Exit with error code
