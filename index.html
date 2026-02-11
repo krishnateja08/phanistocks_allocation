@@ -1,1 +1,805 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Analysis Report - February 11, 2026</title>
+    <meta name="description" content="Stock Portfolio Analysis with Technical and Fundamental Indicators">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header .date {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .header .live-badge {
+            display: inline-block;
+            background: #00a86b;
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 40px;
+            background: #f8f9fa;
+        }
+        
+        .summary-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .summary-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .summary-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+        
+        .recommendation-summary {
+            display: flex;
+            justify-content: space-around;
+            padding: 30px 40px;
+            background: white;
+            border-bottom: 2px solid #eee;
+            flex-wrap: wrap;
+        }
+        
+        .rec-item {
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .rec-item .count {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .rec-item.strong-buy .count { color: #00a86b; }
+        .rec-item.buy .count { color: #4caf50; }
+        .rec-item.hold .count { color: #ff9800; }
+        
+        .table-container {
+            padding: 40px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+        
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .ticker {
+            font-weight: bold;
+            color: #1e3c72;
+            font-size: 1.1em;
+        }
+        
+        .recommendation {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+        
+        .recommendation.strong-buy {
+            background: #00a86b;
+            color: white;
+        }
+        
+        .recommendation.buy {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .recommendation.hold {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .recommendation.reduce {
+            background: #ff5722;
+            color: white;
+        }
+        
+        .recommendation.sell {
+            background: #f44336;
+            color: white;
+        }
+        
+        .score {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .score.excellent { color: #00a86b; }
+        .score.good { color: #4caf50; }
+        .score.average { color: #ff9800; }
+        .score.poor { color: #f44336; }
+        
+        .allocation {
+            font-weight: bold;
+            color: #1e3c72;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px 40px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            border-top: 2px solid #eee;
+        }
+        
+        .disclaimer {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 40px;
+            border-radius: 5px;
+        }
+        
+        .disclaimer h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .disclaimer p {
+            color: #856404;
+            line-height: 1.6;
+        }
+        
+        .technical-indicators {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.85em;
+        }
+        
+        .fundamental-data {
+            font-size: 0.85em;
+            color: #666;
+        }
+        
+        .github-link {
+            text-align: center;
+            padding: 20px 40px;
+            background: #e8f4f8;
+            border-bottom: 2px solid #bee5eb;
+        }
+        
+        .github-link a {
+            color: #1e3c72;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .github-link a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .github-icon {
+            width: 24px;
+            height: 24px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .summary {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-container {
+                padding: 20px;
+            }
+            
+            table {
+                font-size: 0.9em;
+            }
+            
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Portfolio Analysis Report</h1>
+            <div class="date">Generated on February 11, 2026 at 03:50 AM</div>
+            <div class="live-badge">🔴 LIVE ON GITHUB PAGES</div>
+        </div>
+        <div class="github-link">
+            <a href="https://krishnateja08.github.io/phanistocks_allocation/" target="_blank">
+                <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                View on GitHub Pages: krishnateja08.github.io/phanistocks_allocation/
+            </a>
+        </div>
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Monthly Investment</h3>
+                <div class="value">₹60,000</div>
+            </div>
+            <div class="summary-card">
+                <h3>Total Stocks</h3>
+                <div class="value">16</div>
+            </div>
+            <div class="summary-card">
+                <h3>Avg Combined Score</h3>
+                <div class="value">38.4</div>
+            </div>
+            <div class="summary-card">
+                <h3>Allocated Amount</h3>
+                <div class="value">₹60,000</div>
+            </div>
+        </div>
+        
+        <div class="recommendation-summary">
+            <div class="rec-item strong-buy">
+                <div class="count">1</div>
+                <div>Strong Buy</div>
+            </div>
+            <div class="rec-item buy">
+                <div class="count">1</div>
+                <div>Buy</div>
+            </div>
+            <div class="rec-item hold">
+                <div class="count">8</div>
+                <div>Hold</div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stock</th>
+                        <th>Recommendation</th>
+                        <th>Combined Score</th>
+                        <th>Tech Score</th>
+                        <th>Fund Score</th>
+                        <th>Allocation %</th>
+                        <th>Amount (₹)</th>
+                        <th>Current Price</th>
+                        <th>Technical Indicators</th>
+                        <th>Fundamentals</th>
+                    </tr>
+                </thead>
+                <tbody>
+    
+                    <tr>
+                        <td class="ticker">HDFCBANK.NS</td>
+                        <td><span class="recommendation strong-buy">STRONG BUY</span></td>
+                        <td><span class="score excellent">70.0</span></td>
+                        <td>55.0</td>
+                        <td>85.0</td>
+                        <td>14.0%</td>
+                        <td class="allocation">₹8,400</td>
+                        <td>₹929.95</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 56.1</div>
+            <div>MACD: -6.17</div>
+            <div>SMA20: ₹932.02</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 20.76</div>
+            <div>ROE: 14.0%</div>
+            <div>Div Yield: 117.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">M&M.NS</td>
+                        <td><span class="recommendation buy">BUY</span></td>
+                        <td><span class="score good">65.0</span></td>
+                        <td>70.0</td>
+                        <td>60.0</td>
+                        <td>13.0%</td>
+                        <td class="allocation">₹7,800</td>
+                        <td>₹3714.00</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 62.3</div>
+            <div>MACD: -1.78</div>
+            <div>SMA20: ₹3560.79</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 29.40</div>
+            <div>ROE: 17.2%</div>
+            <div>Div Yield: 70.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">RELIANCE.NS</td>
+                        <td><span class="recommendation hold">HOLD</span></td>
+                        <td><span class="score average">52.5</span></td>
+                        <td>60.0</td>
+                        <td>45.0</td>
+                        <td>10.5%</td>
+                        <td class="allocation">₹6,300</td>
+                        <td>₹1462.80</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 68.1</div>
+            <div>MACD: -9.32</div>
+            <div>SMA20: ₹1425.07</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 23.77</div>
+            <div>ROE: 0.0%</div>
+            <div>Div Yield: 38.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">BANKBEES.NS</td>
+                        <td><span class="recommendation hold">HOLD</span></td>
+                        <td><span class="score average">50.0</span></td>
+                        <td>70.0</td>
+                        <td>30.0</td>
+                        <td>10.0%</td>
+                        <td class="allocation">₹6,000</td>
+                        <td>₹625.43</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 59.5</div>
+            <div>MACD: 2.68</div>
+            <div>SMA20: ₹615.42</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 15.93</div>
+            <div>ROE: 0.0%</div>
+            <div>Div Yield: 0.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">NIFTYBEES.NS</td>
+                        <td><span class="recommendation hold">HOLD</span></td>
+                        <td><span class="score average">50.0</span></td>
+                        <td>70.0</td>
+                        <td>30.0</td>
+                        <td>10.0%</td>
+                        <td class="allocation">₹6,000</td>
+                        <td>₹294.04</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 65.3</div>
+            <div>MACD: -0.03</div>
+            <div>SMA20: ₹288.76</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 23.97</div>
+            <div>ROE: 0.0%</div>
+            <div>Div Yield: 0.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">TECHM.NS</td>
+                        <td><span class="recommendation hold">HOLD</span></td>
+                        <td><span class="score average">45.0</span></td>
+                        <td>55.0</td>
+                        <td>35.0</td>
+                        <td>9.0%</td>
+                        <td class="allocation">₹5,400</td>
+                        <td>₹1650.00</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 43.0</div>
+            <div>MACD: 7.43</div>
+            <div>SMA20: ₹1680.36</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 31.65</div>
+            <div>ROE: 0.0%</div>
+            <div>Div Yield: 274.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">TCS.NS</td>
+                        <td><span class="recommendation hold">HOLD</span></td>
+                        <td><span class="score average">45.0</span></td>
+                        <td>25.0</td>
+                        <td>65.0</td>
+                        <td>9.0%</td>
+                        <td class="allocation">₹5,400</td>
+                        <td>₹2993.80</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 39.3</div>
+            <div>MACD: -48.27</div>
+            <div>SMA20: ₹3102.96</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 22.44</div>
+            <div>ROE: 42.6%</div>
+            <div>Div Yield: 214.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">TMPV.NS</td>
+                        <td><span class="recommendation hold">HOLD</span></td>
+                        <td><span class="score average">42.5</span></td>
+                        <td>55.0</td>
+                        <td>30.0</td>
+                        <td>8.5%</td>
+                        <td class="allocation">₹5,100</td>
+                        <td>₹383.35</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 80.1</div>
+            <div>MACD: 6.15</div>
+            <div>SMA20: ₹357.15</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 35.81</div>
+            <div>ROE: 0.0%</div>
+            <div>Div Yield: 159.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">INFY.NS</td>
+                        <td><span class="recommendation hold">HOLD</span></td>
+                        <td><span class="score average">40.0</span></td>
+                        <td>15.0</td>
+                        <td>65.0</td>
+                        <td>8.0%</td>
+                        <td class="allocation">₹4,800</td>
+                        <td>₹1505.10</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 22.8</div>
+            <div>MACD: -31.23</div>
+            <div>SMA20: ₹1610.83</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 21.55</div>
+            <div>ROE: 32.7%</div>
+            <div>Div Yield: 301.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">GOLDBEES.NS</td>
+                        <td><span class="recommendation hold">HOLD</span></td>
+                        <td><span class="score average">40.0</span></td>
+                        <td>65.0</td>
+                        <td>15.0</td>
+                        <td>8.0%</td>
+                        <td class="allocation">₹4,800</td>
+                        <td>₹128.52</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 51.5</div>
+            <div>MACD: 3.36</div>
+            <div>SMA20: ₹126.45</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 0.00</div>
+            <div>ROE: 0.0%</div>
+            <div>Div Yield: 0.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">SILVERBEES.NS</td>
+                        <td><span class="recommendation reduce">REDUCE</span></td>
+                        <td><span class="score poor">37.5</span></td>
+                        <td>60.0</td>
+                        <td>15.0</td>
+                        <td>0.0%</td>
+                        <td class="allocation">₹0</td>
+                        <td>₹244.94</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 42.7</div>
+            <div>MACD: 3.01</div>
+            <div>SMA20: ₹273.77</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 0.00</div>
+            <div>ROE: 0.0%</div>
+            <div>Div Yield: 0.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">ITBEES.NS</td>
+                        <td><span class="recommendation reduce">REDUCE</span></td>
+                        <td><span class="score poor">27.5</span></td>
+                        <td>30.0</td>
+                        <td>25.0</td>
+                        <td>0.0%</td>
+                        <td class="allocation">₹0</td>
+                        <td>₹39.63</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 31.6</div>
+            <div>MACD: -0.62</div>
+            <div>SMA20: ₹41.47</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 25.25</div>
+            <div>ROE: 0.0%</div>
+            <div>Div Yield: 0.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">NXST-RR.NS</td>
+                        <td><span class="recommendation sell">SELL</span></td>
+                        <td><span class="score poor">12.5</span></td>
+                        <td>10.0</td>
+                        <td>15.0</td>
+                        <td>0.0%</td>
+                        <td class="allocation">₹0</td>
+                        <td>₹161.60</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 0.0</div>
+            <div>MACD: 0.00</div>
+            <div>SMA20: ₹0.00</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 0.00</div>
+            <div>ROE: 0.0%</div>
+            <div>Div Yield: 0.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">EMBASSY-RR.NS</td>
+                        <td><span class="recommendation sell">SELL</span></td>
+                        <td><span class="score poor">12.5</span></td>
+                        <td>10.0</td>
+                        <td>15.0</td>
+                        <td>0.0%</td>
+                        <td class="allocation">₹0</td>
+                        <td>₹454.44</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 0.0</div>
+            <div>MACD: 0.00</div>
+            <div>SMA20: ₹0.00</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 0.00</div>
+            <div>ROE: 0.0%</div>
+            <div>Div Yield: 0.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">BIRET-RR.NS</td>
+                        <td><span class="recommendation sell">SELL</span></td>
+                        <td><span class="score poor">12.5</span></td>
+                        <td>10.0</td>
+                        <td>15.0</td>
+                        <td>0.0%</td>
+                        <td class="allocation">₹0</td>
+                        <td>₹363.00</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 0.0</div>
+            <div>MACD: 0.00</div>
+            <div>SMA20: ₹0.00</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 0.00</div>
+            <div>ROE: 0.0%</div>
+            <div>Div Yield: 0.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                    <tr>
+                        <td class="ticker">MINDSPACE-RR.NS</td>
+                        <td><span class="recommendation sell">SELL</span></td>
+                        <td><span class="score poor">12.5</span></td>
+                        <td>10.0</td>
+                        <td>15.0</td>
+                        <td>0.0%</td>
+                        <td class="allocation">₹0</td>
+                        <td>₹501.50</td>
+                        <td>
+        <div class="technical-indicators">
+            <div>RSI: 0.0</div>
+            <div>MACD: 0.00</div>
+            <div>SMA20: ₹0.00</div>
+        </div>
+        </td>
+                        <td>
+        <div class="fundamental-data">
+            <div>P/E: 0.00</div>
+            <div>ROE: 0.0%</div>
+            <div>Div Yield: 0.00%</div>
+        </div>
+        </td>
+                    </tr>
+        
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="disclaimer">
+            <h4>⚠️ Important Disclaimer</h4>
+            <p>
+                This analysis is for informational purposes only and should not be considered as financial advice. 
+                The recommendations are based on technical and fundamental analysis algorithms and do not guarantee 
+                future performance. Always conduct your own research and consult with a qualified financial advisor 
+                before making investment decisions. Past performance is not indicative of future results.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Analysis Methodology:</strong></p>
+            <p>Technical Analysis (50%): RSI, MACD, Moving Averages, Bollinger Bands, Price Momentum</p>
+            <p>Fundamental Analysis (50%): P/E Ratio, ROE, Profit Margin, Revenue Growth, Dividend Yield, Debt/Equity</p>
+            <p style="margin-top: 15px;">Generated by Portfolio Analyzer v1.0 | © 2026</p>
+            <p style="margin-top: 10px; font-size: 0.8em; opacity: 0.7;">
+                Last Updated: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+    
