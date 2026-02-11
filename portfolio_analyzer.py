@@ -27,20 +27,24 @@ PORTFOLIO_STOCKS = [
     "NIFTYBEES.NS", "M&M.NS", "GOLDBEES.NS", "SILVERBEES.NS"
 ]
 
-# EMAIL CONFIGURATION - FILL THESE IN TO ENABLE EMAIL DELIVERY
+# EMAIL CONFIGURATION
+# Priority: Environment variables (for GitHub Actions) > EMAIL_CONFIG (for local runs)
+
 EMAIL_CONFIG = {
-    'enabled': False,  # Set to True to enable email sending
+    'enabled': False,  # Set to True to enable email sending (for local runs)
     'recipient_email': "your.email@gmail.com",  # Your Gmail address (where you want to receive the report)
     'sender_email': "sender.email@gmail.com",  # Gmail account to send from (can be same as recipient)
     'sender_password': "your-app-specific-password"  # Gmail App Password (not regular password)
 }
 
+# For GitHub Actions: The script will automatically read from environment variables:
+# - SENDER_EMAIL
+# - SENDER_PASSWORD  
+# - RECIPIENT_EMAIL
+# These are set as GitHub Secrets and passed via the .yml workflow file
+
 # Note: Both sender and recipient should be Gmail addresses
 # You can use the SAME Gmail address for both sender and recipient
-# Example:
-# 'recipient_email': "myportfolio@gmail.com",  # You receive the report here
-# 'sender_email': "myportfolio@gmail.com",     # Same Gmail sends it
-# 'sender_password': "abcd efgh ijkl mnop"     # App Password from Gmail
 
 class StockAnalyzer:
     def __init__(self, ticker):
@@ -906,17 +910,40 @@ def main():
     
     print(f"✅ JSON data generated: {json_filename}")
     
-    # Send email if enabled
-    if EMAIL_CONFIG['enabled']:
+    # EMAIL CONFIGURATION - Check environment variables first (for GitHub Actions)
+    sender_email = os.environ.get('SENDER_EMAIL')
+    sender_password = os.environ.get('SENDER_PASSWORD')
+    recipient_email = os.environ.get('RECIPIENT_EMAIL')
+    
+    # Determine if email should be sent
+    email_enabled = False
+    
+    if sender_email and sender_password and recipient_email:
+        # Environment variables are set (GitHub Actions)
+        email_enabled = True
         print("\n" + "=" * 60)
-        print("EMAIL DELIVERY")
+        print("EMAIL DELIVERY: ENABLED (via environment variables)")
         print("=" * 60)
-        
+        print(f"Sender: {sender_email}")
+        print(f"Recipient: {recipient_email}")
+    elif EMAIL_CONFIG['enabled']:
+        # Local configuration is enabled
+        email_enabled = True
+        sender_email = EMAIL_CONFIG['sender_email']
+        sender_password = EMAIL_CONFIG['sender_password']
+        recipient_email = EMAIL_CONFIG['recipient_email']
+        print("\n" + "=" * 60)
+        print("EMAIL DELIVERY: ENABLED (via EMAIL_CONFIG)")
+        print("=" * 60)
+        print(f"Sender: {sender_email}")
+        print(f"Recipient: {recipient_email}")
+    
+    if email_enabled:
         success = send_email(
             html_report, 
-            EMAIL_CONFIG['recipient_email'],
-            EMAIL_CONFIG['sender_email'],
-            EMAIL_CONFIG['sender_password']
+            recipient_email,
+            sender_email,
+            sender_password
         )
         
         if not success:
@@ -926,12 +953,18 @@ def main():
         print("EMAIL DELIVERY: DISABLED")
         print("=" * 60)
         print("To enable email delivery:")
+        print("\nFor GitHub Actions:")
+        print("1. Go to your repository Settings → Secrets and variables → Actions")
+        print("2. Add three secrets:")
+        print("   - SENDER_EMAIL (your Gmail address)")
+        print("   - SENDER_PASSWORD (your Gmail App Password)")
+        print("   - RECIPIENT_EMAIL (where to receive the report)")
+        print("\nFor Local Runs:")
         print("1. Edit the EMAIL_CONFIG dictionary at the top of this script")
         print("2. Set 'enabled' to True")
-        print("3. Fill in your email addresses")
+        print("3. Fill in your email addresses and App Password")
         print("4. For Gmail, generate an App Password at:")
         print("   https://myaccount.google.com/apppasswords")
-        print("5. Use the App Password (not your regular password)")
     
     # Display summary
     print("\n" + "=" * 60)
