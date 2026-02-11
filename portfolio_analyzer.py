@@ -27,6 +27,11 @@ PORTFOLIO_STOCKS = [
     "NIFTYBEES.NS", "M&M.NS", "GOLDBEES.NS", "SILVERBEES.NS"
 ]
 
+# GITHUB PAGES CONFIGURATION
+# Set your GitHub username and repository name for GitHub Pages link
+GITHUB_USERNAME = os.environ.get('GITHUB_REPOSITORY', '').split('/')[0] if '/' in os.environ.get('GITHUB_REPOSITORY', '') else "your-username"
+GITHUB_REPO = os.environ.get('GITHUB_REPOSITORY', '').split('/')[1] if '/' in os.environ.get('GITHUB_REPOSITORY', '') else "your-repo"
+
 # EMAIL CONFIGURATION
 # Priority: Environment variables (for GitHub Actions) > EMAIL_CONFIG (for local runs)
 
@@ -433,14 +438,506 @@ def calculate_allocation(results, monthly_investment):
     return results
 
 
-def generate_html_report(results, monthly_investment):
-    """Generate professional HTML report"""
+def generate_github_pages_html(results, monthly_investment, github_url=""):
+    """Generate index.html for GitHub Pages"""
     
     # Calculate totals
     total_allocation = sum(r['allocation_amount'] for r in results)
     strong_buy = len([r for r in results if r['recommendation'] == 'STRONG BUY'])
     buy = len([r for r in results if r['recommendation'] == 'BUY'])
     hold = len([r for r in results if r['recommendation'] == 'HOLD'])
+    
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Analysis Report - {datetime.now().strftime('%B %d, %Y')}</title>
+    <meta name="description" content="Stock Portfolio Analysis with Technical and Fundamental Indicators">
+    <style>
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
+        
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }}
+        
+        .container {{
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }}
+        
+        .header {{
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }}
+        
+        .header h1 {{
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }}
+        
+        .header .date {{
+            font-size: 1.2em;
+            opacity: 0.9;
+        }}
+        
+        .header .live-badge {{
+            display: inline-block;
+            background: #00a86b;
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }}
+        
+        @keyframes pulse {{
+            0%, 100% {{ opacity: 1; }}
+            50% {{ opacity: 0.7; }}
+        }}
+        
+        .summary {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 40px;
+            background: #f8f9fa;
+        }}
+        
+        .summary-card {{
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }}
+        
+        .summary-card:hover {{
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }}
+        
+        .summary-card h3 {{
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }}
+        
+        .summary-card .value {{
+            font-size: 2em;
+            font-weight: bold;
+            color: #1e3c72;
+        }}
+        
+        .recommendation-summary {{
+            display: flex;
+            justify-content: space-around;
+            padding: 30px 40px;
+            background: white;
+            border-bottom: 2px solid #eee;
+            flex-wrap: wrap;
+        }}
+        
+        .rec-item {{
+            text-align: center;
+            padding: 10px;
+        }}
+        
+        .rec-item .count {{
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }}
+        
+        .rec-item.strong-buy .count {{ color: #00a86b; }}
+        .rec-item.buy .count {{ color: #4caf50; }}
+        .rec-item.hold .count {{ color: #ff9800; }}
+        
+        .table-container {{
+            padding: 40px;
+            overflow-x: auto;
+        }}
+        
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }}
+        
+        thead {{
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }}
+        
+        th {{
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
+        
+        td {{
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }}
+        
+        tbody tr:hover {{
+            background: #f8f9fa;
+        }}
+        
+        .ticker {{
+            font-weight: bold;
+            color: #1e3c72;
+            font-size: 1.1em;
+        }}
+        
+        .recommendation {{
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }}
+        
+        .recommendation.strong-buy {{
+            background: #00a86b;
+            color: white;
+        }}
+        
+        .recommendation.buy {{
+            background: #4caf50;
+            color: white;
+        }}
+        
+        .recommendation.hold {{
+            background: #ff9800;
+            color: white;
+        }}
+        
+        .recommendation.reduce {{
+            background: #ff5722;
+            color: white;
+        }}
+        
+        .recommendation.sell {{
+            background: #f44336;
+            color: white;
+        }}
+        
+        .score {{
+            font-weight: bold;
+            font-size: 1.1em;
+        }}
+        
+        .score.excellent {{ color: #00a86b; }}
+        .score.good {{ color: #4caf50; }}
+        .score.average {{ color: #ff9800; }}
+        .score.poor {{ color: #f44336; }}
+        
+        .allocation {{
+            font-weight: bold;
+            color: #1e3c72;
+        }}
+        
+        .footer {{
+            background: #f8f9fa;
+            padding: 30px 40px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            border-top: 2px solid #eee;
+        }}
+        
+        .disclaimer {{
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 40px;
+            border-radius: 5px;
+        }}
+        
+        .disclaimer h4 {{
+            color: #856404;
+            margin-bottom: 10px;
+        }}
+        
+        .disclaimer p {{
+            color: #856404;
+            line-height: 1.6;
+        }}
+        
+        .technical-indicators {{
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.85em;
+        }}
+        
+        .fundamental-data {{
+            font-size: 0.85em;
+            color: #666;
+        }}
+        
+        .github-link {{
+            text-align: center;
+            padding: 20px 40px;
+            background: #e8f4f8;
+            border-bottom: 2px solid #bee5eb;
+        }}
+        
+        .github-link a {{
+            color: #1e3c72;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }}
+        
+        .github-link a:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }}
+        
+        .github-icon {{
+            width: 24px;
+            height: 24px;
+        }}
+        
+        @media (max-width: 768px) {{
+            .header h1 {{
+                font-size: 1.8em;
+            }}
+            
+            .summary {{
+                grid-template-columns: 1fr;
+            }}
+            
+            .table-container {{
+                padding: 20px;
+            }}
+            
+            table {{
+                font-size: 0.9em;
+            }}
+            
+            th, td {{
+                padding: 10px;
+            }}
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Portfolio Analysis Report</h1>
+            <div class="date">Generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')}</div>
+            <div class="live-badge">🔴 LIVE ON GITHUB PAGES</div>
+        </div>"""
+    
+    if github_url:
+        html += f"""
+        <div class="github-link">
+            <a href="{github_url}" target="_blank">
+                <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                View on GitHub Pages: {github_url.replace('https://', '')}
+            </a>
+        </div>"""
+    
+    html += f"""
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Monthly Investment</h3>
+                <div class="value">₹{monthly_investment:,.0f}</div>
+            </div>
+            <div class="summary-card">
+                <h3>Total Stocks</h3>
+                <div class="value">{len(results)}</div>
+            </div>
+            <div class="summary-card">
+                <h3>Avg Combined Score</h3>
+                <div class="value">{sum(r['combined_score'] for r in results)/len(results):.1f}</div>
+            </div>
+            <div class="summary-card">
+                <h3>Allocated Amount</h3>
+                <div class="value">₹{total_allocation:,.0f}</div>
+            </div>
+        </div>
+        
+        <div class="recommendation-summary">
+            <div class="rec-item strong-buy">
+                <div class="count">{strong_buy}</div>
+                <div>Strong Buy</div>
+            </div>
+            <div class="rec-item buy">
+                <div class="count">{buy}</div>
+                <div>Buy</div>
+            </div>
+            <div class="rec-item hold">
+                <div class="count">{hold}</div>
+                <div>Hold</div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stock</th>
+                        <th>Recommendation</th>
+                        <th>Combined Score</th>
+                        <th>Tech Score</th>
+                        <th>Fund Score</th>
+                        <th>Allocation %</th>
+                        <th>Amount (₹)</th>
+                        <th>Current Price</th>
+                        <th>Technical Indicators</th>
+                        <th>Fundamentals</th>
+                    </tr>
+                </thead>
+                <tbody>
+    """
+    
+    # Sort by combined score descending
+    results_sorted = sorted(results, key=lambda x: x['combined_score'], reverse=True)
+    
+    for r in results_sorted:
+        # Safely handle None values
+        combined_score = r.get('combined_score', 0) or 0
+        tech_score = r.get('technical_score', 0) or 0
+        fund_score = r.get('fundamental_score', 0) or 0
+        alloc_pct = r.get('allocation_percent', 0) or 0
+        alloc_amt = r.get('allocation_amount', 0) or 0
+        current_price = r.get('current_price', 0) or 0
+        rsi = r.get('rsi', 0) or 0
+        macd = r.get('macd', 0) or 0
+        sma_20 = r.get('sma_20', 0) or 0
+        pe_ratio = r.get('pe_ratio', 0) or 0
+        roe = r.get('roe', 0) or 0
+        div_yield = r.get('dividend_yield', 0) or 0
+        
+        score_class = 'excellent' if combined_score >= 70 else 'good' if combined_score >= 55 else 'average' if combined_score >= 40 else 'poor'
+        rec_class = r['recommendation'].lower().replace(' ', '-')
+        
+        # Technical indicators
+        tech_info = f"""
+        <div class="technical-indicators">
+            <div>RSI: {rsi:.1f}</div>
+            <div>MACD: {macd:.2f}</div>
+            <div>SMA20: ₹{sma_20:.2f}</div>
+        </div>
+        """
+        
+        # Fundamental data
+        fund_info = f"""
+        <div class="fundamental-data">
+            <div>P/E: {pe_ratio:.2f}</div>
+            <div>ROE: {roe:.1f}%</div>
+            <div>Div Yield: {div_yield:.2f}%</div>
+        </div>
+        """
+        
+        html += f"""
+                    <tr>
+                        <td class="ticker">{r['ticker']}</td>
+                        <td><span class="recommendation {rec_class}">{r['recommendation']}</span></td>
+                        <td><span class="score {score_class}">{combined_score:.1f}</span></td>
+                        <td>{tech_score:.1f}</td>
+                        <td>{fund_score:.1f}</td>
+                        <td>{alloc_pct:.1f}%</td>
+                        <td class="allocation">₹{alloc_amt:,.0f}</td>
+                        <td>₹{current_price:.2f}</td>
+                        <td>{tech_info}</td>
+                        <td>{fund_info}</td>
+                    </tr>
+        """
+    
+    html += """
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="disclaimer">
+            <h4>⚠️ Important Disclaimer</h4>
+            <p>
+                This analysis is for informational purposes only and should not be considered as financial advice. 
+                The recommendations are based on technical and fundamental analysis algorithms and do not guarantee 
+                future performance. Always conduct your own research and consult with a qualified financial advisor 
+                before making investment decisions. Past performance is not indicative of future results.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Analysis Methodology:</strong></p>
+            <p>Technical Analysis (50%): RSI, MACD, Moving Averages, Bollinger Bands, Price Momentum</p>
+            <p>Fundamental Analysis (50%): P/E Ratio, ROE, Profit Margin, Revenue Growth, Dividend Yield, Debt/Equity</p>
+            <p style="margin-top: 15px;">Generated by Portfolio Analyzer v1.0 | © 2026</p>
+            <p style="margin-top: 10px; font-size: 0.8em; opacity: 0.7;">
+                Last Updated: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+    """
+    
+    return html
+
+
+def generate_email_html(results, monthly_investment, github_url=""):
+    """Generate HTML for email (includes GitHub Pages link)"""
+    
+    # Calculate totals
+    total_allocation = sum(r['allocation_amount'] for r in results)
+    strong_buy = len([r for r in results if r['recommendation'] == 'STRONG BUY'])
+    buy = len([r for r in results if r['recommendation'] == 'BUY'])
+    hold = len([r for r in results if r['recommendation'] == 'HOLD'])
+    
+    github_section = ""
+    if github_url:
+        github_section = f"""
+        <div style="background: #e8f4f8; border: 2px solid #bee5eb; padding: 20px; margin: 20px 0; border-radius: 10px; text-align: center;">
+            <h3 style="color: #1e3c72; margin-bottom: 10px;">🌐 View Live Report Online</h3>
+            <p style="margin-bottom: 15px; color: #666;">Access your portfolio analysis anytime on GitHub Pages:</p>
+            <a href="{github_url}" style="display: inline-block; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 1.1em;">
+                View Live Report →
+            </a>
+            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">{github_url}</p>
+        </div>
+        """
     
     html = f"""
     <!DOCTYPE html>
@@ -687,6 +1184,8 @@ def generate_html_report(results, monthly_investment):
                 <div class="date">Generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')}</div>
             </div>
             
+            {github_section}
+            
             <div class="summary">
                 <div class="summary-card">
                     <h3>Monthly Investment</h3>
@@ -887,27 +1386,36 @@ def main():
     # Calculate allocation
     results = calculate_allocation(results, MONTHLY_INVESTMENT)
     
-    # Generate HTML report
-    html_report = generate_html_report(results, MONTHLY_INVESTMENT)
+    # Generate GitHub Pages URL
+    github_url = f"https://{GITHUB_USERNAME}.github.io/{GITHUB_REPO}/"
+    print(f"\n📌 GitHub Pages URL: {github_url}")
     
-    # Save HTML report
+    # Generate index.html for GitHub Pages
+    github_pages_html = generate_github_pages_html(results, MONTHLY_INVESTMENT, github_url)
+    with open('index.html', 'w', encoding='utf-8') as f:
+        f.write(github_pages_html)
+    print(f"✅ GitHub Pages HTML generated: index.html")
+    
+    # Generate email HTML (with GitHub Pages link)
+    email_html = generate_email_html(results, MONTHLY_INVESTMENT, github_url)
+    
+    # Save email HTML as backup
     report_filename = f"portfolio_analysis_{datetime.now().strftime('%Y%m%d')}.html"
     with open(report_filename, 'w', encoding='utf-8') as f:
-        f.write(html_report)
+        f.write(email_html)
+    print(f"✅ Email HTML report generated: {report_filename}")
     
-    print(f"\n✅ HTML report generated: {report_filename}")
-    
-    # Save JSON data for GitHub Pages
+    # Save JSON data
     json_data = {
         'generated_date': datetime.now().isoformat(),
         'monthly_investment': MONTHLY_INVESTMENT,
+        'github_pages_url': github_url,
         'stocks': results
     }
     
     json_filename = f"portfolio_data_{datetime.now().strftime('%Y%m%d')}.json"
     with open(json_filename, 'w') as f:
         json.dump(json_data, f, indent=2)
-    
     print(f"✅ JSON data generated: {json_filename}")
     
     # EMAIL CONFIGURATION - Check environment variables first (for GitHub Actions)
@@ -940,7 +1448,7 @@ def main():
     
     if email_enabled:
         success = send_email(
-            html_report, 
+            email_html, 
             recipient_email,
             sender_email,
             sender_password
@@ -948,6 +1456,8 @@ def main():
         
         if not success:
             print("\n⚠️  Email delivery failed, but report files were saved locally.")
+        else:
+            print(f"\n🌐 Your report is also live at: {github_url}")
     else:
         print("\n" + "=" * 60)
         print("EMAIL DELIVERY: DISABLED")
@@ -965,6 +1475,7 @@ def main():
         print("3. Fill in your email addresses and App Password")
         print("4. For Gmail, generate an App Password at:")
         print("   https://myaccount.google.com/apppasswords")
+        print(f"\n🌐 Your report will be live at: {github_url}")
     
     # Display summary
     print("\n" + "=" * 60)
@@ -984,6 +1495,8 @@ def main():
         print(f"                 Tech: {tech:.1f} | Fund: {fund:.1f} | Price: ₹{price:.2f}")
     
     print("\n" + "=" * 60)
+    print(f"🌐 GitHub Pages: {github_url}")
+    print("=" * 60)
     
     return results
 
@@ -996,16 +1509,18 @@ if __name__ == "__main__":
         import os
         from glob import glob
         
-        html_files = glob("portfolio_analysis_*.html")
-        json_files = glob("portfolio_data_*.json")
-        
-        if html_files and json_files:
+        if os.path.exists('index.html'):
             print("\n✅ Portfolio analysis completed successfully!")
-            print(f"   Generated: {html_files[0]}")
-            print(f"   Generated: {json_files[0]}")
+            print(f"   Generated: index.html (for GitHub Pages)")
+            html_files = glob("portfolio_analysis_*.html")
+            json_files = glob("portfolio_data_*.json")
+            if html_files:
+                print(f"   Generated: {html_files[0]} (email backup)")
+            if json_files:
+                print(f"   Generated: {json_files[0]} (JSON data)")
             sys.exit(0)  # Explicitly exit with success code
         else:
-            print("\n⚠️ Analysis ran but files not found!")
+            print("\n⚠️ Analysis ran but index.html not found!")
             sys.exit(1)
             
     except Exception as e:
