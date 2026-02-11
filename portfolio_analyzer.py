@@ -13,6 +13,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import json
 import warnings
+import time
+import sys
 warnings.filterwarnings('ignore')
 
 # Portfolio Configuration
@@ -31,15 +33,34 @@ class StockAnalyzer:
         self.data = None
         self.info = None
         
-    def fetch_data(self, period="6mo"):
-        """Fetch historical stock data"""
-        try:
-            self.data = self.stock.history(period=period)
-            self.info = self.stock.info
-            return True
-        except Exception as e:
-            print(f"Error fetching data for {self.ticker}: {e}")
-            return False
+    def fetch_data(self, period="6mo", max_retries=3):
+        """Fetch historical stock data with retry logic"""
+        for attempt in range(max_retries):
+            try:
+                print(f"  Fetching data for {self.ticker} (attempt {attempt + 1}/{max_retries})...")
+                self.data = self.stock.history(period=period)
+                self.info = self.stock.info
+                
+                if self.data is None or len(self.data) == 0:
+                    print(f"  ⚠️ No data returned for {self.ticker}")
+                    if attempt < max_retries - 1:
+                        time.sleep(2 ** attempt)  # Exponential backoff
+                        continue
+                    return False
+                
+                print(f"  ✅ Successfully fetched {len(self.data)} days of data")
+                return True
+                
+            except Exception as e:
+                print(f"  ❌ Error fetching data for {self.ticker}: {e}")
+                if attempt < max_retries - 1:
+                    print(f"  Retrying in {2 ** attempt} seconds...")
+                    time.sleep(2 ** attempt)
+                else:
+                    print(f"  Failed after {max_retries} attempts")
+                    return False
+        
+        return False
     
     def calculate_rsi(self, period=14):
         """Calculate Relative Strength Index"""
@@ -254,41 +275,61 @@ class StockAnalyzer:
 def analyze_portfolio(stocks):
     """Analyze entire portfolio"""
     results = []
+    successful = 0
+    failed = 0
     
-    for ticker in stocks:
-        print(f"Analyzing {ticker}...")
+    print(f"\n{'='*70}")
+    print(f"Starting analysis of {len(stocks)} stocks...")
+    print(f"{'='*70}\n")
+    
+    for idx, ticker in enumerate(stocks, 1):
+        print(f"[{idx}/{len(stocks)}] Analyzing {ticker}...")
         analyzer = StockAnalyzer(ticker)
         
         if analyzer.fetch_data():
-            recommendation, combined_score, tech_score, fund_score = analyzer.get_recommendation()
-            
-            current, sma_20, sma_50, sma_200 = analyzer.calculate_moving_averages()
-            rsi = analyzer.calculate_rsi()
-            macd, signal, histogram = analyzer.calculate_macd()
-            fundamentals = analyzer.get_fundamental_data()
-            
-            results.append({
-                'ticker': ticker,
-                'recommendation': recommendation,
-                'combined_score': combined_score,
-                'technical_score': tech_score,
-                'fundamental_score': fund_score,
-                'current_price': current,
-                'rsi': rsi,
-                'macd': macd,
-                'signal': signal,
-                'sma_20': sma_20,
-                'sma_50': sma_50,
-                'sma_200': sma_200,
-                'pe_ratio': fundamentals.get('pe_ratio', 0),
-                'dividend_yield': fundamentals.get('dividend_yield', 0),
-                'market_cap': fundamentals.get('market_cap', 0),
-                'roe': fundamentals.get('roe', 0),
-                'profit_margin': fundamentals.get('profit_margin', 0),
-                'revenue_growth': fundamentals.get('revenue_growth', 0),
-                '52w_high': fundamentals.get('52w_high', 0),
-                '52w_low': fundamentals.get('52w_low', 0),
-            })
+            try:
+                recommendation, combined_score, tech_score, fund_score = analyzer.get_recommendation()
+                
+                current, sma_20, sma_50, sma_200 = analyzer.calculate_moving_averages()
+                rsi = analyzer.calculate_rsi()
+                macd, signal, histogram = analyzer.calculate_macd()
+                fundamentals = analyzer.get_fundamental_data()
+                
+                results.append({
+                    'ticker': ticker,
+                    'recommendation': recommendation,
+                    'combined_score': combined_score,
+                    'technical_score': tech_score,
+                    'fundamental_score': fund_score,
+                    'current_price': current,
+                    'rsi': rsi,
+                    'macd': macd,
+                    'signal': signal,
+                    'sma_20': sma_20,
+                    'sma_50': sma_50,
+                    'sma_200': sma_200,
+                    'pe_ratio': fundamentals.get('pe_ratio', 0),
+                    'dividend_yield': fundamentals.get('dividend_yield', 0),
+                    'market_cap': fundamentals.get('market_cap', 0),
+                    'roe': fundamentals.get('roe', 0),
+                    'profit_margin': fundamentals.get('profit_margin', 0),
+                    'revenue_growth': fundamentals.get('revenue_growth', 0),
+                    '52w_high': fundamentals.get('52w_high', 0),
+                    '52w_low': fundamentals.get('52w_low', 0),
+                })
+                successful += 1
+                print(f"  ✅ Analysis complete: {recommendation} (Score: {combined_score:.1f})")
+            except Exception as e:
+                print(f"  ❌ Error analyzing {ticker}: {e}")
+                results.append({
+                    'ticker': ticker,
+                    'recommendation': 'DATA ERROR',
+                    'combined_score': 0,
+                    'technical_score': 0,
+                    'fundamental_score': 0,
+                    'current_price': 0,
+                })
+                failed += 1
         else:
             results.append({
                 'ticker': ticker,
@@ -298,6 +339,21 @@ def analyze_portfolio(stocks):
                 'fundamental_score': 0,
                 'current_price': 0,
             })
+            failed += 1
+        
+        # Small delay to avoid rate limiting
+        if idx < len(stocks):
+            time.sleep(1)
+    
+    print(f"\n{'='*70}")
+    print(f"Analysis Summary:")
+    print(f"  ✅ Successful: {successful}/{len(stocks)}")
+    print(f"  ❌ Failed: {failed}/{len(stocks)}")
+    print(f"{'='*70}\n")
+    
+    if successful == 0:
+        print("ERROR: No stocks were successfully analyzed. Exiting.")
+        sys.exit(1)
     
     return results
 
