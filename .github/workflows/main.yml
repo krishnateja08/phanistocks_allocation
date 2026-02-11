@@ -4,7 +4,7 @@ on:
   schedule:
     # Runs every Sunday at 7:00 PM CST (which is Monday 1:00 AM UTC)
     # CST is UTC-6, so 7:00 PM CST = 1:00 AM UTC next day
-    - cron: '0 1 * * 1'  # Every Monday at 01:00 UTC = Sunday 7:00 PM CST
+    - cron: '3 0 * * *'  # Every day at 00:00 UTC = 06:00 PM CST
   
   workflow_dispatch:  # Allows manual trigger from GitHub UI
 
