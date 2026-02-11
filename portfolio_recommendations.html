@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Investment Recommendations - 11 February 2026, 06:01 AM IST</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .info-box {
+            background: rgba(255,255,255,0.2);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin: 5px;
+        }
+        
+        .info-box .label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .info-box .value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .category-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .category-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .category-allocation {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stocks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .stock-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        
+        .stock-card.buy {
+            border-left: 5px solid #27ae60;
+        }
+        
+        .stock-card.hold {
+            border-left: 5px solid #f39c12;
+        }
+        
+        .stock-card.avoid {
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .stock-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .signal-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        
+        .signal-badge.buy {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .signal-badge.hold {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .signal-badge.avoid {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .stock-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .detail-label {
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .detail-value {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .price-positive {
+            color: #27ae60;
+        }
+        
+        .price-negative {
+            color: #e74c3c;
+        }
+        
+        .technical-signals {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .signal-item {
+            text-align: center;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .signal-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .signal-value {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .allocation-bar {
+            background: #e0e0e0;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .allocation-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+        
+        .recommendation {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+        }
+        
+        .recommendation-text {
+            font-size: 14px;
+            color: #856404;
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 768px) {
+            .stocks-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .signals-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Portfolio Investment Recommendations</h1>
+            <p style="opacity: 0.9; margin-top: 10px;">Based on Technical Analysis - 11 February 2026, 06:01 AM IST</p>
+            <div class="header-info">
+                <div class="info-box">
+                    <div class="label">Monthly Budget</div>
+                    <div class="value">₹60,000</div>
+                </div>
+                <div class="info-box">
+                    <div class="label">Recommended Investment</div>
+                    <div class="value">₹48,000</div>
+                </div>
+                <div class="info-box">
+                    <div class="label">Keep as Cash</div>
+                    <div class="value">₹12,000 (20%)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Banking & Finance -->
+        <div class="category-section">
+            <div class="category-header">
+                <div class="category-title">🏦 Banking & Finance</div>
+                <div class="category-allocation">Allocate: ₹48,000 (100%)</div>
+            </div>
+            <div class="stocks-grid">
+
+                <div class="stock-card buy">
+                    <div class="stock-header">
+                        <div class="stock-name">BANKBEES</div>
+                        <div class="signal-badge buy">BUY</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹626.15</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹637</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹490</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">0.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #f39c12;">60</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #27ae60;">Bullish</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #27ae60;">Uptrend</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 100.0%;">₹48,000 (100%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Banking sector ETF with exposure to top banks. Stable performance with moderate growth potential. RSI at 60 neutral. MACD bullish, trend: Uptrend. <br><br><strong>💡 Recommendation:</strong> Technical indicators support accumulation. Good entry point.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stock-card hold">
+                    <div class="stock-header">
+                        <div class="stock-name">HDFCBANK</div>
+                        <div class="signal-badge hold">HOLD</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹932.40</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹1,020</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹819</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">117.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #f39c12;">51</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #27ae60;">Bullish</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #f39c12;">Sideways</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0.0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Leading private bank with strong fundamentals. Consistent performer in the banking sector. RSI at 51 neutral. MACD bullish, trend: Sideways. <br><br><strong>💡 Recommendation:</strong> Maintain watch. Wait for clearer signals before adding.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- IT Sector -->
+        <div class="category-section">
+            <div class="category-header">
+                <div class="category-title">💻 IT Sector</div>
+                <div class="category-allocation">Allocate: ₹0 (0%)</div>
+            </div>
+            <div class="stocks-grid">
+
+                <div class="stock-card hold">
+                    <div class="stock-header">
+                        <div class="stock-name">ITBEES</div>
+                        <div class="signal-badge hold">HOLD</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹39.46</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹47</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹34</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">0.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #27ae60;">29</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #e74c3c;">Bearish</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #e74c3c;">Downtrend</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> IT sector ETF providing diversified exposure to technology stocks. RSI at 29 shows oversold - reversal potential. MACD bearish, trend: Downtrend. <br><br><strong>💡 Recommendation:</strong> Maintain watch. Wait for clearer signals before adding.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stock-card hold">
+                    <div class="stock-header">
+                        <div class="stock-name">TECHM</div>
+                        <div class="signal-badge hold">HOLD</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹1,644.60</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹1,854</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹1,175</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">277.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #f39c12;">44</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #e74c3c;">Bearish</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #f39c12;">Sideways</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Leading IT services company with global presence. Solid fundamentals. RSI at 44 neutral. MACD bearish, trend: Sideways. <br><br><strong>💡 Recommendation:</strong> Maintain watch. Wait for clearer signals before adding.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stock-card avoid">
+                    <div class="stock-header">
+                        <div class="stock-name">TCS</div>
+                        <div class="signal-badge avoid">AVOID NOW</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹2,984.60</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹3,917</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹2,805</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">214.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #f39c12;">40</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #e74c3c;">Bearish</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #e74c3c;">Downtrend</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Leading IT services company with global presence. Solid fundamentals. RSI at 40 neutral. MACD bearish, trend: Downtrend. <br><br><strong>💡 Recommendation:</strong> Avoid fresh investment. Wait for better entry point.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stock-card hold">
+                    <div class="stock-header">
+                        <div class="stock-name">INFY</div>
+                        <div class="signal-badge hold">HOLD</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹1,497.80</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹1,850</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹1,269</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">301.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #27ae60;">20</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #e74c3c;">Bearish</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #e74c3c;">Downtrend</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Leading IT services company with global presence. Solid fundamentals. RSI at 20 shows oversold - reversal potential. MACD bearish, trend: Downtrend. <br><br><strong>💡 Recommendation:</strong> Maintain watch. Wait for clearer signals before adding.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- REITs -->
+        <div class="category-section">
+            <div class="category-header">
+                <div class="category-title">💻 REITs</div>
+                <div class="category-allocation">Allocate: ₹0 (0%)</div>
+            </div>
+            <div class="stocks-grid">
+
+                <div class="stock-card hold">
+                    <div class="stock-header">
+                        <div class="stock-name">NXST REIT</div>
+                        <div class="signal-badge hold">HOLD</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹161.07</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹162</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹160</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">0.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #f39c12;">50</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #f39c12;">Neutral</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #f39c12;">Neutral</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Quality REIT with stable rental income. Good for passive income seekers. RSI at 50 neutral. MACD neutral, trend: Neutral. <br><br><strong>💡 Recommendation:</strong> Maintain watch. Wait for clearer signals before adding.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stock-card hold">
+                    <div class="stock-header">
+                        <div class="stock-name">EMBASSY REIT</div>
+                        <div class="signal-badge hold">HOLD</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹459.61</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹460</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹453</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">0.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #f39c12;">50</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #f39c12;">Neutral</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #f39c12;">Neutral</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Quality REIT with stable rental income. Good for passive income seekers. RSI at 50 neutral. MACD neutral, trend: Neutral. <br><br><strong>💡 Recommendation:</strong> Maintain watch. Wait for clearer signals before adding.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stock-card hold">
+                    <div class="stock-header">
+                        <div class="stock-name">BIRET REIT</div>
+                        <div class="signal-badge hold">HOLD</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹362.32</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹365</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹360</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">0.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #f39c12;">50</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #f39c12;">Neutral</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #f39c12;">Neutral</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Quality REIT with stable rental income. Good for passive income seekers. RSI at 50 neutral. MACD neutral, trend: Neutral. <br><br><strong>💡 Recommendation:</strong> Maintain watch. Wait for clearer signals before adding.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stock-card hold">
+                    <div class="stock-header">
+                        <div class="stock-name">MINDSPACE REIT</div>
+                        <div class="signal-badge hold">HOLD</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹499.35</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹505</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹493</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">0.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #f39c12;">50</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #f39c12;">Neutral</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #f39c12;">Neutral</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Quality REIT with stable rental income. Good for passive income seekers. RSI at 50 neutral. MACD neutral, trend: Neutral. <br><br><strong>💡 Recommendation:</strong> Maintain watch. Wait for clearer signals before adding.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Index & Others -->
+        <div class="category-section">
+            <div class="category-header">
+                <div class="category-title">📊 Index & Others</div>
+                <div class="category-allocation">Allocate: ₹0 (0%)</div>
+            </div>
+            <div class="stocks-grid">
+
+                <div class="stock-card hold">
+                    <div class="stock-header">
+                        <div class="stock-name">RELIANCE</div>
+                        <div class="signal-badge hold">HOLD</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹1,458.50</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹1,612</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹1,110</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">38.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #e74c3c;">69</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #27ae60;">Bullish</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #f39c12;">Sideways</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Diversified conglomerate with presence in energy, retail, and telecom. RSI at 69 showing strength. MACD bullish, trend: Sideways. <br><br><strong>💡 Recommendation:</strong> Maintain watch. Wait for clearer signals before adding.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stock-card hold">
+                    <div class="stock-header">
+                        <div class="stock-name">TMPV</div>
+                        <div class="signal-badge hold">HOLD</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹379.35</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹419</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹336</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">159.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #e74c3c;">79</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #27ae60;">Bullish</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #f39c12;">Sideways</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Momentum-based ETF tracking high-performing stocks. RSI at 79 overbought - caution advised. MACD bullish, trend: Sideways. <br><br><strong>💡 Recommendation:</strong> Maintain watch. Wait for clearer signals before adding.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stock-card hold">
+                    <div class="stock-header">
+                        <div class="stock-name">NIFTYBEES</div>
+                        <div class="signal-badge hold">HOLD</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹293.56</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹302</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹231</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">0.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #e74c3c;">65</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #27ae60;">Bullish</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #f39c12;">Sideways</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Nifty 50 ETF - Broad market exposure. Best for long-term wealth creation. RSI at 65 showing strength. MACD bullish, trend: Sideways. <br><br><strong>💡 Recommendation:</strong> Maintain watch. Wait for clearer signals before adding.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stock-card hold">
+                    <div class="stock-header">
+                        <div class="stock-name">M&M</div>
+                        <div class="signal-badge hold">HOLD</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹3,675.80</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹3,840</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹2,406</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">70.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #f39c12;">60</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #27ae60;">Bullish</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #f39c12;">Sideways</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Leading auto and farm equipment manufacturer. Strong rural demand. RSI at 60 neutral. MACD bullish, trend: Sideways. <br><br><strong>💡 Recommendation:</strong> Maintain watch. Wait for clearer signals before adding.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stock-card hold">
+                    <div class="stock-header">
+                        <div class="stock-name">GOLDBEES</div>
+                        <div class="signal-badge hold">HOLD</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹128.34</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹148</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹66</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">0.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #f39c12;">51</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #e74c3c;">Bearish</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #27ae60;">Uptrend</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Gold ETF - Safe haven asset. Good hedge against market volatility. RSI at 51 neutral. MACD bearish, trend: Uptrend. <br><br><strong>💡 Recommendation:</strong> Maintain watch. Wait for clearer signals before adding.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stock-card hold">
+                    <div class="stock-header">
+                        <div class="stock-name">SILVERBEES</div>
+                        <div class="signal-badge hold">HOLD</div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Current Price</span>
+                            <span class="detail-value">₹243.82</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W High</span>
+                            <span class="detail-value">₹360</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">52W Low</span>
+                            <span class="detail-value">₹78</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dividend Yield</span>
+                            <span class="detail-value">0.0%</span>
+                        </div>
+                    </div>
+                    <div class="technical-signals">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #2c3e50;">Technical Indicators</div>
+                        <div class="signals-grid">
+                            <div class="signal-item">
+                                <div class="signal-label">RSI (14)</div>
+                                <div class="signal-value" style="color: #f39c12;">43</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">MACD</div>
+                                <div class="signal-value" style="color: #e74c3c;">Bearish</div>
+                            </div>
+                            <div class="signal-item">
+                                <div class="signal-label">Trend</div>
+                                <div class="signal-value" style="color: #f39c12;">Sideways</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: 0%;">₹0 (0%)</div>
+                    </div>
+                    <div class="recommendation">
+                        <div class="recommendation-text">
+                            <strong>📊 Analysis:</strong> Silver ETF - Industrial and precious metal exposure. RSI at 43 neutral. MACD bearish, trend: Sideways. <br><br><strong>💡 Recommendation:</strong> Maintain watch. Wait for clearer signals before adding.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Risk Warning -->
+        <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 20px; margin-top: 25px;">
+            <h3 style="color: #856404; margin-bottom: 10px;">⚠️ Important Risk Disclaimers</h3>
+            <ul style="color: #856404; line-height: 1.8; margin-left: 20px;">
+                <li><strong>Market Volatility:</strong> Markets can be volatile - expect price swings</li>
+                <li><strong>Diversification:</strong> Don't invest all ₹48,000 in one day - spread over 2-3 weeks</li>
+                <li><strong>Stop Loss:</strong> For individual stocks, maintain 8-10% stop loss from purchase price</li>
+                <li><strong>Review Frequency:</strong> Reassess this plan weekly based on market movements</li>
+                <li><strong>Cash Reserve:</strong> Keep ₹12,000 (20%) in cash for emergency opportunities or averaging down</li>
+                <li><strong>Not Financial Advice:</strong> This is technical analysis only. Consult your financial advisor</li>
+            </ul>
+        </div>
+        
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 30px; padding: 20px; color: #666; font-style: italic;">
+            <p>Analysis Date: 11 February 2026, 06:01 AM IST | Data refreshes every trading day</p>
+            <p style="margin-top: 10px;"><strong>Remember:</strong> "The stock market is a device for transferring money from the impatient to the patient." - Warren Buffett</p>
+        </div>
+    </div>
+</body>
+</html>
