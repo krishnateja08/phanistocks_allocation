@@ -2,7 +2,7 @@
 Stock Portfolio Analysis Script with Technical & Fundamental Analysis
 Author: Portfolio Manager
 Date: February 2026
-Version: 3.0 - Sector-wise Analysis with Enhanced UI
+Version: 3.1 - Compact Mobile-Responsive UI
 """
 
 import yfinance as yf
@@ -453,7 +453,7 @@ def group_by_sector(results):
 
 
 def generate_github_pages_html(results, monthly_investment, github_url=""):
-    """Generate sector-wise HTML for GitHub Pages with IST timezone"""
+    """Generate COMPACT, MOBILE-RESPONSIVE HTML for GitHub Pages"""
     
     ist_time = get_ist_time()
     total_allocation = sum(r['allocation_amount'] for r in results)
@@ -496,91 +496,92 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
         body {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            line-height: 1.6;
+            padding: 10px;
+            line-height: 1.4;
             min-height: 100vh;
+            font-size: 14px;
         }}
         
         .container {{
-            max-width: 1800px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
             overflow: hidden;
         }}
         
-        /* Header */
+        /* Header - Compact */
         .header {{
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
-            padding: 50px 40px 40px 40px;
+            padding: 25px 20px 20px 20px;
             text-align: center;
         }}
         
         .header h1 {{
-            font-size: 3em;
-            margin-bottom: 15px;
+            font-size: 1.8em;
+            margin-bottom: 8px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             font-weight: 700;
         }}
         
         .header .subtitle {{
-            font-size: 1.3em;
+            font-size: 1em;
             opacity: 0.95;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: 300;
         }}
         
         .ist-time-badge {{
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             background: rgba(255,255,255,0.2);
-            padding: 12px 25px;
-            border-radius: 30px;
-            margin-top: 20px;
-            font-size: 1.1em;
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-size: 0.85em;
             font-weight: 500;
             backdrop-filter: blur(10px);
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 1.5px solid rgba(255,255,255,0.3);
         }}
         
-        /* Quick Stats */
+        /* Quick Stats - Compact */
         .quick-stats {{
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 40px;
-            border-bottom: 3px solid #dee2e6;
+            padding: 20px 15px;
+            border-bottom: 2px solid #dee2e6;
         }}
         
         .stats-title {{
             text-align: center;
-            font-size: 1.8em;
+            font-size: 1.3em;
             color: #1e3c72;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             font-weight: 700;
         }}
         
         .stats-grid {{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
         }}
         
         .stat-card {{
             background: white;
-            padding: 30px 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 12px 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             text-align: center;
             transition: all 0.3s ease;
-            border-left: 5px solid #1e3c72;
+            border-left: 3px solid #1e3c72;
         }}
         
         .stat-card:hover {{
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.12);
         }}
         
         .stat-card.highlight {{
@@ -589,55 +590,55 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
         }}
         
         .stat-card .icon {{
-            font-size: 2.5em;
-            margin-bottom: 12px;
+            font-size: 1.5em;
+            margin-bottom: 6px;
             opacity: 0.8;
         }}
         
         .stat-card h3 {{
             color: #6c757d;
-            font-size: 0.95em;
+            font-size: 0.7em;
             text-transform: uppercase;
-            letter-spacing: 1.2px;
-            margin-bottom: 12px;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
             font-weight: 600;
         }}
         
         .stat-card .value {{
-            font-size: 2.3em;
+            font-size: 1.5em;
             font-weight: 700;
             color: #1e3c72;
             line-height: 1.2;
         }}
         
         .stat-card .subvalue {{
-            font-size: 0.9em;
+            font-size: 0.75em;
             color: #6c757d;
-            margin-top: 8px;
+            margin-top: 4px;
         }}
         
-        /* Health Bar */
+        /* Health Bar - Compact */
         .health-indicator {{
             text-align: center;
-            padding: 25px;
+            padding: 15px;
             background: white;
-            border-radius: 12px;
-            margin-top: 25px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            margin-top: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
         }}
         
         .health-title {{
-            font-size: 1.1em;
+            font-size: 0.85em;
             color: #6c757d;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             font-weight: 600;
         }}
         
         .health-bar {{
             width: 100%;
-            height: 35px;
+            height: 25px;
             background: #e9ecef;
-            border-radius: 20px;
+            border-radius: 15px;
             overflow: hidden;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }}
@@ -645,51 +646,51 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
         .health-fill {{
             height: 100%;
             background: linear-gradient(90deg, #00a86b 0%, #4caf50 50%, #8bc34a 100%);
-            border-radius: 20px;
+            border-radius: 15px;
             transition: width 1.5s ease;
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            padding-right: 15px;
+            padding-right: 10px;
             color: white;
             font-weight: 700;
-            font-size: 1.1em;
+            font-size: 0.9em;
         }}
         
-        /* Recommendation Summary */
+        /* Recommendation Summary - Compact */
         .recommendation-summary {{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            padding: 35px 40px;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 10px;
+            padding: 15px;
             background: white;
             border-bottom: 2px solid #eee;
         }}
         
         .rec-item {{
             text-align: center;
-            padding: 20px;
-            border-radius: 12px;
+            padding: 12px 8px;
+            border-radius: 10px;
             transition: all 0.3s ease;
         }}
         
         .rec-item:hover {{
             transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }}
         
         .rec-item .count {{
-            font-size: 3em;
+            font-size: 2em;
             font-weight: 800;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             line-height: 1;
         }}
         
         .rec-item .label {{
-            font-size: 1em;
+            font-size: 0.7em;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }}
         
         .rec-item.strong-buy {{ background: linear-gradient(135deg, #00a86b 0%, #00d084 100%); color: white; }}
@@ -698,99 +699,103 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
         .rec-item.reduce {{ background: linear-gradient(135deg, #ff5722 0%, #ff7043 100%); color: white; }}
         .rec-item.sell {{ background: linear-gradient(135deg, #f44336 0%, #e57373 100%); color: white; }}
         
-        /* SECTOR-WISE LAYOUT */
+        /* SECTOR-WISE LAYOUT - Compact */
         .sectors-container {{
-            padding: 40px;
+            padding: 20px 15px;
         }}
         
         .sector-section {{
-            margin-bottom: 50px;
+            margin-bottom: 25px;
         }}
         
         .sector-header {{
             display: flex;
             align-items: center;
-            gap: 15px;
-            padding: 20px 25px;
+            gap: 10px;
+            padding: 12px 15px;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border-left: 6px solid #1e3c72;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border-left: 4px solid #1e3c72;
+            flex-wrap: wrap;
         }}
         
         .sector-icon {{
-            font-size: 2em;
+            font-size: 1.3em;
         }}
         
         .sector-title {{
-            font-size: 1.5em;
+            font-size: 1.1em;
             font-weight: 700;
             color: #1e3c72;
             flex: 1;
+            min-width: 150px;
         }}
         
         .sector-count {{
             background: white;
-            padding: 8px 20px;
-            border-radius: 20px;
+            padding: 5px 12px;
+            border-radius: 15px;
             font-weight: 600;
             color: #6c757d;
-            font-size: 0.9em;
+            font-size: 0.75em;
         }}
         
         .sector-allocation {{
             background: #1e3c72;
             color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
+            padding: 5px 12px;
+            border-radius: 15px;
             font-weight: 700;
-            font-size: 0.9em;
+            font-size: 0.75em;
         }}
         
-        /* Stock Cards in Rows */
+        /* Stock Cards - COMPACT */
         .stock-grid {{
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 12px;
         }}
         
         .stock-card {{
             background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border-left: 5px solid #1e3c72;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid #1e3c72;
             transition: all 0.3s ease;
         }}
         
         .stock-card:hover {{
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
         }}
         
         .stock-header {{
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
             border-bottom: 2px solid #f1f3f5;
+            flex-wrap: wrap;
+            gap: 8px;
         }}
         
         .stock-ticker {{
-            font-size: 1.3em;
+            font-size: 1.1em;
             font-weight: 700;
             color: #1e3c72;
         }}
         
         .stock-recommendation {{
             display: inline-block;
-            padding: 6px 14px;
-            border-radius: 20px;
+            padding: 4px 10px;
+            border-radius: 15px;
             font-weight: 700;
-            font-size: 0.75em;
+            font-size: 0.65em;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }}
         
         .stock-recommendation.strong-buy {{ background: #00a86b; color: white; }}
@@ -802,26 +807,26 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
         .stock-metrics {{
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 10px;
         }}
         
         .metric {{
             background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 8px;
+            border-radius: 6px;
         }}
         
         .metric-label {{
-            font-size: 0.75em;
+            font-size: 0.65em;
             color: #6c757d;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 5px;
+            letter-spacing: 0.3px;
+            margin-bottom: 3px;
         }}
         
         .metric-value {{
-            font-size: 1.3em;
+            font-size: 1.1em;
             font-weight: 700;
             color: #1e3c72;
         }}
@@ -831,89 +836,165 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
         .metric-value.average {{ color: #ff9800; }}
         .metric-value.poor {{ color: #f44336; }}
         
+        /* COMPACT Technical Indicators - Single Row */
         .stock-details {{
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 0.85em;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            font-size: 0.7em;
             color: #495057;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
         }}
         
-        .detail-row {{
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
+        .detail-item {{
+            text-align: center;
         }}
         
         .detail-label {{
+            font-weight: 700;
+            color: #6c757d;
+            display: block;
+            margin-bottom: 2px;
+            font-size: 0.9em;
+        }}
+        
+        .detail-value {{
             font-weight: 600;
+            color: #1e3c72;
+            font-size: 1.1em;
         }}
         
         .allocation-badge {{
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
-            padding: 12px 20px;
+            padding: 10px 15px;
             border-radius: 8px;
             text-align: center;
-            margin-top: 15px;
+            margin-top: 10px;
             font-weight: 700;
         }}
         
         .allocation-amount {{
-            font-size: 1.5em;
-            margin-bottom: 5px;
+            font-size: 1.3em;
+            margin-bottom: 3px;
         }}
         
         .allocation-percent {{
-            font-size: 0.9em;
+            font-size: 0.8em;
             opacity: 0.9;
         }}
         
         .disclaimer {{
             background: #fff3cd;
-            border-left: 5px solid #ffc107;
-            padding: 25px;
-            margin: 30px 40px;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 15px;
             border-radius: 8px;
         }}
         
         .disclaimer h4 {{
             color: #856404;
-            margin-bottom: 12px;
-            font-size: 1.2em;
+            margin-bottom: 8px;
+            font-size: 1em;
         }}
         
         .disclaimer p {{
             color: #856404;
-            line-height: 1.8;
+            line-height: 1.6;
+            font-size: 0.85em;
         }}
         
         .footer {{
             background: #f8f9fa;
-            padding: 35px 40px;
+            padding: 20px 15px;
             text-align: center;
             color: #6c757d;
-            font-size: 0.95em;
-            border-top: 3px solid #dee2e6;
+            font-size: 0.8em;
+            border-top: 2px solid #dee2e6;
         }}
         
-        @media (max-width: 1200px) {{
-            .stock-grid {{
-                grid-template-columns: 1fr;
-            }}
+        .footer p {{
+            margin: 5px 0;
         }}
         
+        /* MOBILE RESPONSIVE */
         @media (max-width: 768px) {{
+            body {{
+                padding: 5px;
+                font-size: 13px;
+            }}
+            
             .header h1 {{
-                font-size: 2em;
+                font-size: 1.5em;
+            }}
+            
+            .header .subtitle {{
+                font-size: 0.9em;
+            }}
+            
+            .ist-time-badge {{
+                font-size: 0.75em;
+                padding: 6px 12px;
             }}
             
             .stats-grid {{
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }}
+            
+            .stock-grid {{
                 grid-template-columns: 1fr;
             }}
             
             .stock-metrics {{
                 grid-template-columns: 1fr;
+            }}
+            
+            .stock-details {{
+                grid-template-columns: repeat(3, 1fr);
+                font-size: 0.65em;
+            }}
+            
+            .recommendation-summary {{
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+                padding: 10px;
+            }}
+            
+            .rec-item {{
+                padding: 10px 6px;
+            }}
+            
+            .rec-item .count {{
+                font-size: 1.5em;
+            }}
+            
+            .rec-item .label {{
+                font-size: 0.65em;
+            }}
+            
+            .sector-header {{
+                padding: 10px 12px;
+            }}
+            
+            .sector-title {{
+                font-size: 1em;
+                width: 100%;
+            }}
+        }}
+        
+        @media (min-width: 769px) and (max-width: 1024px) {{
+            .stock-grid {{
+                grid-template-columns: repeat(2, 1fr);
+            }}
+        }}
+        
+        @media (min-width: 1025px) {{
+            .stock-grid {{
+                grid-template-columns: repeat(3, 1fr);
             }}
         }}
     </style>
@@ -922,11 +1003,11 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>📊 Portfolio Analysis Dashboard</h1>
-            <div class="subtitle">Sector-wise Technical & Fundamental Analysis</div>
+            <h1>📊 Portfolio Analysis</h1>
+            <div class="subtitle">Sector-wise Analysis</div>
             <div class="ist-time-badge">
                 <span>🕐</span>
-                <span>Generated: {ist_time.strftime('%d %B %Y')} at {ist_time.strftime('%I:%M %p IST')}</span>
+                <span>{ist_time.strftime('%d %b %Y')} · {ist_time.strftime('%I:%M %p IST')}</span>
             </div>
         </div>
         
@@ -937,14 +1018,14 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
             <div class="stats-grid">
                 <div class="stat-card highlight">
                     <div class="icon">💰</div>
-                    <h3>Monthly Investment</h3>
+                    <h3>Investment</h3>
                     <div class="value">₹{monthly_investment:,}</div>
-                    <div class="subvalue">Allocated: ₹{total_allocation:,.0f}</div>
+                    <div class="subvalue">₹{total_allocation:,.0f} allocated</div>
                 </div>
                 
                 <div class="stat-card">
                     <div class="icon">📊</div>
-                    <h3>Total Stocks</h3>
+                    <h3>Stocks</h3>
                     <div class="value">{len(results)}</div>
                     <div class="subvalue">{len(sectors)} sectors</div>
                 </div>
@@ -953,19 +1034,19 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
                     <div class="icon">⭐</div>
                     <h3>Avg Score</h3>
                     <div class="value">{avg_score:.1f}</div>
-                    <div class="subvalue">Portfolio Health</div>
+                    <div class="subvalue">Health</div>
                 </div>
                 
                 <div class="stat-card">
                     <div class="icon">🎯</div>
                     <h3>Strong Buys</h3>
                     <div class="value">{strong_buy}</div>
-                    <div class="subvalue">Best opportunities</div>
+                    <div class="subvalue">Top picks</div>
                 </div>
             </div>
             
             <div class="health-indicator">
-                <div class="health-title">Overall Portfolio Health Score</div>
+                <div class="health-title">Portfolio Health Score</div>
                 <div class="health-bar">
                     <div class="health-fill" style="width: {avg_score}%;">
                         {avg_score:.1f}%
@@ -1055,11 +1136,11 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
                         
                         <div class="stock-metrics">
                             <div class="metric">
-                                <div class="metric-label">Combined Score</div>
+                                <div class="metric-label">Score</div>
                                 <div class="metric-value {score_class}">{combined_score:.1f}</div>
                             </div>
                             <div class="metric">
-                                <div class="metric-label">Current Price</div>
+                                <div class="metric-label">Price</div>
                                 <div class="metric-value">₹{current_price:.2f}</div>
                             </div>
                             <div class="metric">
@@ -1073,25 +1154,25 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
                         </div>
                         
                         <div class="stock-details">
-                            <div class="detail-row">
-                                <span class="detail-label">RSI:</span>
-                                <span>{rsi:.1f}</span>
+                            <div class="detail-item">
+                                <span class="detail-label">RSI</span>
+                                <span class="detail-value">{rsi:.0f}</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">MACD:</span>
-                                <span>{macd:.2f}</span>
+                            <div class="detail-item">
+                                <span class="detail-label">MACD</span>
+                                <span class="detail-value">{macd:.1f}</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">P/E Ratio:</span>
-                                <span>{pe_ratio:.2f}</span>
+                            <div class="detail-item">
+                                <span class="detail-label">P/E</span>
+                                <span class="detail-value">{pe_ratio:.1f}</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">ROE:</span>
-                                <span>{roe:.1f}%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">ROE</span>
+                                <span class="detail-value">{roe:.0f}%</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Div Yield:</span>
-                                <span>{div_yield:.2f}%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">Div</span>
+                                <span class="detail-value">{div_yield:.1f}%</span>
                             </div>
                         </div>
                         
@@ -1116,17 +1197,15 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
                 This analysis is for informational purposes only and should not be considered as financial advice. 
                 The recommendations are based on technical and fundamental analysis algorithms and do not guarantee 
                 future performance. Always conduct your own research and consult with a qualified financial advisor 
-                before making investment decisions. Past performance is not indicative of future results.
+                before making investment decisions.
             </p>
         </div>
         
         <div class="footer">
-            <p><strong>Analysis Methodology:</strong></p>
-            <p>Technical Analysis (50%): RSI, MACD, Moving Averages, Bollinger Bands, Price Momentum</p>
-            <p>Fundamental Analysis (50%): P/E Ratio, ROE, Profit Margin, Revenue Growth, Dividend Yield, Debt/Equity</p>
-            <p style="margin-top: 20px; font-weight: 600;">Generated by Portfolio Analyzer v3.0 - Sector Edition | © 2026</p>
-            <p style="margin-top: 10px; font-size: 0.85em; opacity: 0.8;">
-                Last Updated: {ist_time.strftime('%d %B %Y')} at {ist_time.strftime('%I:%M %p IST')}
+            <p><strong>Methodology:</strong> Technical (50%): RSI, MACD, MA, Bollinger | Fundamental (50%): P/E, ROE, Margin, Growth, Div, D/E</p>
+            <p style="margin-top: 8px; font-weight: 600;">Portfolio Analyzer v3.1 - Compact Mobile Edition | © 2026</p>
+            <p style="margin-top: 5px; font-size: 0.9em; opacity: 0.8;">
+                Updated: {ist_time.strftime('%d %b %Y at %I:%M %p IST')}
             </p>
         </div>
     </div>
@@ -1138,7 +1217,7 @@ def generate_github_pages_html(results, monthly_investment, github_url=""):
 
 
 def generate_email_html(results, monthly_investment, github_url=""):
-    """Generate HTML for email (same sector-wise format)"""
+    """Generate HTML for email (same compact format)"""
     return generate_github_pages_html(results, monthly_investment, github_url)
 
 
@@ -1158,7 +1237,7 @@ Portfolio Analysis Report - {ist_time.strftime('%d %B %Y')} at {ist_time.strftim
 
 This is an HTML email. Please view it in an email client that supports HTML to see the full report.
 
-Generated by Portfolio Analyzer v3.0 - Sector Edition
+Generated by Portfolio Analyzer v3.1 - Compact Mobile Edition
         """
         text_part = MIMEText(text_content, 'plain')
         html_part = MIMEText(html_content, 'html')
@@ -1186,8 +1265,8 @@ def main():
     ist_time = get_ist_time()
     
     print("=" * 80)
-    print("Portfolio Stock Analyzer v3.0 - Sector Edition")
-    print("Sector-wise Analysis with Enhanced UI")
+    print("Portfolio Stock Analyzer v3.1 - Compact Mobile Edition")
+    print("Responsive Design for Mobile & Desktop")
     print("=" * 80)
     print(f"Current IST Time: {ist_time.strftime('%d %B %Y, %I:%M %p IST')}")
     print()
@@ -1201,7 +1280,7 @@ def main():
     github_pages_html = generate_github_pages_html(results, MONTHLY_INVESTMENT, github_url)
     with open('index.html', 'w', encoding='utf-8') as f:
         f.write(github_pages_html)
-    print(f"✅ GitHub Pages HTML generated: index.html (sector-wise layout)")
+    print(f"✅ GitHub Pages HTML generated: index.html (compact, mobile-responsive)")
     
     email_html = generate_email_html(results, MONTHLY_INVESTMENT, github_url)
     
@@ -1267,7 +1346,7 @@ def main():
     
     print("\n" + "=" * 80)
     print("✅ Files Generated:")
-    print(f"   - index.html (sector-wise layout)")
+    print(f"   - index.html (compact, mobile-responsive)")
     print(f"   - portfolio_analysis.html")
     print(f"   - portfolio_data.json")
     print("=" * 80)
