@@ -1,7 +1,7 @@
 {
-  "generated_date_ist": "2026-02-12T05:17:57.037205+05:30",
-  "generated_date_display": "12 February 2026, 05:17 AM IST",
-  "monthly_investment": 60000,
+  "generated_date_ist": "2026-02-12T05:32:22.067006+05:30",
+  "generated_date_display": "12 February 2026, 05:32 AM IST",
+  "monthly_investment": 48000,
   "github_pages_url": "https://krishnateja08.github.io/phanistocks_allocation/",
   "sectors": {
     "Banking & Finance": [
@@ -27,7 +27,7 @@
         "revenue_growth": 26.400000000000002,
         "52w_high": 1020.5,
         "52w_low": 830.55,
-        "allocation_amount": 9385.474860335196,
+        "allocation_amount": 7508.379888268157,
         "allocation_percent": 15.64245810055866
       },
       {
@@ -52,110 +52,8 @@
         "revenue_growth": 0,
         "52w_high": 637.13,
         "52w_low": 490.0,
-        "allocation_amount": 6703.910614525139,
+        "allocation_amount": 5363.128491620111,
         "allocation_percent": 11.1731843575419
-      }
-    ],
-    "REITs (Real Estate)": [
-      {
-        "ticker": "NXST-RR.NS",
-        "sector": "REITs (Real Estate)",
-        "recommendation": "SELL",
-        "combined_score": 12.5,
-        "technical_score": 10,
-        "fundamental_score": 15,
-        "current_price": 162.55999755859375,
-        "rsi": 0,
-        "macd": 0,
-        "signal": 0,
-        "sma_20": 0,
-        "sma_50": 0,
-        "sma_200": 0,
-        "pe_ratio": 0,
-        "dividend_yield": 0,
-        "market_cap": 0,
-        "roe": 0,
-        "profit_margin": 0,
-        "revenue_growth": 0,
-        "52w_high": 163.07,
-        "52w_low": 161.02,
-        "allocation_amount": 0,
-        "allocation_percent": 0
-      },
-      {
-        "ticker": "EMBASSY-RR.NS",
-        "sector": "REITs (Real Estate)",
-        "recommendation": "SELL",
-        "combined_score": 12.5,
-        "technical_score": 10,
-        "fundamental_score": 15,
-        "current_price": 460.989990234375,
-        "rsi": 0,
-        "macd": 0,
-        "signal": 0,
-        "sma_20": 0,
-        "sma_50": 0,
-        "sma_200": 0,
-        "pe_ratio": 0,
-        "dividend_yield": 0,
-        "market_cap": 0,
-        "roe": 0,
-        "profit_margin": 0,
-        "revenue_growth": 0,
-        "52w_high": 462.0,
-        "52w_low": 451.21,
-        "allocation_amount": 0,
-        "allocation_percent": 0
-      },
-      {
-        "ticker": "BIRET-RR.NS",
-        "sector": "REITs (Real Estate)",
-        "recommendation": "SELL",
-        "combined_score": 12.5,
-        "technical_score": 10,
-        "fundamental_score": 15,
-        "current_price": 365.9200134277344,
-        "rsi": 0,
-        "macd": 0,
-        "signal": 0,
-        "sma_20": 0,
-        "sma_50": 0,
-        "sma_200": 0,
-        "pe_ratio": 0,
-        "dividend_yield": 0,
-        "market_cap": 0,
-        "roe": 0,
-        "profit_margin": 0,
-        "revenue_growth": 0,
-        "52w_high": 371.85,
-        "52w_low": 360.33,
-        "allocation_amount": 0,
-        "allocation_percent": 0
-      },
-      {
-        "ticker": "MINDSPACE-RR.NS",
-        "sector": "REITs (Real Estate)",
-        "recommendation": "SELL",
-        "combined_score": 12.5,
-        "technical_score": 10,
-        "fundamental_score": 15,
-        "current_price": 499.79998779296875,
-        "rsi": 0,
-        "macd": 0,
-        "signal": 0,
-        "sma_20": 0,
-        "sma_50": 0,
-        "sma_200": 0,
-        "pe_ratio": 0,
-        "dividend_yield": 0,
-        "market_cap": 0,
-        "roe": 0,
-        "profit_margin": 0,
-        "revenue_growth": 0,
-        "52w_high": 502.0,
-        "52w_low": 494.0,
-        "allocation_amount": 0,
-        "allocation_percent": 0
       }
     ],
     "Information Technology": [
@@ -181,7 +79,7 @@
         "revenue_growth": 8.3,
         "52w_high": 1854.0,
         "52w_low": 1209.4,
-        "allocation_amount": 6033.519553072626,
+        "allocation_amount": 4826.815642458101,
         "allocation_percent": 10.05586592178771
       },
       {
@@ -206,7 +104,7 @@
         "revenue_growth": 4.9,
         "52w_high": 4021.75,
         "52w_low": 2866.6,
-        "allocation_amount": 5698.324022346368,
+        "allocation_amount": 4558.659217877095,
         "allocation_percent": 9.497206703910614
       },
       {
@@ -283,7 +181,7 @@
         "revenue_growth": 10.4,
         "52w_high": 1611.8,
         "52w_low": 1114.85,
-        "allocation_amount": 6368.715083798883,
+        "allocation_amount": 5094.972067039106,
         "allocation_percent": 10.614525139664805
       },
       {
@@ -308,7 +206,7 @@
         "revenue_growth": 0,
         "52w_high": 302.25,
         "52w_low": 231.3,
-        "allocation_amount": 6368.715083798883,
+        "allocation_amount": 5094.972067039106,
         "allocation_percent": 10.614525139664805
       },
       {
@@ -333,7 +231,7 @@
         "revenue_growth": -38.3,
         "52w_high": 419.0,
         "52w_low": 335.6,
-        "allocation_amount": 5698.324022346368,
+        "allocation_amount": 4558.659217877095,
         "allocation_percent": 9.497206703910614
       }
     ],
@@ -360,7 +258,7 @@
         "revenue_growth": 21.2,
         "52w_high": 3839.9,
         "52w_low": 2425.0,
-        "allocation_amount": 8379.888268156425,
+        "allocation_amount": 6703.910614525139,
         "allocation_percent": 13.966480446927374
       }
     ],
@@ -387,7 +285,7 @@
         "revenue_growth": 0,
         "52w_high": 148.14,
         "52w_low": 65.85,
-        "allocation_amount": 5363.128491620112,
+        "allocation_amount": 4290.502793296089,
         "allocation_percent": 8.938547486033519
       },
       {
@@ -440,7 +338,7 @@
       "revenue_growth": 0,
       "52w_high": 637.13,
       "52w_low": 490.0,
-      "allocation_amount": 6703.910614525139,
+      "allocation_amount": 5363.128491620111,
       "allocation_percent": 11.1731843575419
     },
     {
@@ -465,108 +363,8 @@
       "revenue_growth": 26.400000000000002,
       "52w_high": 1020.5,
       "52w_low": 830.55,
-      "allocation_amount": 9385.474860335196,
+      "allocation_amount": 7508.379888268157,
       "allocation_percent": 15.64245810055866
-    },
-    {
-      "ticker": "NXST-RR.NS",
-      "sector": "REITs (Real Estate)",
-      "recommendation": "SELL",
-      "combined_score": 12.5,
-      "technical_score": 10,
-      "fundamental_score": 15,
-      "current_price": 162.55999755859375,
-      "rsi": 0,
-      "macd": 0,
-      "signal": 0,
-      "sma_20": 0,
-      "sma_50": 0,
-      "sma_200": 0,
-      "pe_ratio": 0,
-      "dividend_yield": 0,
-      "market_cap": 0,
-      "roe": 0,
-      "profit_margin": 0,
-      "revenue_growth": 0,
-      "52w_high": 163.07,
-      "52w_low": 161.02,
-      "allocation_amount": 0,
-      "allocation_percent": 0
-    },
-    {
-      "ticker": "EMBASSY-RR.NS",
-      "sector": "REITs (Real Estate)",
-      "recommendation": "SELL",
-      "combined_score": 12.5,
-      "technical_score": 10,
-      "fundamental_score": 15,
-      "current_price": 460.989990234375,
-      "rsi": 0,
-      "macd": 0,
-      "signal": 0,
-      "sma_20": 0,
-      "sma_50": 0,
-      "sma_200": 0,
-      "pe_ratio": 0,
-      "dividend_yield": 0,
-      "market_cap": 0,
-      "roe": 0,
-      "profit_margin": 0,
-      "revenue_growth": 0,
-      "52w_high": 462.0,
-      "52w_low": 451.21,
-      "allocation_amount": 0,
-      "allocation_percent": 0
-    },
-    {
-      "ticker": "BIRET-RR.NS",
-      "sector": "REITs (Real Estate)",
-      "recommendation": "SELL",
-      "combined_score": 12.5,
-      "technical_score": 10,
-      "fundamental_score": 15,
-      "current_price": 365.9200134277344,
-      "rsi": 0,
-      "macd": 0,
-      "signal": 0,
-      "sma_20": 0,
-      "sma_50": 0,
-      "sma_200": 0,
-      "pe_ratio": 0,
-      "dividend_yield": 0,
-      "market_cap": 0,
-      "roe": 0,
-      "profit_margin": 0,
-      "revenue_growth": 0,
-      "52w_high": 371.85,
-      "52w_low": 360.33,
-      "allocation_amount": 0,
-      "allocation_percent": 0
-    },
-    {
-      "ticker": "MINDSPACE-RR.NS",
-      "sector": "REITs (Real Estate)",
-      "recommendation": "SELL",
-      "combined_score": 12.5,
-      "technical_score": 10,
-      "fundamental_score": 15,
-      "current_price": 499.79998779296875,
-      "rsi": 0,
-      "macd": 0,
-      "signal": 0,
-      "sma_20": 0,
-      "sma_50": 0,
-      "sma_200": 0,
-      "pe_ratio": 0,
-      "dividend_yield": 0,
-      "market_cap": 0,
-      "roe": 0,
-      "profit_margin": 0,
-      "revenue_growth": 0,
-      "52w_high": 502.0,
-      "52w_low": 494.0,
-      "allocation_amount": 0,
-      "allocation_percent": 0
     },
     {
       "ticker": "ITBEES.NS",
@@ -615,7 +413,7 @@
       "revenue_growth": 8.3,
       "52w_high": 1854.0,
       "52w_low": 1209.4,
-      "allocation_amount": 6033.519553072626,
+      "allocation_amount": 4826.815642458101,
       "allocation_percent": 10.05586592178771
     },
     {
@@ -640,7 +438,7 @@
       "revenue_growth": 4.9,
       "52w_high": 4021.75,
       "52w_low": 2866.6,
-      "allocation_amount": 5698.324022346368,
+      "allocation_amount": 4558.659217877095,
       "allocation_percent": 9.497206703910614
     },
     {
@@ -690,7 +488,7 @@
       "revenue_growth": 10.4,
       "52w_high": 1611.8,
       "52w_low": 1114.85,
-      "allocation_amount": 6368.715083798883,
+      "allocation_amount": 5094.972067039106,
       "allocation_percent": 10.614525139664805
     },
     {
@@ -715,7 +513,7 @@
       "revenue_growth": -38.3,
       "52w_high": 419.0,
       "52w_low": 335.6,
-      "allocation_amount": 5698.324022346368,
+      "allocation_amount": 4558.659217877095,
       "allocation_percent": 9.497206703910614
     },
     {
@@ -740,7 +538,7 @@
       "revenue_growth": 0,
       "52w_high": 302.25,
       "52w_low": 231.3,
-      "allocation_amount": 6368.715083798883,
+      "allocation_amount": 5094.972067039106,
       "allocation_percent": 10.614525139664805
     },
     {
@@ -765,7 +563,7 @@
       "revenue_growth": 21.2,
       "52w_high": 3839.9,
       "52w_low": 2425.0,
-      "allocation_amount": 8379.888268156425,
+      "allocation_amount": 6703.910614525139,
       "allocation_percent": 13.966480446927374
     },
     {
@@ -790,7 +588,7 @@
       "revenue_growth": 0,
       "52w_high": 148.14,
       "52w_low": 65.85,
-      "allocation_amount": 5363.128491620112,
+      "allocation_amount": 4290.502793296089,
       "allocation_percent": 8.938547486033519
     },
     {
