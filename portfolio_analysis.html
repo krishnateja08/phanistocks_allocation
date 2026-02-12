@@ -15,91 +15,92 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            line-height: 1.6;
+            padding: 10px;
+            line-height: 1.4;
             min-height: 100vh;
+            font-size: 14px;
         }
         
         .container {
-            max-width: 1800px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
             overflow: hidden;
         }
         
-        /* Header */
+        /* Header - Compact */
         .header {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
-            padding: 50px 40px 40px 40px;
+            padding: 25px 20px 20px 20px;
             text-align: center;
         }
         
         .header h1 {
-            font-size: 3em;
-            margin-bottom: 15px;
+            font-size: 1.8em;
+            margin-bottom: 8px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             font-weight: 700;
         }
         
         .header .subtitle {
-            font-size: 1.3em;
+            font-size: 1em;
             opacity: 0.95;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: 300;
         }
         
         .ist-time-badge {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             background: rgba(255,255,255,0.2);
-            padding: 12px 25px;
-            border-radius: 30px;
-            margin-top: 20px;
-            font-size: 1.1em;
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-size: 0.85em;
             font-weight: 500;
             backdrop-filter: blur(10px);
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 1.5px solid rgba(255,255,255,0.3);
         }
         
-        /* Quick Stats */
+        /* Quick Stats - Compact */
         .quick-stats {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 40px;
-            border-bottom: 3px solid #dee2e6;
+            padding: 20px 15px;
+            border-bottom: 2px solid #dee2e6;
         }
         
         .stats-title {
             text-align: center;
-            font-size: 1.8em;
+            font-size: 1.3em;
             color: #1e3c72;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             font-weight: 700;
         }
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
         }
         
         .stat-card {
             background: white;
-            padding: 30px 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 12px 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             text-align: center;
             transition: all 0.3s ease;
-            border-left: 5px solid #1e3c72;
+            border-left: 3px solid #1e3c72;
         }
         
         .stat-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.12);
         }
         
         .stat-card.highlight {
@@ -108,55 +109,55 @@
         }
         
         .stat-card .icon {
-            font-size: 2.5em;
-            margin-bottom: 12px;
+            font-size: 1.5em;
+            margin-bottom: 6px;
             opacity: 0.8;
         }
         
         .stat-card h3 {
             color: #6c757d;
-            font-size: 0.95em;
+            font-size: 0.7em;
             text-transform: uppercase;
-            letter-spacing: 1.2px;
-            margin-bottom: 12px;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
             font-weight: 600;
         }
         
         .stat-card .value {
-            font-size: 2.3em;
+            font-size: 1.5em;
             font-weight: 700;
             color: #1e3c72;
             line-height: 1.2;
         }
         
         .stat-card .subvalue {
-            font-size: 0.9em;
+            font-size: 0.75em;
             color: #6c757d;
-            margin-top: 8px;
+            margin-top: 4px;
         }
         
-        /* Health Bar */
+        /* Health Bar - Compact */
         .health-indicator {
             text-align: center;
-            padding: 25px;
+            padding: 15px;
             background: white;
-            border-radius: 12px;
-            margin-top: 25px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            margin-top: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
         }
         
         .health-title {
-            font-size: 1.1em;
+            font-size: 0.85em;
             color: #6c757d;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             font-weight: 600;
         }
         
         .health-bar {
             width: 100%;
-            height: 35px;
+            height: 25px;
             background: #e9ecef;
-            border-radius: 20px;
+            border-radius: 15px;
             overflow: hidden;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
@@ -164,51 +165,51 @@
         .health-fill {
             height: 100%;
             background: linear-gradient(90deg, #00a86b 0%, #4caf50 50%, #8bc34a 100%);
-            border-radius: 20px;
+            border-radius: 15px;
             transition: width 1.5s ease;
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            padding-right: 15px;
+            padding-right: 10px;
             color: white;
             font-weight: 700;
-            font-size: 1.1em;
+            font-size: 0.9em;
         }
         
-        /* Recommendation Summary */
+        /* Recommendation Summary - Compact */
         .recommendation-summary {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            padding: 35px 40px;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 10px;
+            padding: 15px;
             background: white;
             border-bottom: 2px solid #eee;
         }
         
         .rec-item {
             text-align: center;
-            padding: 20px;
-            border-radius: 12px;
+            padding: 12px 8px;
+            border-radius: 10px;
             transition: all 0.3s ease;
         }
         
         .rec-item:hover {
             transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
         .rec-item .count {
-            font-size: 3em;
+            font-size: 2em;
             font-weight: 800;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             line-height: 1;
         }
         
         .rec-item .label {
-            font-size: 1em;
+            font-size: 0.7em;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
         
         .rec-item.strong-buy { background: linear-gradient(135deg, #00a86b 0%, #00d084 100%); color: white; }
@@ -217,99 +218,103 @@
         .rec-item.reduce { background: linear-gradient(135deg, #ff5722 0%, #ff7043 100%); color: white; }
         .rec-item.sell { background: linear-gradient(135deg, #f44336 0%, #e57373 100%); color: white; }
         
-        /* SECTOR-WISE LAYOUT */
+        /* SECTOR-WISE LAYOUT - Compact */
         .sectors-container {
-            padding: 40px;
+            padding: 20px 15px;
         }
         
         .sector-section {
-            margin-bottom: 50px;
+            margin-bottom: 25px;
         }
         
         .sector-header {
             display: flex;
             align-items: center;
-            gap: 15px;
-            padding: 20px 25px;
+            gap: 10px;
+            padding: 12px 15px;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border-left: 6px solid #1e3c72;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border-left: 4px solid #1e3c72;
+            flex-wrap: wrap;
         }
         
         .sector-icon {
-            font-size: 2em;
+            font-size: 1.3em;
         }
         
         .sector-title {
-            font-size: 1.5em;
+            font-size: 1.1em;
             font-weight: 700;
             color: #1e3c72;
             flex: 1;
+            min-width: 150px;
         }
         
         .sector-count {
             background: white;
-            padding: 8px 20px;
-            border-radius: 20px;
+            padding: 5px 12px;
+            border-radius: 15px;
             font-weight: 600;
             color: #6c757d;
-            font-size: 0.9em;
+            font-size: 0.75em;
         }
         
         .sector-allocation {
             background: #1e3c72;
             color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
+            padding: 5px 12px;
+            border-radius: 15px;
             font-weight: 700;
-            font-size: 0.9em;
+            font-size: 0.75em;
         }
         
-        /* Stock Cards in Rows */
+        /* Stock Cards - COMPACT */
         .stock-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 12px;
         }
         
         .stock-card {
             background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border-left: 5px solid #1e3c72;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid #1e3c72;
             transition: all 0.3s ease;
         }
         
         .stock-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
         }
         
         .stock-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
             border-bottom: 2px solid #f1f3f5;
+            flex-wrap: wrap;
+            gap: 8px;
         }
         
         .stock-ticker {
-            font-size: 1.3em;
+            font-size: 1.1em;
             font-weight: 700;
             color: #1e3c72;
         }
         
         .stock-recommendation {
             display: inline-block;
-            padding: 6px 14px;
-            border-radius: 20px;
+            padding: 4px 10px;
+            border-radius: 15px;
             font-weight: 700;
-            font-size: 0.75em;
+            font-size: 0.65em;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
         
         .stock-recommendation.strong-buy { background: #00a86b; color: white; }
@@ -321,26 +326,26 @@
         .stock-metrics {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 10px;
         }
         
         .metric {
             background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 8px;
+            border-radius: 6px;
         }
         
         .metric-label {
-            font-size: 0.75em;
+            font-size: 0.65em;
             color: #6c757d;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 5px;
+            letter-spacing: 0.3px;
+            margin-bottom: 3px;
         }
         
         .metric-value {
-            font-size: 1.3em;
+            font-size: 1.1em;
             font-weight: 700;
             color: #1e3c72;
         }
@@ -350,89 +355,165 @@
         .metric-value.average { color: #ff9800; }
         .metric-value.poor { color: #f44336; }
         
+        /* COMPACT Technical Indicators - Single Row */
         .stock-details {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 0.85em;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            font-size: 0.7em;
             color: #495057;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
         }
         
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
+        .detail-item {
+            text-align: center;
         }
         
         .detail-label {
+            font-weight: 700;
+            color: #6c757d;
+            display: block;
+            margin-bottom: 2px;
+            font-size: 0.9em;
+        }
+        
+        .detail-value {
             font-weight: 600;
+            color: #1e3c72;
+            font-size: 1.1em;
         }
         
         .allocation-badge {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
-            padding: 12px 20px;
+            padding: 10px 15px;
             border-radius: 8px;
             text-align: center;
-            margin-top: 15px;
+            margin-top: 10px;
             font-weight: 700;
         }
         
         .allocation-amount {
-            font-size: 1.5em;
-            margin-bottom: 5px;
+            font-size: 1.3em;
+            margin-bottom: 3px;
         }
         
         .allocation-percent {
-            font-size: 0.9em;
+            font-size: 0.8em;
             opacity: 0.9;
         }
         
         .disclaimer {
             background: #fff3cd;
-            border-left: 5px solid #ffc107;
-            padding: 25px;
-            margin: 30px 40px;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 15px;
             border-radius: 8px;
         }
         
         .disclaimer h4 {
             color: #856404;
-            margin-bottom: 12px;
-            font-size: 1.2em;
+            margin-bottom: 8px;
+            font-size: 1em;
         }
         
         .disclaimer p {
             color: #856404;
-            line-height: 1.8;
+            line-height: 1.6;
+            font-size: 0.85em;
         }
         
         .footer {
             background: #f8f9fa;
-            padding: 35px 40px;
+            padding: 20px 15px;
             text-align: center;
             color: #6c757d;
-            font-size: 0.95em;
-            border-top: 3px solid #dee2e6;
+            font-size: 0.8em;
+            border-top: 2px solid #dee2e6;
         }
         
-        @media (max-width: 1200px) {
-            .stock-grid {
-                grid-template-columns: 1fr;
-            }
+        .footer p {
+            margin: 5px 0;
         }
         
+        /* MOBILE RESPONSIVE */
         @media (max-width: 768px) {
+            body {
+                padding: 5px;
+                font-size: 13px;
+            }
+            
             .header h1 {
-                font-size: 2em;
+                font-size: 1.5em;
+            }
+            
+            .header .subtitle {
+                font-size: 0.9em;
+            }
+            
+            .ist-time-badge {
+                font-size: 0.75em;
+                padding: 6px 12px;
             }
             
             .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            .stock-grid {
                 grid-template-columns: 1fr;
             }
             
             .stock-metrics {
                 grid-template-columns: 1fr;
+            }
+            
+            .stock-details {
+                grid-template-columns: repeat(3, 1fr);
+                font-size: 0.65em;
+            }
+            
+            .recommendation-summary {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+                padding: 10px;
+            }
+            
+            .rec-item {
+                padding: 10px 6px;
+            }
+            
+            .rec-item .count {
+                font-size: 1.5em;
+            }
+            
+            .rec-item .label {
+                font-size: 0.65em;
+            }
+            
+            .sector-header {
+                padding: 10px 12px;
+            }
+            
+            .sector-title {
+                font-size: 1em;
+                width: 100%;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .stock-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1025px) {
+            .stock-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
     </style>
@@ -441,11 +522,11 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>📊 Portfolio Analysis Dashboard</h1>
-            <div class="subtitle">Sector-wise Technical & Fundamental Analysis</div>
+            <h1>📊 Portfolio Analysis</h1>
+            <div class="subtitle">Sector-wise Analysis</div>
             <div class="ist-time-badge">
                 <span>🕐</span>
-                <span>Generated: 12 February 2026 at 07:26 AM IST</span>
+                <span>12 Feb 2026 · 09:15 AM IST</span>
             </div>
         </div>
         
@@ -456,14 +537,14 @@
             <div class="stats-grid">
                 <div class="stat-card highlight">
                     <div class="icon">💰</div>
-                    <h3>Monthly Investment</h3>
+                    <h3>Investment</h3>
                     <div class="value">₹48,000</div>
-                    <div class="subvalue">Allocated: ₹48,000</div>
+                    <div class="subvalue">₹48,000 allocated</div>
                 </div>
                 
                 <div class="stat-card">
                     <div class="icon">📊</div>
-                    <h3>Total Stocks</h3>
+                    <h3>Stocks</h3>
                     <div class="value">12</div>
                     <div class="subvalue">5 sectors</div>
                 </div>
@@ -471,23 +552,23 @@
                 <div class="stat-card">
                     <div class="icon">⭐</div>
                     <h3>Avg Score</h3>
-                    <div class="value">45.4</div>
-                    <div class="subvalue">Portfolio Health</div>
+                    <div class="value">43.5</div>
+                    <div class="subvalue">Health</div>
                 </div>
                 
                 <div class="stat-card">
                     <div class="icon">🎯</div>
                     <h3>Strong Buys</h3>
                     <div class="value">1</div>
-                    <div class="subvalue">Best opportunities</div>
+                    <div class="subvalue">Top picks</div>
                 </div>
             </div>
             
             <div class="health-indicator">
-                <div class="health-title">Overall Portfolio Health Score</div>
+                <div class="health-title">Portfolio Health Score</div>
                 <div class="health-bar">
-                    <div class="health-fill" style="width: 45.416666666666664%;">
-                        45.4%
+                    <div class="health-fill" style="width: 43.541666666666664%;">
+                        43.5%
                     </div>
                 </div>
             </div>
@@ -504,7 +585,7 @@
                 <div class="label">Buy</div>
             </div>
             <div class="rec-item hold">
-                <div class="count">7</div>
+                <div class="count">6</div>
                 <div class="label">Hold</div>
             </div>
             <div class="rec-item reduce">
@@ -512,7 +593,7 @@
                 <div class="label">Reduce</div>
             </div>
             <div class="rec-item sell">
-                <div class="count">0</div>
+                <div class="count">1</div>
                 <div class="label">Sell</div>
             </div>
         </div>
@@ -525,7 +606,7 @@
                     <span class="sector-icon">🏦</span>
                     <span class="sector-title" style="color: #1e88e5;">Banking & Finance</span>
                     <span class="sector-count">2 stocks</span>
-                    <span class="sector-allocation" style="background: #1e88e5;">₹12,872</span>
+                    <span class="sector-allocation" style="background: #1e88e5;">₹14,311</span>
                 </div>
                 
                 <div class="stock-grid">
@@ -538,12 +619,12 @@
                         
                         <div class="stock-metrics">
                             <div class="metric">
-                                <div class="metric-label">Combined Score</div>
+                                <div class="metric-label">Score</div>
                                 <div class="metric-value excellent">70.0</div>
                             </div>
                             <div class="metric">
-                                <div class="metric-label">Current Price</div>
-                                <div class="metric-value">₹927.10</div>
+                                <div class="metric-label">Price</div>
+                                <div class="metric-value">₹927.30</div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Technical</div>
@@ -556,31 +637,31 @@
                         </div>
                         
                         <div class="stock-details">
-                            <div class="detail-row">
-                                <span class="detail-label">RSI:</span>
-                                <span>54.1</span>
+                            <div class="detail-item">
+                                <span class="detail-label">RSI</span>
+                                <span class="detail-value">55</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">MACD:</span>
-                                <span>-6.39</span>
+                            <div class="detail-item">
+                                <span class="detail-label">MACD</span>
+                                <span class="detail-value">-6.6</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">P/E Ratio:</span>
-                                <span>20.67</span>
+                            <div class="detail-item">
+                                <span class="detail-label">P/E</span>
+                                <span class="detail-value">20.7</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">ROE:</span>
-                                <span>14.0%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">ROE</span>
+                                <span class="detail-value">14%</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Div Yield:</span>
-                                <span>118.00%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">Div</span>
+                                <span class="detail-value">118.0%</span>
                             </div>
                         </div>
                         
                         <div class="allocation-badge" style="background: linear-gradient(135deg, #1e88e5 0%, #1e88e5dd 100%);">
-                            <div class="allocation-amount">₹7,508</div>
-                            <div class="allocation-percent">15.6% of portfolio</div>
+                            <div class="allocation-amount">₹8,348</div>
+                            <div class="allocation-percent">17.4% of portfolio</div>
                         </div>
                     </div>
             
@@ -592,12 +673,12 @@
                         
                         <div class="stock-metrics">
                             <div class="metric">
-                                <div class="metric-label">Combined Score</div>
+                                <div class="metric-label">Score</div>
                                 <div class="metric-value average">50.0</div>
                             </div>
                             <div class="metric">
-                                <div class="metric-label">Current Price</div>
-                                <div class="metric-value">₹627.67</div>
+                                <div class="metric-label">Price</div>
+                                <div class="metric-value">₹627.27</div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Technical</div>
@@ -610,31 +691,31 @@
                         </div>
                         
                         <div class="stock-details">
-                            <div class="detail-row">
-                                <span class="detail-label">RSI:</span>
-                                <span>66.3</span>
+                            <div class="detail-item">
+                                <span class="detail-label">RSI</span>
+                                <span class="detail-value">66</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">MACD:</span>
-                                <span>3.25</span>
+                            <div class="detail-item">
+                                <span class="detail-label">MACD</span>
+                                <span class="detail-value">3.2</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">P/E Ratio:</span>
-                                <span>15.98</span>
+                            <div class="detail-item">
+                                <span class="detail-label">P/E</span>
+                                <span class="detail-value">16.0</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">ROE:</span>
-                                <span>0.0%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">ROE</span>
+                                <span class="detail-value">0%</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Div Yield:</span>
-                                <span>0.00%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">Div</span>
+                                <span class="detail-value">0.0%</span>
                             </div>
                         </div>
                         
                         <div class="allocation-badge" style="background: linear-gradient(135deg, #1e88e5 0%, #1e88e5dd 100%);">
-                            <div class="allocation-amount">₹5,363</div>
-                            <div class="allocation-percent">11.2% of portfolio</div>
+                            <div class="allocation-amount">₹5,963</div>
+                            <div class="allocation-percent">12.4% of portfolio</div>
                         </div>
                     </div>
             
@@ -646,65 +727,11 @@
                     <span class="sector-icon">💻</span>
                     <span class="sector-title" style="color: #43a047;">Information Technology</span>
                     <span class="sector-count">4 stocks</span>
-                    <span class="sector-allocation" style="background: #43a047;">₹9,385</span>
+                    <span class="sector-allocation" style="background: #43a047;">₹4,770</span>
                 </div>
                 
                 <div class="stock-grid">
         
-                    <div class="stock-card" style="border-left-color: #43a047;">
-                        <div class="stock-header">
-                            <div class="stock-ticker">TECHM.NS</div>
-                            <div class="stock-recommendation hold">HOLD</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Combined Score</div>
-                                <div class="metric-value average">45.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Current Price</div>
-                                <div class="metric-value">₹1634.40</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">55.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">35.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-row">
-                                <span class="detail-label">RSI:</span>
-                                <span>40.2</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">MACD:</span>
-                                <span>6.18</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">P/E Ratio:</span>
-                                <span>31.35</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">ROE:</span>
-                                <span>0.0%</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Div Yield:</span>
-                                <span>274.00%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, #43a047 0%, #43a047dd 100%);">
-                            <div class="allocation-amount">₹4,827</div>
-                            <div class="allocation-percent">10.1% of portfolio</div>
-                        </div>
-                    </div>
-            
                     <div class="stock-card" style="border-left-color: #43a047;">
                         <div class="stock-header">
                             <div class="stock-ticker">TCS.NS</div>
@@ -713,16 +740,16 @@
                         
                         <div class="stock-metrics">
                             <div class="metric">
-                                <div class="metric-label">Combined Score</div>
-                                <div class="metric-value average">42.5</div>
+                                <div class="metric-label">Score</div>
+                                <div class="metric-value average">40.0</div>
                             </div>
                             <div class="metric">
-                                <div class="metric-label">Current Price</div>
-                                <div class="metric-value">₹2909.80</div>
+                                <div class="metric-label">Price</div>
+                                <div class="metric-value">₹2862.40</div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Technical</div>
-                                <div class="metric-value">20.0</div>
+                                <div class="metric-value">15.0</div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Fundamental</div>
@@ -731,31 +758,31 @@
                         </div>
                         
                         <div class="stock-details">
-                            <div class="detail-row">
-                                <span class="detail-label">RSI:</span>
-                                <span>34.0</span>
+                            <div class="detail-item">
+                                <span class="detail-label">RSI</span>
+                                <span class="detail-value">29</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">MACD:</span>
-                                <span>-54.97</span>
+                            <div class="detail-item">
+                                <span class="detail-label">MACD</span>
+                                <span class="detail-value">-64.6</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">P/E Ratio:</span>
-                                <span>22.62</span>
+                            <div class="detail-item">
+                                <span class="detail-label">P/E</span>
+                                <span class="detail-value">22.3</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">ROE:</span>
-                                <span>42.6%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">ROE</span>
+                                <span class="detail-value">43%</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Div Yield:</span>
-                                <span>211.00%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">Div</span>
+                                <span class="detail-value">211.0%</span>
                             </div>
                         </div>
                         
                         <div class="allocation-badge" style="background: linear-gradient(135deg, #43a047 0%, #43a047dd 100%);">
-                            <div class="allocation-amount">₹4,559</div>
-                            <div class="allocation-percent">9.5% of portfolio</div>
+                            <div class="allocation-amount">₹4,770</div>
+                            <div class="allocation-percent">9.9% of portfolio</div>
                         </div>
                     </div>
             
@@ -767,12 +794,12 @@
                         
                         <div class="stock-metrics">
                             <div class="metric">
-                                <div class="metric-label">Combined Score</div>
+                                <div class="metric-label">Score</div>
                                 <div class="metric-value poor">32.5</div>
                             </div>
                             <div class="metric">
-                                <div class="metric-label">Current Price</div>
-                                <div class="metric-value">₹1471.90</div>
+                                <div class="metric-label">Price</div>
+                                <div class="metric-value">₹1425.40</div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Technical</div>
@@ -785,25 +812,79 @@
                         </div>
                         
                         <div class="stock-details">
-                            <div class="detail-row">
-                                <span class="detail-label">RSI:</span>
-                                <span>18.9</span>
+                            <div class="detail-item">
+                                <span class="detail-label">RSI</span>
+                                <span class="detail-value">14</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">MACD:</span>
-                                <span>-33.88</span>
+                            <div class="detail-item">
+                                <span class="detail-label">MACD</span>
+                                <span class="detail-value">-41.7</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">P/E Ratio:</span>
-                                <span>21.46</span>
+                            <div class="detail-item">
+                                <span class="detail-label">P/E</span>
+                                <span class="detail-value">20.8</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">ROE:</span>
-                                <span>32.7%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">ROE</span>
+                                <span class="detail-value">33%</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Div Yield:</span>
-                                <span>300.00%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">Div</span>
+                                <span class="detail-value">300.0%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="allocation-badge" style="background: linear-gradient(135deg, #43a047 0%, #43a047dd 100%);">
+                            <div class="allocation-amount">₹0</div>
+                            <div class="allocation-percent">0.0% of portfolio</div>
+                        </div>
+                    </div>
+            
+                    <div class="stock-card" style="border-left-color: #43a047;">
+                        <div class="stock-header">
+                            <div class="stock-ticker">TECHM.NS</div>
+                            <div class="stock-recommendation reduce">REDUCE</div>
+                        </div>
+                        
+                        <div class="stock-metrics">
+                            <div class="metric">
+                                <div class="metric-label">Score</div>
+                                <div class="metric-value poor">30.0</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Price</div>
+                                <div class="metric-value">₹1602.50</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Technical</div>
+                                <div class="metric-value">25.0</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Fundamental</div>
+                                <div class="metric-value">35.0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stock-details">
+                            <div class="detail-item">
+                                <span class="detail-label">RSI</span>
+                                <span class="detail-value">36</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">MACD</span>
+                                <span class="detail-value">1.0</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">P/E</span>
+                                <span class="detail-value">30.7</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">ROE</span>
+                                <span class="detail-value">0%</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Div</span>
+                                <span class="detail-value">275.0%</span>
                             </div>
                         </div>
                         
@@ -816,21 +897,21 @@
                     <div class="stock-card" style="border-left-color: #43a047;">
                         <div class="stock-header">
                             <div class="stock-ticker">ITBEES.NS</div>
-                            <div class="stock-recommendation reduce">REDUCE</div>
+                            <div class="stock-recommendation sell">SELL</div>
                         </div>
                         
                         <div class="stock-metrics">
                             <div class="metric">
-                                <div class="metric-label">Combined Score</div>
-                                <div class="metric-value poor">27.5</div>
+                                <div class="metric-label">Score</div>
+                                <div class="metric-value poor">20.0</div>
                             </div>
                             <div class="metric">
-                                <div class="metric-label">Current Price</div>
-                                <div class="metric-value">₹38.79</div>
+                                <div class="metric-label">Price</div>
+                                <div class="metric-value">₹38.01</div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Technical</div>
-                                <div class="metric-value">25.0</div>
+                                <div class="metric-value">10.0</div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Fundamental</div>
@@ -839,25 +920,25 @@
                         </div>
                         
                         <div class="stock-details">
-                            <div class="detail-row">
-                                <span class="detail-label">RSI:</span>
-                                <span>26.5</span>
+                            <div class="detail-item">
+                                <span class="detail-label">RSI</span>
+                                <span class="detail-value">20</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">MACD:</span>
-                                <span>-0.68</span>
+                            <div class="detail-item">
+                                <span class="detail-label">MACD</span>
+                                <span class="detail-value">-0.8</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">P/E Ratio:</span>
-                                <span>24.73</span>
+                            <div class="detail-item">
+                                <span class="detail-label">P/E</span>
+                                <span class="detail-value">24.3</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">ROE:</span>
-                                <span>0.0%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">ROE</span>
+                                <span class="detail-value">0%</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Div Yield:</span>
-                                <span>0.00%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">Div</span>
+                                <span class="detail-value">0.0%</span>
                             </div>
                         </div>
                         
@@ -875,65 +956,11 @@
                     <span class="sector-icon">📈</span>
                     <span class="sector-title" style="color: #fb8c00;">Index & Diversified</span>
                     <span class="sector-count">3 stocks</span>
-                    <span class="sector-allocation" style="background: #fb8c00;">₹14,749</span>
+                    <span class="sector-allocation" style="background: #fb8c00;">₹16,099</span>
                 </div>
                 
                 <div class="stock-grid">
         
-                    <div class="stock-card" style="border-left-color: #fb8c00;">
-                        <div class="stock-header">
-                            <div class="stock-ticker">RELIANCE.NS</div>
-                            <div class="stock-recommendation hold">HOLD</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Combined Score</div>
-                                <div class="metric-value average">47.5</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Current Price</div>
-                                <div class="metric-value">₹1468.70</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">50.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">45.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-row">
-                                <span class="detail-label">RSI:</span>
-                                <span>69.2</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">MACD:</span>
-                                <span>-8.85</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">P/E Ratio:</span>
-                                <span>23.86</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">ROE:</span>
-                                <span>0.0%</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Div Yield:</span>
-                                <span>38.00%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, #fb8c00 0%, #fb8c00dd 100%);">
-                            <div class="allocation-amount">₹5,095</div>
-                            <div class="allocation-percent">10.6% of portfolio</div>
-                        </div>
-                    </div>
-            
                     <div class="stock-card" style="border-left-color: #fb8c00;">
                         <div class="stock-header">
                             <div class="stock-ticker">NIFTYBEES.NS</div>
@@ -942,12 +969,12 @@
                         
                         <div class="stock-metrics">
                             <div class="metric">
-                                <div class="metric-label">Combined Score</div>
+                                <div class="metric-label">Score</div>
                                 <div class="metric-value average">47.5</div>
                             </div>
                             <div class="metric">
-                                <div class="metric-label">Current Price</div>
-                                <div class="metric-value">₹293.85</div>
+                                <div class="metric-label">Price</div>
+                                <div class="metric-value">₹292.99</div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Technical</div>
@@ -960,31 +987,31 @@
                         </div>
                         
                         <div class="stock-details">
-                            <div class="detail-row">
-                                <span class="detail-label">RSI:</span>
-                                <span>68.7</span>
+                            <div class="detail-item">
+                                <span class="detail-label">RSI</span>
+                                <span class="detail-value">67</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">MACD:</span>
-                                <span>0.23</span>
+                            <div class="detail-item">
+                                <span class="detail-label">MACD</span>
+                                <span class="detail-value">0.2</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">P/E Ratio:</span>
-                                <span>23.95</span>
+                            <div class="detail-item">
+                                <span class="detail-label">P/E</span>
+                                <span class="detail-value">23.9</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">ROE:</span>
-                                <span>0.0%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">ROE</span>
+                                <span class="detail-value">0%</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Div Yield:</span>
-                                <span>0.00%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">Div</span>
+                                <span class="detail-value">0.0%</span>
                             </div>
                         </div>
                         
                         <div class="allocation-badge" style="background: linear-gradient(135deg, #fb8c00 0%, #fb8c00dd 100%);">
-                            <div class="allocation-amount">₹5,095</div>
-                            <div class="allocation-percent">10.6% of portfolio</div>
+                            <div class="allocation-amount">₹5,665</div>
+                            <div class="allocation-percent">11.8% of portfolio</div>
                         </div>
                     </div>
             
@@ -996,16 +1023,16 @@
                         
                         <div class="stock-metrics">
                             <div class="metric">
-                                <div class="metric-label">Combined Score</div>
-                                <div class="metric-value average">42.5</div>
+                                <div class="metric-label">Score</div>
+                                <div class="metric-value average">45.0</div>
                             </div>
                             <div class="metric">
-                                <div class="metric-label">Current Price</div>
-                                <div class="metric-value">₹384.70</div>
+                                <div class="metric-label">Price</div>
+                                <div class="metric-value">₹382.70</div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Technical</div>
-                                <div class="metric-value">55.0</div>
+                                <div class="metric-value">60.0</div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Fundamental</div>
@@ -1014,31 +1041,85 @@
                         </div>
                         
                         <div class="stock-details">
-                            <div class="detail-row">
-                                <span class="detail-label">RSI:</span>
-                                <span>80.5</span>
+                            <div class="detail-item">
+                                <span class="detail-label">RSI</span>
+                                <span class="detail-value">76</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">MACD:</span>
-                                <span>6.26</span>
+                            <div class="detail-item">
+                                <span class="detail-label">MACD</span>
+                                <span class="detail-value">6.9</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">P/E Ratio:</span>
-                                <span>35.72</span>
+                            <div class="detail-item">
+                                <span class="detail-label">P/E</span>
+                                <span class="detail-value">35.5</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">ROE:</span>
-                                <span>0.0%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">ROE</span>
+                                <span class="detail-value">0%</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Div Yield:</span>
-                                <span>158.00%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">Div</span>
+                                <span class="detail-value">158.0%</span>
                             </div>
                         </div>
                         
                         <div class="allocation-badge" style="background: linear-gradient(135deg, #fb8c00 0%, #fb8c00dd 100%);">
-                            <div class="allocation-amount">₹4,559</div>
-                            <div class="allocation-percent">9.5% of portfolio</div>
+                            <div class="allocation-amount">₹5,366</div>
+                            <div class="allocation-percent">11.2% of portfolio</div>
+                        </div>
+                    </div>
+            
+                    <div class="stock-card" style="border-left-color: #fb8c00;">
+                        <div class="stock-header">
+                            <div class="stock-ticker">RELIANCE.NS</div>
+                            <div class="stock-recommendation hold">HOLD</div>
+                        </div>
+                        
+                        <div class="stock-metrics">
+                            <div class="metric">
+                                <div class="metric-label">Score</div>
+                                <div class="metric-value average">42.5</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Price</div>
+                                <div class="metric-value">₹1471.10</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Technical</div>
+                                <div class="metric-value">40.0</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Fundamental</div>
+                                <div class="metric-value">45.0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stock-details">
+                            <div class="detail-item">
+                                <span class="detail-label">RSI</span>
+                                <span class="detail-value">71</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">MACD</span>
+                                <span class="detail-value">-5.9</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">P/E</span>
+                                <span class="detail-value">23.9</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">ROE</span>
+                                <span class="detail-value">0%</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Div</span>
+                                <span class="detail-value">38.0%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="allocation-badge" style="background: linear-gradient(135deg, #fb8c00 0%, #fb8c00dd 100%);">
+                            <div class="allocation-amount">₹5,068</div>
+                            <div class="allocation-percent">10.6% of portfolio</div>
                         </div>
                     </div>
             
@@ -1050,7 +1131,7 @@
                     <span class="sector-icon">🚗</span>
                     <span class="sector-title" style="color: #8e24aa;">Automobile</span>
                     <span class="sector-count">1 stocks</span>
-                    <span class="sector-allocation" style="background: #8e24aa;">₹6,704</span>
+                    <span class="sector-allocation" style="background: #8e24aa;">₹8,050</span>
                 </div>
                 
                 <div class="stock-grid">
@@ -1063,16 +1144,16 @@
                         
                         <div class="stock-metrics">
                             <div class="metric">
-                                <div class="metric-label">Combined Score</div>
-                                <div class="metric-value good">62.5</div>
+                                <div class="metric-label">Score</div>
+                                <div class="metric-value good">67.5</div>
                             </div>
                             <div class="metric">
-                                <div class="metric-label">Current Price</div>
-                                <div class="metric-value">₹3674.90</div>
+                                <div class="metric-label">Price</div>
+                                <div class="metric-value">₹3644.40</div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Technical</div>
-                                <div class="metric-value">65.0</div>
+                                <div class="metric-value">75.0</div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Fundamental</div>
@@ -1081,31 +1162,31 @@
                         </div>
                         
                         <div class="stock-details">
-                            <div class="detail-row">
-                                <span class="detail-label">RSI:</span>
-                                <span>59.8</span>
+                            <div class="detail-item">
+                                <span class="detail-label">RSI</span>
+                                <span class="detail-value">56</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">MACD:</span>
-                                <span>-4.90</span>
+                            <div class="detail-item">
+                                <span class="detail-label">MACD</span>
+                                <span class="detail-value">0.2</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">P/E Ratio:</span>
-                                <span>29.06</span>
+                            <div class="detail-item">
+                                <span class="detail-label">P/E</span>
+                                <span class="detail-value">28.8</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">ROE:</span>
-                                <span>17.2%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">ROE</span>
+                                <span class="detail-value">17%</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Div Yield:</span>
-                                <span>69.00%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">Div</span>
+                                <span class="detail-value">69.0%</span>
                             </div>
                         </div>
                         
                         <div class="allocation-badge" style="background: linear-gradient(135deg, #8e24aa 0%, #8e24aadd 100%);">
-                            <div class="allocation-amount">₹6,704</div>
-                            <div class="allocation-percent">14.0% of portfolio</div>
+                            <div class="allocation-amount">₹8,050</div>
+                            <div class="allocation-percent">16.8% of portfolio</div>
                         </div>
                     </div>
             
@@ -1117,7 +1198,7 @@
                     <span class="sector-icon">🥇</span>
                     <span class="sector-title" style="color: #fdd835;">Commodities</span>
                     <span class="sector-count">2 stocks</span>
-                    <span class="sector-allocation" style="background: #fdd835;">₹4,291</span>
+                    <span class="sector-allocation" style="background: #fdd835;">₹4,770</span>
                 </div>
                 
                 <div class="stock-grid">
@@ -1130,12 +1211,12 @@
                         
                         <div class="stock-metrics">
                             <div class="metric">
-                                <div class="metric-label">Combined Score</div>
+                                <div class="metric-label">Score</div>
                                 <div class="metric-value average">40.0</div>
                             </div>
                             <div class="metric">
-                                <div class="metric-label">Current Price</div>
-                                <div class="metric-value">₹128.70</div>
+                                <div class="metric-label">Price</div>
+                                <div class="metric-value">₹128.69</div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Technical</div>
@@ -1148,31 +1229,31 @@
                         </div>
                         
                         <div class="stock-details">
-                            <div class="detail-row">
-                                <span class="detail-label">RSI:</span>
-                                <span>46.1</span>
+                            <div class="detail-item">
+                                <span class="detail-label">RSI</span>
+                                <span class="detail-value">46</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">MACD:</span>
-                                <span>3.22</span>
+                            <div class="detail-item">
+                                <span class="detail-label">MACD</span>
+                                <span class="detail-value">3.2</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">P/E Ratio:</span>
-                                <span>0.00</span>
+                            <div class="detail-item">
+                                <span class="detail-label">P/E</span>
+                                <span class="detail-value">0.0</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">ROE:</span>
-                                <span>0.0%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">ROE</span>
+                                <span class="detail-value">0%</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Div Yield:</span>
-                                <span>0.00%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">Div</span>
+                                <span class="detail-value">0.0%</span>
                             </div>
                         </div>
                         
                         <div class="allocation-badge" style="background: linear-gradient(135deg, #fdd835 0%, #fdd835dd 100%);">
-                            <div class="allocation-amount">₹4,291</div>
-                            <div class="allocation-percent">8.9% of portfolio</div>
+                            <div class="allocation-amount">₹4,770</div>
+                            <div class="allocation-percent">9.9% of portfolio</div>
                         </div>
                     </div>
             
@@ -1184,12 +1265,12 @@
                         
                         <div class="stock-metrics">
                             <div class="metric">
-                                <div class="metric-label">Combined Score</div>
+                                <div class="metric-label">Score</div>
                                 <div class="metric-value poor">37.5</div>
                             </div>
                             <div class="metric">
-                                <div class="metric-label">Current Price</div>
-                                <div class="metric-value">₹247.37</div>
+                                <div class="metric-label">Price</div>
+                                <div class="metric-value">₹245.82</div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Technical</div>
@@ -1202,25 +1283,25 @@
                         </div>
                         
                         <div class="stock-details">
-                            <div class="detail-row">
-                                <span class="detail-label">RSI:</span>
-                                <span>41.0</span>
+                            <div class="detail-item">
+                                <span class="detail-label">RSI</span>
+                                <span class="detail-value">41</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">MACD:</span>
-                                <span>1.90</span>
+                            <div class="detail-item">
+                                <span class="detail-label">MACD</span>
+                                <span class="detail-value">1.8</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">P/E Ratio:</span>
-                                <span>0.00</span>
+                            <div class="detail-item">
+                                <span class="detail-label">P/E</span>
+                                <span class="detail-value">0.0</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">ROE:</span>
-                                <span>0.0%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">ROE</span>
+                                <span class="detail-value">0%</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Div Yield:</span>
-                                <span>0.00%</span>
+                            <div class="detail-item">
+                                <span class="detail-label">Div</span>
+                                <span class="detail-value">0.0%</span>
                             </div>
                         </div>
                         
@@ -1241,17 +1322,15 @@
                 This analysis is for informational purposes only and should not be considered as financial advice. 
                 The recommendations are based on technical and fundamental analysis algorithms and do not guarantee 
                 future performance. Always conduct your own research and consult with a qualified financial advisor 
-                before making investment decisions. Past performance is not indicative of future results.
+                before making investment decisions.
             </p>
         </div>
         
         <div class="footer">
-            <p><strong>Analysis Methodology:</strong></p>
-            <p>Technical Analysis (50%): RSI, MACD, Moving Averages, Bollinger Bands, Price Momentum</p>
-            <p>Fundamental Analysis (50%): P/E Ratio, ROE, Profit Margin, Revenue Growth, Dividend Yield, Debt/Equity</p>
-            <p style="margin-top: 20px; font-weight: 600;">Generated by Portfolio Analyzer v3.0 - Sector Edition | © 2026</p>
-            <p style="margin-top: 10px; font-size: 0.85em; opacity: 0.8;">
-                Last Updated: 12 February 2026 at 07:26 AM IST
+            <p><strong>Methodology:</strong> Technical (50%): RSI, MACD, MA, Bollinger | Fundamental (50%): P/E, ROE, Margin, Growth, Div, D/E</p>
+            <p style="margin-top: 8px; font-weight: 600;">Portfolio Analyzer v3.1 - Compact Mobile Edition | © 2026</p>
+            <p style="margin-top: 5px; font-size: 0.9em; opacity: 0.8;">
+                Updated: 12 Feb 2026 at 09:15 AM IST
             </p>
         </div>
     </div>
