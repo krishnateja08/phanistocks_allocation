@@ -21,10 +21,9 @@ import os
 warnings.filterwarnings('ignore')
 
 # Portfolio Configuration
-MONTHLY_INVESTMENT = 60000  # INR
+MONTHLY_INVESTMENT = 48000  # INR
 PORTFOLIO_STOCKS = [
-    "BANKBEES.NS", "HDFCBANK.NS", "NXST-RR.NS", "EMBASSY-RR.NS",
-    "BIRET-RR.NS", "MINDSPACE-RR.NS", "ITBEES.NS", "TECHM.NS",
+    "BANKBEES.NS", "HDFCBANK.NS", "ITBEES.NS", "TECHM.NS",
     "TCS.NS", "INFY.NS", "RELIANCE.NS", "TMPV.NS",
     "NIFTYBEES.NS", "M&M.NS", "GOLDBEES.NS", "SILVERBEES.NS"
 ]
@@ -33,7 +32,6 @@ PORTFOLIO_STOCKS = [
 SECTOR_MAPPING = {
     "Banking & Finance": ["BANKBEES.NS", "HDFCBANK.NS"],
     "Information Technology": ["ITBEES.NS", "TECHM.NS", "TCS.NS", "INFY.NS"],
-    "REITs (Real Estate)": ["NXST-RR.NS", "EMBASSY-RR.NS", "BIRET-RR.NS", "MINDSPACE-RR.NS"],
     "Index & Diversified": ["NIFTYBEES.NS", "RELIANCE.NS", "TMPV.NS"],
     "Automobile": ["M&M.NS"],
     "Commodities": ["GOLDBEES.NS", "SILVERBEES.NS"]
