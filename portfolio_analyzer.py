@@ -1,8 +1,26 @@
 """
 Stock Portfolio Analysis Script with Technical & Fundamental Analysis
-Author: Portfolio Manager
-Date: February 2026
-Version: 3.1 - Compact Mobile-Responsive UI
+Version: 4.0 — SIP Entry Intelligence Edition
+
+KEY IMPROVEMENT OVER v3:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OLD PROBLEM: Script recommended BUY when stock was already bullish
+(price already up). You bought at top, stock dipped, no money left,
+next month stock shows BEARISH and gets skipped entirely. You always
+missed buying at the dip and lost your SIP discipline.
+
+NEW SOLUTION: Two separate signals per stock:
+  1. TRADING RECOMMENDATION (is this a good stock?) — unchanged
+  2. SIP ENTRY SCORE (is NOW a good PRICE to buy?) — NEW
+
+The SIP Entry Score is HIGH when price is LOW (dip = opportunity).
+It is LOW when price is HIGH (rally = wait). This means:
+  - Even if stock is "BUY", if price is stretched → INVEST LESS
+  - Even if stock is "HOLD", if price dipped → ACCUMULATE NOW
+
+Allocation is now weighted by SIP Entry Score, not just stock quality.
+Stocks at dips get MORE allocation. Stocks at highs get LESS.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """
 
 import yfinance as yf
@@ -20,1353 +38,1214 @@ import sys
 import os
 warnings.filterwarnings('ignore')
 
-# Portfolio Configuration
+# ── Configuration ────────────────────────────────────────────────────────────
 MONTHLY_INVESTMENT = 48000  # INR
+
 PORTFOLIO_STOCKS = [
     "BANKBEES.NS", "HDFCBANK.NS", "ITBEES.NS", "TECHM.NS",
     "TCS.NS", "INFY.NS", "RELIANCE.NS", "TMPV.NS",
     "NIFTYBEES.NS", "M&M.NS", "GOLDBEES.NS", "SILVERBEES.NS"
 ]
 
-# SECTOR MAPPING - Define which stocks belong to which sector
 SECTOR_MAPPING = {
-    "Banking & Finance": ["BANKBEES.NS", "HDFCBANK.NS"],
-    "Information Technology": ["ITBEES.NS", "TECHM.NS", "TCS.NS", "INFY.NS"],
-    "Index & Diversified": ["NIFTYBEES.NS", "RELIANCE.NS", "TMPV.NS"],
-    "Automobile": ["M&M.NS"],
-    "Commodities": ["GOLDBEES.NS", "SILVERBEES.NS"]
+    "Banking & Finance":       ["BANKBEES.NS", "HDFCBANK.NS"],
+    "Information Technology":  ["ITBEES.NS", "TECHM.NS", "TCS.NS", "INFY.NS"],
+    "Index & Diversified":     ["NIFTYBEES.NS", "RELIANCE.NS", "TMPV.NS"],
+    "Automobile":              ["M&M.NS"],
+    "Commodities":             ["GOLDBEES.NS", "SILVERBEES.NS"],
 }
 
-# GITHUB PAGES CONFIGURATION
-GITHUB_USERNAME = os.environ.get('GITHUB_REPOSITORY', '').split('/')[0] if '/' in os.environ.get('GITHUB_REPOSITORY', '') else "your-username"
-GITHUB_REPO = os.environ.get('GITHUB_REPOSITORY', '').split('/')[1] if '/' in os.environ.get('GITHUB_REPOSITORY', '') else "your-repo"
+GITHUB_USERNAME = os.environ.get('GITHUB_REPOSITORY', '').split('/')[0] \
+    if '/' in os.environ.get('GITHUB_REPOSITORY', '') else "your-username"
+GITHUB_REPO = os.environ.get('GITHUB_REPOSITORY', '').split('/')[1] \
+    if '/' in os.environ.get('GITHUB_REPOSITORY', '') else "your-repo"
 
-# EMAIL CONFIGURATION
 EMAIL_CONFIG = {
-    'enabled': False,
-    'recipient_email': "your.email@gmail.com",
-    'sender_email': "sender.email@gmail.com",
-    'sender_password': "your-app-specific-password"
+    'enabled':          False,
+    'recipient_email':  "your.email@gmail.com",
+    'sender_email':     "sender.email@gmail.com",
+    'sender_password':  "your-app-specific-password",
 }
 
 
-def get_ist_time():
-    """Get current time in IST timezone"""
-    ist = pytz.timezone('Asia/Kolkata')
-    return datetime.now(ist)
+# ═══════════════════════════════════════════════════════════════════════════════
+#  SIP ENTRY INTELLIGENCE ENGINE
+#  Question answered: "Is this a smart PRICE to invest this month?"
+#  This is SEPARATE from whether the stock is fundamentally/technically good.
+# ═══════════════════════════════════════════════════════════════════════════════
 
+def calculate_sip_entry_score(data, current_price, sma_50, rsi, week52_high, week52_low):
+    """
+    SIP Entry Score (0–100):
+    HIGH score = price is at a good entry level (buy the dip)
+    LOW score  = price is stretched / near highs (wait for pullback)
+
+    4 components:
+      1. RSI Zone          (30 pts) — lower RSI = less overbought = better entry
+      2. Price vs SMA-50   (25 pts) — below SMA-50 = value zone
+      3. 52-Week Position  (25 pts) — closer to 52W low = better entry
+      4. Recent Drawdown   (20 pts) — recent pullback = buying opportunity
+    """
+    score = 0
+
+    # 1. RSI Zone
+    if rsi and rsi > 0:
+        if   rsi < 30:  score += 30   # Oversold — best possible entry
+        elif rsi < 40:  score += 27   # Very attractive
+        elif rsi < 50:  score += 22   # Good, below midpoint
+        elif rsi < 55:  score += 15   # Neutral / acceptable
+        elif rsi < 65:  score += 8    # Slightly overbought
+        elif rsi < 70:  score += 3    # Overbought
+        else:           score += 0    # Very overbought — avoid this month
+
+    # 2. Price vs SMA-50 (buying below SMA-50 = value zone)
+    if current_price and sma_50 and sma_50 > 0:
+        pct = ((current_price - sma_50) / sma_50) * 100
+        if   pct < -5:  score += 25   # Well below SMA-50 — deep value
+        elif pct < 0:   score += 20   # Slightly below — good entry
+        elif pct < 3:   score += 12   # Just above — fair
+        elif pct < 8:   score += 5    # Moderately above — pricey
+        else:           score += 0    # Far above SMA-50 — stretched
+
+    # 3. 52-Week Position (where in the annual range is the price?)
+    if week52_high and week52_low and week52_high > week52_low and current_price:
+        pos = (current_price - week52_low) / (week52_high - week52_low) * 100
+        if   pos < 25:  score += 25   # Bottom 25% of range — excellent accumulation
+        elif pos < 40:  score += 20   # Lower half — good value
+        elif pos < 55:  score += 14   # Mid range — neutral
+        elif pos < 70:  score += 7    # Upper half — slight premium
+        elif pos < 85:  score += 2    # Near highs — cautious
+        else:           score += 0    # Near 52W high — wait
+
+    # 4. Recent drawdown from 20-day high (recent dip = opportunity)
+    if data is not None and len(data) >= 20:
+        recent_high = data['Close'].rolling(20).max().iloc[-1]
+        if recent_high and recent_high > 0 and current_price:
+            dd = ((current_price - recent_high) / recent_high) * 100
+            if   dd < -10: score += 20   # Significant pullback — strong buy zone
+            elif dd < -5:  score += 16   # Healthy pullback
+            elif dd < -2:  score += 11   # Minor dip
+            elif dd < 0:   score += 7    # Slight retreat
+            else:          score += 2    # At/near recent high — no margin of safety
+
+    return round(min(score, 100), 1)
+
+
+def get_sip_verdict(sip_score, combined_score):
+    """
+    Combines stock quality (combined_score) with entry timing (sip_score)
+    into a single actionable SIP verdict for this month.
+    """
+    if combined_score < 25:
+        return "SKIP",            "#ef4444", "⛔"   # Fundamentally weak — skip regardless of price
+
+    if   sip_score >= 70:  return "ACCUMULATE NOW",  "#00c853", "🟢"  # Price in value zone — invest full/more
+    elif sip_score >= 55:  return "GOOD ENTRY",       "#43a047", "✅"  # Decent price — invest as planned
+    elif sip_score >= 40:  return "INVEST NORMALLY",  "#fb8c00", "🟡"  # Fair price — stick to SIP
+    elif sip_score >= 25:  return "INVEST LESS",       "#ff7043", "🟠"  # Slightly stretched — invest 50-70%
+    else:                  return "WAIT THIS MONTH",  "#e53935", "🔴"  # Near highs — save for next dip
+
+
+def get_sip_advice(sip_score, combined_score, current_price, sma_50, rsi, week52_low, week52_high):
+    """Plain English advice for the investor."""
+    verdict, _, _ = get_sip_verdict(sip_score, combined_score)
+
+    pos_str = ""
+    if week52_high and week52_low and week52_high > week52_low and current_price:
+        pos = (current_price - week52_low) / (week52_high - week52_low) * 100
+        pos_str = f" Price is at {pos:.0f}% of its 52-week range."
+
+    sma_str = ""
+    if current_price and sma_50 and sma_50 > 0:
+        diff = ((current_price - sma_50) / sma_50) * 100
+        sma_str = f" {abs(diff):.1f}% {'above' if diff > 0 else 'below'} SMA-50."
+
+    rsi_str = f" RSI: {rsi:.0f}." if rsi else ""
+
+    if verdict == "ACCUMULATE NOW":
+        return f"Price is in the value zone.{pos_str}{sma_str}{rsi_str} Strong buying opportunity — consider investing your full SIP amount or slightly more this month."
+    elif verdict == "GOOD ENTRY":
+        return f"Decent entry point.{pos_str}{sma_str}{rsi_str} Invest your planned amount."
+    elif verdict == "INVEST NORMALLY":
+        return f"Fair price.{pos_str}{sma_str}{rsi_str} Stick to your regular SIP. Discipline matters more than timing here."
+    elif verdict == "INVEST LESS":
+        return f"Price is slightly stretched.{pos_str}{sma_str}{rsi_str} Consider investing 50–70% of your planned amount and saving the rest for when the price dips."
+    elif verdict == "WAIT THIS MONTH":
+        return f"Price is near recent highs.{pos_str}{sma_str}{rsi_str} Save this month's amount in a liquid fund and deploy it when RSI drops below 50 or price pulls back 5%+ from current level."
+    else:
+        return f"Stock quality is weak (score: {combined_score:.0f}/100). Skip this month and re-evaluate the stock."
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  STOCK ANALYZER (unchanged from v3.1)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class StockAnalyzer:
+    def __init__(self, ticker):
+        self.ticker = ticker
+        self.stock  = yf.Ticker(ticker)
+        self.data   = None
+        self.info   = None
+
+    def fetch_data(self, period="6mo", max_retries=3):
+        for attempt in range(max_retries):
+            try:
+                print(f"  Fetching {self.ticker} (attempt {attempt+1}/{max_retries})...")
+                self.data = self.stock.history(period=period)
+                self.info = self.stock.info
+                if self.data is None or len(self.data) == 0:
+                    if attempt < max_retries - 1:
+                        time.sleep(2 ** attempt)
+                        continue
+                    return False
+                print(f"  ✅ {len(self.data)} days fetched")
+                return True
+            except Exception as e:
+                print(f"  ❌ {self.ticker}: {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(2 ** attempt)
+                else:
+                    return False
+        return False
+
+    def calculate_rsi(self, period=14):
+        if self.data is None or len(self.data) < period:
+            return 0
+        delta  = self.data['Close'].diff()
+        gain   = delta.where(delta > 0, 0).rolling(period).mean()
+        loss   = (-delta.where(delta < 0, 0)).rolling(period).mean()
+        rsi    = 100 - (100 / (1 + gain / loss))
+        result = rsi.iloc[-1]
+        return 0 if pd.isna(result) else result
+
+    def calculate_macd(self):
+        if self.data is None or len(self.data) < 26:
+            return 0, 0, 0
+        exp1 = self.data['Close'].ewm(span=12, adjust=False).mean()
+        exp2 = self.data['Close'].ewm(span=26, adjust=False).mean()
+        macd = exp1 - exp2
+        sig  = macd.ewm(span=9, adjust=False).mean()
+        hist = macd - sig
+        def clean(v): return 0 if pd.isna(v) else v
+        return clean(macd.iloc[-1]), clean(sig.iloc[-1]), clean(hist.iloc[-1])
+
+    def calculate_moving_averages(self):
+        if self.data is None or len(self.data) == 0:
+            return 0, 0, 0, 0
+        def ma(n): 
+            v = self.data['Close'].rolling(n).mean().iloc[-1] if len(self.data) >= n else 0
+            return 0 if pd.isna(v) else v
+        cp = self.data['Close'].iloc[-1]
+        return (0 if pd.isna(cp) else cp, ma(20), ma(50), ma(200))
+
+    def calculate_bollinger_bands(self, period=20):
+        if self.data is None or len(self.data) < period:
+            return 0, 0, 0
+        sma = self.data['Close'].rolling(period).mean()
+        std = self.data['Close'].rolling(period).std()
+        def clean(v): return 0 if pd.isna(v) else v
+        return clean((sma+std*2).iloc[-1]), clean(sma.iloc[-1]), clean((sma-std*2).iloc[-1])
+
+    def get_fundamental_data(self):
+        if self.info is None:
+            return {}
+        i = self.info
+        def pct(key): return (i.get(key, 0) or 0) * 100
+        return {
+            'market_cap':     i.get('marketCap', 0),
+            'pe_ratio':       i.get('trailingPE', 0),
+            'forward_pe':     i.get('forwardPE', 0),
+            'peg_ratio':      i.get('pegRatio', 0),
+            'dividend_yield': pct('dividendYield'),
+            'beta':           i.get('beta', 0),
+            'profit_margin':  pct('profitMargins'),
+            'roe':            pct('returnOnEquity'),
+            'debt_to_equity': i.get('debtToEquity', 0),
+            'revenue_growth': pct('revenueGrowth'),
+            'current_price':  i.get('currentPrice', 0),
+            '52w_high':       i.get('fiftyTwoWeekHigh', 0),
+            '52w_low':        i.get('fiftyTwoWeekLow', 0),
+        }
+
+    def calculate_technical_score(self):
+        score = 0
+        rsi   = self.calculate_rsi()
+        if rsi > 0:
+            if 30 <= rsi <= 70:   score += 20
+            elif 70 < rsi <= 80:  score += 10
+            elif 20 <= rsi < 30:  score += 15
+
+        _, _, hist = self.calculate_macd()
+        if hist > 0:    score += 20
+        elif hist > -0.5: score += 10
+
+        cp, s20, s50, s200 = self.calculate_moving_averages()
+        if cp and s20  and cp > s20:   score += 10
+        if cp and s50  and cp > s50:   score += 10
+        if cp and s200 and cp > s200:  score += 10
+
+        upper, _, lower = self.calculate_bollinger_bands()
+        if cp and lower and upper and upper > lower:
+            bp = (cp - lower) / (upper - lower)
+            if 0.2 <= bp <= 0.5:  score += 15
+            elif 0.5 < bp <= 0.8: score += 10
+
+        if self.data is not None and len(self.data) >= 30:
+            chg = (self.data['Close'].iloc[-1] - self.data['Close'].iloc[-30]) \
+                  / self.data['Close'].iloc[-30] * 100
+            if not pd.isna(chg):
+                if chg > 5:    score += 15
+                elif chg > 0:  score += 10
+                elif chg > -5: score += 5
+        return round(score, 2)
+
+    def calculate_fundamental_score(self):
+        score = 0
+        f = self.get_fundamental_data()
+
+        pe = f.get('pe_ratio', 0)
+        if 0 < pe < 15:       score += 20
+        elif 15 <= pe < 25:   score += 15
+        elif 25 <= pe < 35:   score += 10
+
+        dy = f.get('dividend_yield', 0)
+        if dy > 3:     score += 15
+        elif dy > 1.5: score += 10
+        elif dy > 0.5: score += 5
+
+        roe = f.get('roe', 0)
+        if roe > 20:   score += 20
+        elif roe > 15: score += 15
+        elif roe > 10: score += 10
+
+        pm = f.get('profit_margin', 0)
+        if pm > 20:   score += 15
+        elif pm > 10: score += 10
+        elif pm > 5:  score += 5
+
+        rg = f.get('revenue_growth', 0)
+        if rg > 20:   score += 15
+        elif rg > 10: score += 10
+        elif rg > 0:  score += 5
+
+        de = f.get('debt_to_equity', 0)
+        if 0 <= de < 0.5:   score += 15
+        elif 0.5 <= de < 1: score += 10
+        elif 1 <= de < 2:   score += 5
+        return round(score, 2)
+
+    def get_recommendation(self):
+        tech  = self.calculate_technical_score()
+        fund  = self.calculate_fundamental_score()
+        combo = tech * 0.5 + fund * 0.5
+        if combo >= 70: return "STRONG BUY", combo, tech, fund
+        if combo >= 55: return "BUY",        combo, tech, fund
+        if combo >= 40: return "HOLD",       combo, tech, fund
+        if combo >= 25: return "REDUCE",     combo, tech, fund
+        return           "SELL",             combo, tech, fund
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  PORTFOLIO ANALYSIS
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def get_sector_for_stock(ticker):
-    """Get the sector for a given stock ticker"""
     for sector, stocks in SECTOR_MAPPING.items():
         if ticker in stocks:
             return sector
     return "Other"
 
 
-class StockAnalyzer:
-    def __init__(self, ticker):
-        self.ticker = ticker
-        self.stock = yf.Ticker(ticker)
-        self.data = None
-        self.info = None
-        
-    def fetch_data(self, period="6mo", max_retries=3):
-        """Fetch historical stock data with retry logic"""
-        for attempt in range(max_retries):
-            try:
-                print(f"  Fetching data for {self.ticker} (attempt {attempt + 1}/{max_retries})...")
-                self.data = self.stock.history(period=period)
-                self.info = self.stock.info
-                
-                if self.data is None or len(self.data) == 0:
-                    print(f"  ⚠️ No data returned for {self.ticker}")
-                    if attempt < max_retries - 1:
-                        time.sleep(2 ** attempt)
-                        continue
-                    return False
-                
-                print(f"  ✅ Successfully fetched {len(self.data)} days of data")
-                return True
-                
-            except Exception as e:
-                print(f"  ❌ Error fetching data for {self.ticker}: {e}")
-                if attempt < max_retries - 1:
-                    print(f"  Retrying in {2 ** attempt} seconds...")
-                    time.sleep(2 ** attempt)
-                else:
-                    print(f"  Failed after {max_retries} attempts")
-                    return False
-        
-        return False
-    
-    def calculate_rsi(self, period=14):
-        """Calculate Relative Strength Index"""
-        if self.data is None or len(self.data) < period:
-            return 0
-        
-        delta = self.data['Close'].diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
-        
-        rs = gain / loss
-        rsi = 100 - (100 / (1 + rs))
-        result = rsi.iloc[-1]
-        
-        return 0 if pd.isna(result) else result
-    
-    def calculate_macd(self):
-        """Calculate MACD (Moving Average Convergence Divergence)"""
-        if self.data is None or len(self.data) < 26:
-            return 0, 0, 0
-        
-        exp1 = self.data['Close'].ewm(span=12, adjust=False).mean()
-        exp2 = self.data['Close'].ewm(span=26, adjust=False).mean()
-        macd = exp1 - exp2
-        signal = macd.ewm(span=9, adjust=False).mean()
-        histogram = macd - signal
-        
-        macd_val = macd.iloc[-1]
-        signal_val = signal.iloc[-1]
-        histogram_val = histogram.iloc[-1]
-        
-        macd_val = 0 if pd.isna(macd_val) else macd_val
-        signal_val = 0 if pd.isna(signal_val) else signal_val
-        histogram_val = 0 if pd.isna(histogram_val) else histogram_val
-        
-        return macd_val, signal_val, histogram_val
-    
-    def calculate_moving_averages(self):
-        """Calculate Simple Moving Averages"""
-        if self.data is None or len(self.data) == 0:
-            return 0, 0, 0, 0
-        
-        current_price = self.data['Close'].iloc[-1] if len(self.data) > 0 else 0
-        sma_20 = self.data['Close'].rolling(window=20).mean().iloc[-1] if len(self.data) >= 20 else 0
-        sma_50 = self.data['Close'].rolling(window=50).mean().iloc[-1] if len(self.data) >= 50 else 0
-        sma_200 = self.data['Close'].rolling(window=200).mean().iloc[-1] if len(self.data) >= 200 else 0
-        
-        current_price = 0 if pd.isna(current_price) else current_price
-        sma_20 = 0 if pd.isna(sma_20) else sma_20
-        sma_50 = 0 if pd.isna(sma_50) else sma_50
-        sma_200 = 0 if pd.isna(sma_200) else sma_200
-        
-        return current_price, sma_20, sma_50, sma_200
-    
-    def calculate_bollinger_bands(self, period=20):
-        """Calculate Bollinger Bands"""
-        if self.data is None or len(self.data) < period:
-            return 0, 0, 0
-        
-        sma = self.data['Close'].rolling(window=period).mean()
-        std = self.data['Close'].rolling(window=period).std()
-        
-        upper_band = sma + (std * 2)
-        lower_band = sma - (std * 2)
-        
-        upper = upper_band.iloc[-1]
-        middle = sma.iloc[-1]
-        lower = lower_band.iloc[-1]
-        
-        upper = 0 if pd.isna(upper) else upper
-        middle = 0 if pd.isna(middle) else middle
-        lower = 0 if pd.isna(lower) else lower
-        
-        return upper, middle, lower
-    
-    def get_fundamental_data(self):
-        """Extract fundamental data"""
-        if self.info is None:
-            return {}
-        
-        fundamentals = {
-            'market_cap': self.info.get('marketCap', 0),
-            'pe_ratio': self.info.get('trailingPE', 0),
-            'forward_pe': self.info.get('forwardPE', 0),
-            'peg_ratio': self.info.get('pegRatio', 0),
-            'dividend_yield': self.info.get('dividendYield', 0) * 100 if self.info.get('dividendYield') else 0,
-            'beta': self.info.get('beta', 0),
-            'profit_margin': self.info.get('profitMargins', 0) * 100 if self.info.get('profitMargins') else 0,
-            'roe': self.info.get('returnOnEquity', 0) * 100 if self.info.get('returnOnEquity') else 0,
-            'debt_to_equity': self.info.get('debtToEquity', 0),
-            'revenue_growth': self.info.get('revenueGrowth', 0) * 100 if self.info.get('revenueGrowth') else 0,
-            'current_price': self.info.get('currentPrice', 0),
-            '52w_high': self.info.get('fiftyTwoWeekHigh', 0),
-            '52w_low': self.info.get('fiftyTwoWeekLow', 0),
-        }
-        
-        return fundamentals
-    
-    def calculate_technical_score(self):
-        """Calculate technical analysis score (0-100)"""
-        score = 0
-        max_score = 100
-        
-        rsi = self.calculate_rsi()
-        if rsi and rsi > 0:
-            if 30 <= rsi <= 70:
-                score += 20
-            elif 70 < rsi <= 80:
-                score += 10
-            elif 20 <= rsi < 30:
-                score += 15
-        
-        macd, signal, histogram = self.calculate_macd()
-        if macd is not None and signal is not None and histogram is not None:
-            if histogram > 0:
-                score += 20
-            elif histogram > -0.5:
-                score += 10
-        
-        current, sma_20, sma_50, sma_200 = self.calculate_moving_averages()
-        if current and sma_20 and current > 0 and sma_20 > 0:
-            if current > sma_20:
-                score += 10
-        if current and sma_50 and current > 0 and sma_50 > 0:
-            if current > sma_50:
-                score += 10
-        if current and sma_200 and current > 0 and sma_200 > 0:
-            if current > sma_200:
-                score += 10
-        
-        upper, middle, lower = self.calculate_bollinger_bands()
-        if current and lower and upper and lower > 0 and upper > lower:
-            band_position = (current - lower) / (upper - lower)
-            if 0.2 <= band_position <= 0.5:
-                score += 15
-            elif 0.5 < band_position <= 0.8:
-                score += 10
-        
-        if self.data is not None and len(self.data) >= 30:
-            price_change_30d = ((self.data['Close'].iloc[-1] - self.data['Close'].iloc[-30]) / 
-                               self.data['Close'].iloc[-30] * 100)
-            if not pd.isna(price_change_30d):
-                if price_change_30d > 5:
-                    score += 15
-                elif price_change_30d > 0:
-                    score += 10
-                elif price_change_30d > -5:
-                    score += 5
-        
-        return round(score, 2)
-    
-    def calculate_fundamental_score(self):
-        """Calculate fundamental analysis score (0-100)"""
-        score = 0
-        fundamentals = self.get_fundamental_data()
-        
-        pe = fundamentals.get('pe_ratio', 0)
-        if 0 < pe < 15:
-            score += 20
-        elif 15 <= pe < 25:
-            score += 15
-        elif 25 <= pe < 35:
-            score += 10
-        
-        div_yield = fundamentals.get('dividend_yield', 0)
-        if div_yield > 3:
-            score += 15
-        elif div_yield > 1.5:
-            score += 10
-        elif div_yield > 0.5:
-            score += 5
-        
-        roe = fundamentals.get('roe', 0)
-        if roe > 20:
-            score += 20
-        elif roe > 15:
-            score += 15
-        elif roe > 10:
-            score += 10
-        
-        profit_margin = fundamentals.get('profit_margin', 0)
-        if profit_margin > 20:
-            score += 15
-        elif profit_margin > 10:
-            score += 10
-        elif profit_margin > 5:
-            score += 5
-        
-        revenue_growth = fundamentals.get('revenue_growth', 0)
-        if revenue_growth > 20:
-            score += 15
-        elif revenue_growth > 10:
-            score += 10
-        elif revenue_growth > 0:
-            score += 5
-        
-        debt_to_equity = fundamentals.get('debt_to_equity', 0)
-        if 0 <= debt_to_equity < 0.5:
-            score += 15
-        elif 0.5 <= debt_to_equity < 1:
-            score += 10
-        elif 1 <= debt_to_equity < 2:
-            score += 5
-        
-        return round(score, 2)
-    
-    def get_recommendation(self):
-        """Generate buy/hold/sell recommendation"""
-        tech_score = self.calculate_technical_score()
-        fund_score = self.calculate_fundamental_score()
-        combined_score = (tech_score * 0.5 + fund_score * 0.5)
-        
-        if combined_score >= 70:
-            return "STRONG BUY", combined_score, tech_score, fund_score
-        elif combined_score >= 55:
-            return "BUY", combined_score, tech_score, fund_score
-        elif combined_score >= 40:
-            return "HOLD", combined_score, tech_score, fund_score
-        elif combined_score >= 25:
-            return "REDUCE", combined_score, tech_score, fund_score
-        else:
-            return "SELL", combined_score, tech_score, fund_score
+def get_ist_time():
+    return datetime.now(pytz.timezone('Asia/Kolkata'))
 
 
 def analyze_portfolio(stocks):
-    """Analyze entire portfolio"""
-    results = []
+    results    = []
     successful = 0
-    failed = 0
-    
-    print(f"\n{'='*70}")
-    print(f"Starting analysis of {len(stocks)} stocks...")
-    print(f"{'='*70}\n")
-    
+    failed     = 0
+
+    print(f"\n{'='*70}\nAnalyzing {len(stocks)} stocks...\n{'='*70}\n")
+
     for idx, ticker in enumerate(stocks, 1):
-        print(f"[{idx}/{len(stocks)}] Analyzing {ticker}...")
+        print(f"[{idx}/{len(stocks)}] {ticker}...")
         analyzer = StockAnalyzer(ticker)
-        
+
         if analyzer.fetch_data():
             try:
-                recommendation, combined_score, tech_score, fund_score = analyzer.get_recommendation()
-                
-                current, sma_20, sma_50, sma_200 = analyzer.calculate_moving_averages()
-                rsi = analyzer.calculate_rsi()
-                macd, signal, histogram = analyzer.calculate_macd()
-                fundamentals = analyzer.get_fundamental_data()
-                
+                rec, combo, tech, fund = analyzer.get_recommendation()
+                cp, s20, s50, s200    = analyzer.calculate_moving_averages()
+                rsi                   = analyzer.calculate_rsi()
+                macd, signal, hist    = analyzer.calculate_macd()
+                f                     = analyzer.get_fundamental_data()
+
+                w52h = f.get('52w_high', 0)
+                w52l = f.get('52w_low',  0)
+
+                # ── NEW: SIP Entry Intelligence ────────────────────────────
+                sip_score              = calculate_sip_entry_score(
+                                             analyzer.data, cp, s50, rsi, w52h, w52l)
+                sip_verdict, sip_color, sip_icon = get_sip_verdict(sip_score, combo)
+                sip_advice             = get_sip_advice(
+                                             sip_score, combo, cp, s50, rsi, w52l, w52h)
+
                 results.append({
-                    'ticker': ticker,
-                    'sector': get_sector_for_stock(ticker),
-                    'recommendation': recommendation,
-                    'combined_score': combined_score,
-                    'technical_score': tech_score,
-                    'fundamental_score': fund_score,
-                    'current_price': current,
-                    'rsi': rsi,
-                    'macd': macd,
-                    'signal': signal,
-                    'sma_20': sma_20,
-                    'sma_50': sma_50,
-                    'sma_200': sma_200,
-                    'pe_ratio': fundamentals.get('pe_ratio', 0),
-                    'dividend_yield': fundamentals.get('dividend_yield', 0),
-                    'market_cap': fundamentals.get('market_cap', 0),
-                    'roe': fundamentals.get('roe', 0),
-                    'profit_margin': fundamentals.get('profit_margin', 0),
-                    'revenue_growth': fundamentals.get('revenue_growth', 0),
-                    '52w_high': fundamentals.get('52w_high', 0),
-                    '52w_low': fundamentals.get('52w_low', 0),
+                    'ticker':            ticker,
+                    'sector':            get_sector_for_stock(ticker),
+                    'recommendation':    rec,
+                    'combined_score':    combo,
+                    'technical_score':   tech,
+                    'fundamental_score': fund,
+                    'current_price':     cp,
+                    'rsi':               rsi,
+                    'macd':              macd,
+                    'signal':            signal,
+                    'sma_20':            s20,
+                    'sma_50':            s50,
+                    'sma_200':           s200,
+                    'pe_ratio':          f.get('pe_ratio', 0),
+                    'dividend_yield':    f.get('dividend_yield', 0),
+                    'market_cap':        f.get('market_cap', 0),
+                    'roe':               f.get('roe', 0),
+                    'profit_margin':     f.get('profit_margin', 0),
+                    'revenue_growth':    f.get('revenue_growth', 0),
+                    '52w_high':          w52h,
+                    '52w_low':           w52l,
+                    # SIP fields
+                    'sip_score':         sip_score,
+                    'sip_verdict':       sip_verdict,
+                    'sip_color':         sip_color,
+                    'sip_icon':          sip_icon,
+                    'sip_advice':        sip_advice,
                 })
                 successful += 1
-                print(f"  ✅ Analysis complete: {recommendation} (Score: {combined_score:.1f})")
+                print(f"  ✅ {rec} ({combo:.1f}) | SIP Entry: {sip_verdict} ({sip_score:.0f}/100)")
+
             except Exception as e:
-                print(f"  ❌ Error analyzing {ticker}: {e}")
-                results.append({
-                    'ticker': ticker,
-                    'sector': get_sector_for_stock(ticker),
-                    'recommendation': 'DATA ERROR',
-                    'combined_score': 0,
-                    'technical_score': 0,
-                    'fundamental_score': 0,
-                    'current_price': 0,
-                })
+                print(f"  ❌ Error: {e}")
+                results.append(_err(ticker))
                 failed += 1
         else:
-            results.append({
-                'ticker': ticker,
-                'sector': get_sector_for_stock(ticker),
-                'recommendation': 'DATA ERROR',
-                'combined_score': 0,
-                'technical_score': 0,
-                'fundamental_score': 0,
-                'current_price': 0,
-            })
+            results.append(_err(ticker))
             failed += 1
-        
+
         if idx < len(stocks):
             time.sleep(1)
-    
-    print(f"\n{'='*70}")
-    print(f"Analysis Summary:")
-    print(f"  ✅ Successful: {successful}/{len(stocks)}")
-    print(f"  ❌ Failed: {failed}/{len(stocks)}")
-    print(f"{'='*70}\n")
-    
+
+    print(f"\n✅ {successful} succeeded | ❌ {failed} failed\n")
     if successful == 0:
-        print("ERROR: No stocks were successfully analyzed. Exiting.")
+        print("ERROR: No stocks analyzed. Exiting.")
         sys.exit(1)
-    
     return results
 
 
+def _err(ticker):
+    return {
+        'ticker': ticker, 'sector': get_sector_for_stock(ticker),
+        'recommendation': 'DATA ERROR', 'combined_score': 0,
+        'technical_score': 0, 'fundamental_score': 0, 'current_price': 0,
+        'rsi': 0, 'macd': 0, 'signal': 0,
+        'sma_20': 0, 'sma_50': 0, 'sma_200': 0,
+        'pe_ratio': 0, 'dividend_yield': 0, 'market_cap': 0,
+        'roe': 0, 'profit_margin': 0, 'revenue_growth': 0,
+        '52w_high': 0, '52w_low': 0,
+        'sip_score': 0, 'sip_verdict': 'DATA ERROR',
+        'sip_color': '#9e9e9e', 'sip_icon': '⚠️',
+        'sip_advice': 'Data unavailable — skip this month.',
+    }
+
+
 def calculate_allocation(results, monthly_investment):
-    """Calculate investment allocation based on scores"""
-    valid_stocks = [r for r in results if r['combined_score'] >= 40]
-    
-    if not valid_stocks:
-        equal_allocation = monthly_investment / len(results)
-        for result in results:
-            result['allocation_amount'] = equal_allocation
-            result['allocation_percent'] = (equal_allocation / monthly_investment) * 100
-        return results
-    
-    total_score = sum(r['combined_score'] for r in valid_stocks)
-    
-    for result in results:
-        if result['combined_score'] >= 40:
-            weight = result['combined_score'] / total_score
-            result['allocation_amount'] = monthly_investment * weight
-            result['allocation_percent'] = weight * 100
+    """
+    NEW v4 allocation logic:
+    Allocation weight = combined_score × sip_modifier
+
+    sip_modifier boosts stocks at dips, reduces stocks at highs.
+    Stocks with WAIT verdict get 0 allocation this month.
+    Their amount is redistributed to stocks with better entry scores.
+    """
+    SIP_MODIFIERS = {
+        "ACCUMULATE NOW":  1.4,   # Price in value zone → give more
+        "GOOD ENTRY":      1.15,  # Good price → slight boost
+        "INVEST NORMALLY": 1.0,   # Fair price → standard
+        "INVEST LESS":     0.55,  # Stretched → reduce
+        "WAIT THIS MONTH": 0.0,   # Near highs → skip this month
+        "SKIP":            0.0,   # Weak stock → skip
+        "DATA ERROR":      0.0,
+    }
+
+    eligible = [r for r in results
+                if r.get('combined_score', 0) >= 25
+                and SIP_MODIFIERS.get(r.get('sip_verdict', ''), 0) > 0]
+
+    # Fallback: if everyone is at highs, equal split among quality stocks
+    if not eligible:
+        eligible = [r for r in results if r.get('combined_score', 0) >= 25]
+        for r in results:
+            r['sip_modifier_used'] = 1.0
+        if not eligible:
+            eligible = results
+
+    total_weight = sum(
+        r['combined_score'] * SIP_MODIFIERS.get(r.get('sip_verdict', ''), 1.0)
+        for r in eligible
+    )
+
+    for r in results:
+        mod = SIP_MODIFIERS.get(r.get('sip_verdict', ''), 0.0)
+        r['sip_modifier_used'] = mod
+        if r in eligible and total_weight > 0:
+            w = (r['combined_score'] * mod) / total_weight
+            r['allocation_amount']  = monthly_investment * w
+            r['allocation_percent'] = w * 100
         else:
-            result['allocation_amount'] = 0
-            result['allocation_percent'] = 0
-    
+            r['allocation_amount']  = 0
+            r['allocation_percent'] = 0
+
     return results
 
 
 def group_by_sector(results):
-    """Group results by sector"""
     sectors = {}
-    for result in results:
-        sector = result.get('sector', 'Other')
-        if sector not in sectors:
-            sectors[sector] = []
-        sectors[sector].append(result)
-    
-    # Sort stocks within each sector by combined_score descending
-    for sector in sectors:
-        sectors[sector] = sorted(sectors[sector], key=lambda x: x['combined_score'], reverse=True)
-    
+    for r in results:
+        sectors.setdefault(r.get('sector', 'Other'), []).append(r)
+    for s in sectors:
+        sectors[s].sort(key=lambda x: x['combined_score'], reverse=True)
     return sectors
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+#  HTML REPORT GENERATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
 def generate_github_pages_html(results, monthly_investment, github_url=""):
-    """Generate COMPACT, MOBILE-RESPONSIVE HTML for GitHub Pages"""
-    
-    ist_time = get_ist_time()
-    total_allocation = sum(r['allocation_amount'] for r in results)
-    strong_buy = len([r for r in results if r['recommendation'] == 'STRONG BUY'])
-    buy = len([r for r in results if r['recommendation'] == 'BUY'])
-    hold = len([r for r in results if r['recommendation'] == 'HOLD'])
-    reduce = len([r for r in results if r['recommendation'] == 'REDUCE'])
-    sell = len([r for r in results if r['recommendation'] == 'SELL'])
-    
-    avg_score = sum(r['combined_score'] for r in results)/len(results)
-    top_performers = [r for r in results if r['combined_score'] >= 70]
-    
-    # Group by sector
-    sectors = group_by_sector(results)
-    
-    # Sector colors for visual distinction
-    sector_colors = {
-        "Banking & Finance": "#1e88e5",
-        "Information Technology": "#43a047",
-        "REITs (Real Estate)": "#e53935",
-        "Index & Diversified": "#fb8c00",
-        "Automobile": "#8e24aa",
-        "Commodities": "#fdd835"
+    ist        = get_ist_time()
+    sectors    = group_by_sector(results)
+    total_alloc = sum(r.get('allocation_amount', 0) for r in results)
+    avg_score  = sum(r['combined_score'] for r in results) / len(results)
+    strong_buy = sum(1 for r in results if r['recommendation'] == 'STRONG BUY')
+    buy        = sum(1 for r in results if r['recommendation'] == 'BUY')
+    hold       = sum(1 for r in results if r['recommendation'] == 'HOLD')
+    reduce     = sum(1 for r in results if r['recommendation'] == 'REDUCE')
+    sell       = sum(1 for r in results if r['recommendation'] == 'SELL')
+
+    sip_counts = {
+        'ACCUMULATE NOW':  sum(1 for r in results if r.get('sip_verdict') == 'ACCUMULATE NOW'),
+        'GOOD ENTRY':      sum(1 for r in results if r.get('sip_verdict') == 'GOOD ENTRY'),
+        'INVEST NORMALLY': sum(1 for r in results if r.get('sip_verdict') == 'INVEST NORMALLY'),
+        'INVEST LESS':     sum(1 for r in results if r.get('sip_verdict') == 'INVEST LESS'),
+        'WAIT THIS MONTH': sum(1 for r in results if r.get('sip_verdict') in ('WAIT THIS MONTH','SKIP','DATA ERROR')),
     }
-    
+
+    SECTOR_COLORS = {
+        "Banking & Finance":      "#1e88e5",
+        "Information Technology": "#43a047",
+        "Index & Diversified":    "#fb8c00",
+        "Automobile":             "#8e24aa",
+        "Commodities":            "#f9a825",
+    }
+    SECTOR_ICONS = {
+        "Banking & Finance":      "🏦",
+        "Information Technology": "💻",
+        "Index & Diversified":    "📈",
+        "Automobile":             "🚗",
+        "Commodities":            "🥇",
+    }
+
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio Analysis - {ist_time.strftime('%d %B %Y')}</title>
-    <meta name="description" content="Sector-wise Stock Portfolio Analysis">
-    <style>
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-        
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 10px;
-            line-height: 1.4;
-            min-height: 100vh;
-            font-size: 14px;
-        }}
-        
-        .container {{
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
-            overflow: hidden;
-        }}
-        
-        /* Header - Compact */
-        .header {{
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 25px 20px 20px 20px;
-            text-align: center;
-        }}
-        
-        .header h1 {{
-            font-size: 1.8em;
-            margin-bottom: 8px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            font-weight: 700;
-        }}
-        
-        .header .subtitle {{
-            font-size: 1em;
-            opacity: 0.95;
-            margin-bottom: 8px;
-            font-weight: 300;
-        }}
-        
-        .ist-time-badge {{
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
-            margin-top: 10px;
-            font-size: 0.85em;
-            font-weight: 500;
-            backdrop-filter: blur(10px);
-            border: 1.5px solid rgba(255,255,255,0.3);
-        }}
-        
-        /* Quick Stats - Compact */
-        .quick-stats {{
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 20px 15px;
-            border-bottom: 2px solid #dee2e6;
-        }}
-        
-        .stats-title {{
-            text-align: center;
-            font-size: 1.3em;
-            color: #1e3c72;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }}
-        
-        .stats-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 15px;
-        }}
-        
-        .stat-card {{
-            background: white;
-            padding: 12px 10px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            text-align: center;
-            transition: all 0.3s ease;
-            border-left: 3px solid #1e3c72;
-        }}
-        
-        .stat-card:hover {{
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.12);
-        }}
-        
-        .stat-card.highlight {{
-            border-left-color: #00a86b;
-            background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%);
-        }}
-        
-        .stat-card .icon {{
-            font-size: 1.5em;
-            margin-bottom: 6px;
-            opacity: 0.8;
-        }}
-        
-        .stat-card h3 {{
-            color: #6c757d;
-            font-size: 0.7em;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }}
-        
-        .stat-card .value {{
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #1e3c72;
-            line-height: 1.2;
-        }}
-        
-        .stat-card .subvalue {{
-            font-size: 0.75em;
-            color: #6c757d;
-            margin-top: 4px;
-        }}
-        
-        /* Health Bar - Compact */
-        .health-indicator {{
-            text-align: center;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            margin-top: 12px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-        }}
-        
-        .health-title {{
-            font-size: 0.85em;
-            color: #6c757d;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }}
-        
-        .health-bar {{
-            width: 100%;
-            height: 25px;
-            background: #e9ecef;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }}
-        
-        .health-fill {{
-            height: 100%;
-            background: linear-gradient(90deg, #00a86b 0%, #4caf50 50%, #8bc34a 100%);
-            border-radius: 15px;
-            transition: width 1.5s ease;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
-            color: white;
-            font-weight: 700;
-            font-size: 0.9em;
-        }}
-        
-        /* Recommendation Summary - Compact */
-        .recommendation-summary {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-            gap: 10px;
-            padding: 15px;
-            background: white;
-            border-bottom: 2px solid #eee;
-        }}
-        
-        .rec-item {{
-            text-align: center;
-            padding: 12px 8px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }}
-        
-        .rec-item:hover {{
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }}
-        
-        .rec-item .count {{
-            font-size: 2em;
-            font-weight: 800;
-            margin-bottom: 4px;
-            line-height: 1;
-        }}
-        
-        .rec-item .label {{
-            font-size: 0.7em;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }}
-        
-        .rec-item.strong-buy {{ background: linear-gradient(135deg, #00a86b 0%, #00d084 100%); color: white; }}
-        .rec-item.buy {{ background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%); color: white; }}
-        .rec-item.hold {{ background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%); color: white; }}
-        .rec-item.reduce {{ background: linear-gradient(135deg, #ff5722 0%, #ff7043 100%); color: white; }}
-        .rec-item.sell {{ background: linear-gradient(135deg, #f44336 0%, #e57373 100%); color: white; }}
-        
-        /* SECTOR-WISE LAYOUT - Compact */
-        .sectors-container {{
-            padding: 20px 15px;
-        }}
-        
-        .sector-section {{
-            margin-bottom: 25px;
-        }}
-        
-        .sector-header {{
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 15px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 10px;
-            margin-bottom: 12px;
-            border-left: 4px solid #1e3c72;
-            flex-wrap: wrap;
-        }}
-        
-        .sector-icon {{
-            font-size: 1.3em;
-        }}
-        
-        .sector-title {{
-            font-size: 1.1em;
-            font-weight: 700;
-            color: #1e3c72;
-            flex: 1;
-            min-width: 150px;
-        }}
-        
-        .sector-count {{
-            background: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-weight: 600;
-            color: #6c757d;
-            font-size: 0.75em;
-        }}
-        
-        .sector-allocation {{
-            background: #1e3c72;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-weight: 700;
-            font-size: 0.75em;
-        }}
-        
-        /* Stock Cards - COMPACT */
-        .stock-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 12px;
-        }}
-        
-        .stock-card {{
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-left: 4px solid #1e3c72;
-            transition: all 0.3s ease;
-        }}
-        
-        .stock-card:hover {{
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
-        }}
-        
-        .stock-header {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f1f3f5;
-            flex-wrap: wrap;
-            gap: 8px;
-        }}
-        
-        .stock-ticker {{
-            font-size: 1.1em;
-            font-weight: 700;
-            color: #1e3c72;
-        }}
-        
-        .stock-recommendation {{
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 15px;
-            font-weight: 700;
-            font-size: 0.65em;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }}
-        
-        .stock-recommendation.strong-buy {{ background: #00a86b; color: white; }}
-        .stock-recommendation.buy {{ background: #4caf50; color: white; }}
-        .stock-recommendation.hold {{ background: #ff9800; color: white; }}
-        .stock-recommendation.reduce {{ background: #ff5722; color: white; }}
-        .stock-recommendation.sell {{ background: #f44336; color: white; }}
-        
-        .stock-metrics {{
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 10px;
-        }}
-        
-        .metric {{
-            background: #f8f9fa;
-            padding: 8px;
-            border-radius: 6px;
-        }}
-        
-        .metric-label {{
-            font-size: 0.65em;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 3px;
-        }}
-        
-        .metric-value {{
-            font-size: 1.1em;
-            font-weight: 700;
-            color: #1e3c72;
-        }}
-        
-        .metric-value.excellent {{ color: #00a86b; }}
-        .metric-value.good {{ color: #4caf50; }}
-        .metric-value.average {{ color: #ff9800; }}
-        .metric-value.poor {{ color: #f44336; }}
-        
-        /* COMPACT Technical Indicators - Single Row */
-        .stock-details {{
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
-            font-size: 0.7em;
-            color: #495057;
-            margin-bottom: 10px;
-            padding: 8px;
-            background: #f8f9fa;
-            border-radius: 6px;
-        }}
-        
-        .detail-item {{
-            text-align: center;
-        }}
-        
-        .detail-label {{
-            font-weight: 700;
-            color: #6c757d;
-            display: block;
-            margin-bottom: 2px;
-            font-size: 0.9em;
-        }}
-        
-        .detail-value {{
-            font-weight: 600;
-            color: #1e3c72;
-            font-size: 1.1em;
-        }}
-        
-        .allocation-badge {{
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            text-align: center;
-            margin-top: 10px;
-            font-weight: 700;
-        }}
-        
-        .allocation-amount {{
-            font-size: 1.3em;
-            margin-bottom: 3px;
-        }}
-        
-        .allocation-percent {{
-            font-size: 0.8em;
-            opacity: 0.9;
-        }}
-        
-        .disclaimer {{
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            margin: 20px 15px;
-            border-radius: 8px;
-        }}
-        
-        .disclaimer h4 {{
-            color: #856404;
-            margin-bottom: 8px;
-            font-size: 1em;
-        }}
-        
-        .disclaimer p {{
-            color: #856404;
-            line-height: 1.6;
-            font-size: 0.85em;
-        }}
-        
-        .footer {{
-            background: #f8f9fa;
-            padding: 20px 15px;
-            text-align: center;
-            color: #6c757d;
-            font-size: 0.8em;
-            border-top: 2px solid #dee2e6;
-        }}
-        
-        .footer p {{
-            margin: 5px 0;
-        }}
-        
-        /* MOBILE RESPONSIVE */
-        @media (max-width: 768px) {{
-            body {{
-                padding: 5px;
-                font-size: 13px;
-            }}
-            
-            .header h1 {{
-                font-size: 1.5em;
-            }}
-            
-            .header .subtitle {{
-                font-size: 0.9em;
-            }}
-            
-            .ist-time-badge {{
-                font-size: 0.75em;
-                padding: 6px 12px;
-            }}
-            
-            .stats-grid {{
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }}
-            
-            .stock-grid {{
-                grid-template-columns: 1fr;
-            }}
-            
-            .stock-metrics {{
-                grid-template-columns: 1fr;
-            }}
-            
-            .stock-details {{
-                grid-template-columns: repeat(3, 1fr);
-                font-size: 0.65em;
-            }}
-            
-            .recommendation-summary {{
-                grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
-                padding: 10px;
-            }}
-            
-            .rec-item {{
-                padding: 10px 6px;
-            }}
-            
-            .rec-item .count {{
-                font-size: 1.5em;
-            }}
-            
-            .rec-item .label {{
-                font-size: 0.65em;
-            }}
-            
-            .sector-header {{
-                padding: 10px 12px;
-            }}
-            
-            .sector-title {{
-                font-size: 1em;
-                width: 100%;
-            }}
-        }}
-        
-        @media (min-width: 769px) and (max-width: 1024px) {{
-            .stock-grid {{
-                grid-template-columns: repeat(2, 1fr);
-            }}
-        }}
-        
-        @media (min-width: 1025px) {{
-            .stock-grid {{
-                grid-template-columns: repeat(3, 1fr);
-            }}
-        }}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Analysis — {ist.strftime('%d %b %Y')}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {{
+  --bg:       #0d1117;
+  --surf:     #161b22;
+  --surf2:    #1c2128;
+  --border:   rgba(255,255,255,0.08);
+  --text:     #e6edf3;
+  --muted:    #7d8590;
+  --green:    #3fb950;
+  --yellow:   #d29922;
+  --orange:   #f0883e;
+  --red:      #f85149;
+  --blue:     #58a6ff;
+  --purple:   #bc8cff;
+}}
+*{{ margin:0; padding:0; box-sizing:border-box; }}
+body{{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  font-size:14px;
+  line-height:1.5;
+}}
+
+/* ── HEADER ─────────────────────────── */
+.hdr{{
+  background:var(--surf);
+  border-bottom:1px solid var(--border);
+  padding:24px 20px 20px;
+}}
+.hdr-inner{{
+  max-width:1300px;
+  margin:0 auto;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+}}
+.hdr-title{{
+  font-family:'Syne',sans-serif;
+  font-size:1.7em;
+  font-weight:800;
+  letter-spacing:-.5px;
+}}
+.hdr-title span{{color:var(--blue);}}
+.hdr-sub{{font-size:.78em;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;}}
+.time-badge{{
+  background:var(--surf2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:8px 14px;
+  font-family:'DM Mono',monospace;
+  font-size:.75em;
+  color:var(--muted);
+  white-space:nowrap;
+}}
+
+/* ── OVERVIEW ────────────────────────── */
+.ovr{{max-width:1300px;margin:24px auto 0;padding:0 16px;}}
+.ovr-grid{{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;
+  margin-bottom:20px;
+}}
+.ov{{
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+}}
+.ov-lbl{{
+  font-size:.65em;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--muted);
+  font-family:'DM Mono',monospace;
+  margin-bottom:8px;
+}}
+.ov-val{{
+  font-family:'Syne',sans-serif;
+  font-size:1.8em;
+  font-weight:700;
+  line-height:1;
+}}
+.ov-sub{{font-size:.72em;color:var(--muted);margin-top:4px;}}
+
+/* ── REC PILLS ───────────────────────── */
+.rec-row{{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:20px;
+}}
+.rec-pill{{
+  flex:1;
+  min-width:75px;
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px 8px;
+  text-align:center;
+}}
+.rec-pill .rp-n{{
+  font-family:'Syne',sans-serif;
+  font-size:1.9em;
+  font-weight:800;
+  line-height:1;
+}}
+.rec-pill .rp-l{{font-size:.62em;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}}
+.rec-pill.sb{{border-top:3px solid var(--green);}}
+.rec-pill.b {{border-top:3px solid #7ee787;}}
+.rec-pill.h {{border-top:3px solid var(--yellow);}}
+.rec-pill.r {{border-top:3px solid var(--orange);}}
+.rec-pill.s {{border-top:3px solid var(--red);}}
+
+/* ── SIP INTELLIGENCE BANNER ─────────── */
+.sip-banner{{
+  background:linear-gradient(135deg,rgba(63,185,80,.06) 0%,rgba(0,0,0,0) 60%,rgba(88,166,255,.04) 100%);
+  border:1px solid rgba(63,185,80,.2);
+  border-radius:16px;
+  padding:20px 22px;
+  margin-bottom:20px;
+}}
+.sip-banner-hd{{
+  font-family:'Syne',sans-serif;
+  font-size:1em;
+  font-weight:700;
+  color:var(--green);
+  margin-bottom:6px;
+}}
+.sip-banner-txt{{
+  font-size:.78em;
+  color:var(--muted);
+  max-width:780px;
+  line-height:1.6;
+  margin-bottom:14px;
+}}
+.sip-banner-txt strong{{color:var(--text);}}
+.sip-pills{{display:flex;flex-wrap:wrap;gap:8px;}}
+.sp{{
+  padding:5px 13px;
+  border-radius:20px;
+  font-family:'DM Mono',monospace;
+  font-size:.7em;
+  font-weight:500;
+  display:flex;
+  align-items:center;
+  gap:5px;
+}}
+.sp.acc{{background:rgba(63,185,80,.12);color:#3fb950;border:1px solid rgba(63,185,80,.25);}}
+.sp.good{{background:rgba(100,200,100,.08);color:#7ee787;border:1px solid rgba(100,200,100,.15);}}
+.sp.norm{{background:rgba(210,153,34,.1);color:#d29922;border:1px solid rgba(210,153,34,.2);}}
+.sp.less{{background:rgba(240,136,62,.1);color:#f0883e;border:1px solid rgba(240,136,62,.2);}}
+.sp.wait{{background:rgba(248,81,73,.1);color:#f85149;border:1px solid rgba(248,81,73,.2);}}
+
+/* ── SIP GUIDE ───────────────────────── */
+.guide{{max-width:1300px;margin:0 auto 24px;padding:0 16px;}}
+.guide-inner{{
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:18px 22px;
+}}
+.guide-hd{{
+  font-family:'Syne',sans-serif;
+  font-size:.9em;
+  font-weight:700;
+  margin-bottom:14px;
+}}
+.guide-grid{{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:10px;
+}}
+.gi{{
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+}}
+.gi-v{{font-family:'DM Mono',monospace;font-size:.68em;font-weight:700;margin-bottom:5px;}}
+.gi-w{{font-size:.74em;font-weight:600;margin-bottom:4px;}}
+.gi-h{{font-size:.7em;color:var(--muted);line-height:1.45;}}
+
+/* ── SECTORS ─────────────────────────── */
+.secs{{max-width:1300px;margin:0 auto;padding:0 16px 40px;}}
+.sec{{margin-bottom:28px;}}
+.sec-hd{{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 16px;
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:10px;
+  margin-bottom:12px;
+  flex-wrap:wrap;
+}}
+.sec-name{{
+  font-family:'Syne',sans-serif;
+  font-weight:700;
+  font-size:1em;
+  flex:1;
+}}
+.sec-badge{{
+  font-family:'DM Mono',monospace;
+  font-size:.68em;
+  padding:3px 9px;
+  border-radius:6px;
+  background:var(--surf2);
+  color:var(--muted);
+}}
+.sec-alloc{{
+  font-family:'DM Mono',monospace;
+  font-size:.72em;
+  padding:3px 10px;
+  border-radius:6px;
+  color:#fff;
+  font-weight:600;
+}}
+.sgrid{{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:14px;
+}}
+
+/* ── STOCK CARD ───────────────────────── */
+.card{{
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+}}
+.card:hover{{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4);}}
+
+/* card top row */
+.ctop{{
+  padding:14px 16px 10px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+}}
+.cticker{{
+  font-family:'Syne',sans-serif;
+  font-size:1.1em;
+  font-weight:800;
+}}
+.cprice{{
+  font-family:'DM Mono',monospace;
+  font-size:.75em;
+  color:var(--muted);
+  margin-top:2px;
+}}
+.rec-b{{
+  font-family:'DM Mono',monospace;
+  font-size:.6em;
+  font-weight:700;
+  padding:3px 9px;
+  border-radius:5px;
+  letter-spacing:.3px;
+  white-space:nowrap;
+}}
+.rb-strong-buy{{background:rgba(63,185,80,.18);color:#3fb950;}}
+.rb-buy{{background:rgba(100,200,100,.12);color:#7ee787;}}
+.rb-hold{{background:rgba(210,153,34,.18);color:#d29922;}}
+.rb-reduce{{background:rgba(240,136,62,.18);color:#f0883e;}}
+.rb-sell{{background:rgba(248,81,73,.18);color:#f85149;}}
+.rb-data-error{{background:rgba(125,133,144,.18);color:#7d8590;}}
+
+/* SIP verdict stripe */
+.sip-stripe{{
+  padding:10px 16px;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  border-bottom:1px solid var(--border);
+}}
+.sip-vbadge{{
+  font-family:'DM Mono',monospace;
+  font-size:.64em;
+  font-weight:700;
+  padding:4px 10px;
+  border-radius:6px;
+  white-space:nowrap;
+  flex-shrink:0;
+  margin-top:1px;
+}}
+.sip-txt{{font-size:.72em;color:var(--muted);line-height:1.5;}}
+
+/* score bars */
+.scores{{padding:10px 16px;border-bottom:1px solid var(--border);}}
+.srow{{display:flex;align-items:center;gap:8px;margin-bottom:5px;}}
+.srow:last-child{{margin-bottom:0;}}
+.slbl{{
+  font-size:.62em;
+  color:var(--muted);
+  font-family:'DM Mono',monospace;
+  width:58px;
+  flex-shrink:0;
+}}
+.sbar-w{{flex:1;background:var(--surf2);border-radius:3px;height:5px;overflow:hidden;}}
+.sbar{{height:100%;border-radius:3px;}}
+.snum{{font-family:'DM Mono',monospace;font-size:.65em;width:26px;text-align:right;}}
+
+/* metrics row */
+.mets{{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  border-top:1px solid var(--border);
+}}
+.met{{padding:7px 4px;text-align:center;border-right:1px solid var(--border);}}
+.met:last-child{{border-right:none;}}
+.met-l{{font-size:.55em;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;display:block;margin-bottom:2px;}}
+.met-v{{font-family:'DM Mono',monospace;font-size:.78em;font-weight:600;}}
+
+/* allocation footer */
+.alloc-ft{{
+  padding:10px 16px;
+  background:var(--surf2);
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}}
+.alloc-lbl{{font-size:.65em;color:var(--muted);font-family:'DM Mono',monospace;}}
+.alloc-amt{{
+  font-family:'Syne',sans-serif;
+  font-size:1.05em;
+  font-weight:700;
+  text-align:right;
+}}
+.alloc-pct{{font-size:.68em;color:var(--muted);text-align:right;}}
+
+/* disclaimer */
+.disc{{max-width:1300px;margin:0 auto 24px;padding:0 16px;}}
+.disc-inner{{
+  background:rgba(210,153,34,.04);
+  border:1px solid rgba(210,153,34,.2);
+  border-radius:10px;
+  padding:14px 18px;
+  font-size:.75em;
+  color:var(--muted);
+  line-height:1.6;
+}}
+.disc-inner strong{{color:var(--yellow);}}
+
+.footer{{
+  border-top:1px solid var(--border);
+  padding:16px 20px;
+  text-align:center;
+  font-size:.7em;
+  color:var(--muted);
+  font-family:'DM Mono',monospace;
+}}
+
+/* responsive */
+@media(max-width:600px){{
+  .ovr-grid{{grid-template-columns:repeat(2,1fr);}}
+  .sgrid{{grid-template-columns:1fr;}}
+  .guide-grid{{grid-template-columns:1fr 1fr;}}
+  .mets{{grid-template-columns:repeat(3,1fr);}}
+  .hdr-inner{{flex-direction:column;}}
+}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>📊 Portfolio Analysis</h1>
-            <div class="subtitle">Sector-wise Analysis</div>
-            <div class="ist-time-badge">
-                <span>🕐</span>
-                <span>{ist_time.strftime('%d %b %Y')} · {ist_time.strftime('%I:%M %p IST')}</span>
-            </div>
-        </div>
-        
-        <!-- Quick Stats -->
-        <div class="quick-stats">
-            <h2 class="stats-title">📈 Portfolio Overview</h2>
-            
-            <div class="stats-grid">
-                <div class="stat-card highlight">
-                    <div class="icon">💰</div>
-                    <h3>Investment</h3>
-                    <div class="value">₹{monthly_investment:,}</div>
-                    <div class="subvalue">₹{total_allocation:,.0f} allocated</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="icon">📊</div>
-                    <h3>Stocks</h3>
-                    <div class="value">{len(results)}</div>
-                    <div class="subvalue">{len(sectors)} sectors</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="icon">⭐</div>
-                    <h3>Avg Score</h3>
-                    <div class="value">{avg_score:.1f}</div>
-                    <div class="subvalue">Health</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="icon">🎯</div>
-                    <h3>Strong Buys</h3>
-                    <div class="value">{strong_buy}</div>
-                    <div class="subvalue">Top picks</div>
-                </div>
-            </div>
-            
-            <div class="health-indicator">
-                <div class="health-title">Portfolio Health Score</div>
-                <div class="health-bar">
-                    <div class="health-fill" style="width: {avg_score}%;">
-                        {avg_score:.1f}%
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Recommendation Summary -->
-        <div class="recommendation-summary">
-            <div class="rec-item strong-buy">
-                <div class="count">{strong_buy}</div>
-                <div class="label">Strong Buy</div>
-            </div>
-            <div class="rec-item buy">
-                <div class="count">{buy}</div>
-                <div class="label">Buy</div>
-            </div>
-            <div class="rec-item hold">
-                <div class="count">{hold}</div>
-                <div class="label">Hold</div>
-            </div>
-            <div class="rec-item reduce">
-                <div class="count">{reduce}</div>
-                <div class="label">Reduce</div>
-            </div>
-            <div class="rec-item sell">
-                <div class="count">{sell}</div>
-                <div class="label">Sell</div>
-            </div>
-        </div>
-        
-        <!-- SECTOR-WISE STOCKS -->
-        <div class="sectors-container">
-    """
-    
-    # Sector icons mapping
-    sector_icons = {
-        "Banking & Finance": "🏦",
-        "Information Technology": "💻",
-        "REITs (Real Estate)": "🏢",
-        "Index & Diversified": "📈",
-        "Automobile": "🚗",
-        "Commodities": "🥇"
-    }
-    
-    # Generate each sector section
-    for sector, stocks in sectors.items():
-        sector_color = sector_colors.get(sector, "#1e3c72")
-        sector_icon = sector_icons.get(sector, "📊")
-        sector_total_allocation = sum(s.get('allocation_amount', 0) for s in stocks)
-        
-        html += f"""
-            <div class="sector-section">
-                <div class="sector-header" style="border-left-color: {sector_color};">
-                    <span class="sector-icon">{sector_icon}</span>
-                    <span class="sector-title" style="color: {sector_color};">{sector}</span>
-                    <span class="sector-count">{len(stocks)} stocks</span>
-                    <span class="sector-allocation" style="background: {sector_color};">₹{sector_total_allocation:,.0f}</span>
-                </div>
-                
-                <div class="stock-grid">
-        """
-        
-        for stock in stocks:
-            combined_score = stock.get('combined_score', 0) or 0
-            tech_score = stock.get('technical_score', 0) or 0
-            fund_score = stock.get('fundamental_score', 0) or 0
-            alloc_pct = stock.get('allocation_percent', 0) or 0
-            alloc_amt = stock.get('allocation_amount', 0) or 0
-            current_price = stock.get('current_price', 0) or 0
-            rsi = stock.get('rsi', 0) or 0
-            macd = stock.get('macd', 0) or 0
-            pe_ratio = stock.get('pe_ratio', 0) or 0
-            roe = stock.get('roe', 0) or 0
-            div_yield = stock.get('dividend_yield', 0) or 0
-            
-            score_class = 'excellent' if combined_score >= 70 else 'good' if combined_score >= 55 else 'average' if combined_score >= 40 else 'poor'
-            rec_class = stock['recommendation'].lower().replace(' ', '-')
-            
-            html += f"""
-                    <div class="stock-card" style="border-left-color: {sector_color};">
-                        <div class="stock-header">
-                            <div class="stock-ticker">{stock['ticker']}</div>
-                            <div class="stock-recommendation {rec_class}">{stock['recommendation']}</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Score</div>
-                                <div class="metric-value {score_class}">{combined_score:.1f}</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Price</div>
-                                <div class="metric-value">₹{current_price:.2f}</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">{tech_score:.1f}</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">{fund_score:.1f}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-item">
-                                <span class="detail-label">RSI</span>
-                                <span class="detail-value">{rsi:.0f}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">MACD</span>
-                                <span class="detail-value">{macd:.1f}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">P/E</span>
-                                <span class="detail-value">{pe_ratio:.1f}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">ROE</span>
-                                <span class="detail-value">{roe:.0f}%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Div</span>
-                                <span class="detail-value">{div_yield:.1f}%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, {sector_color} 0%, {sector_color}dd 100%);">
-                            <div class="allocation-amount">₹{alloc_amt:,.0f}</div>
-                            <div class="allocation-percent">{alloc_pct:.1f}% of portfolio</div>
-                        </div>
-                    </div>
-            """
-        
-        html += """
-                </div>
-            </div>
-        """
-    
-    html += f"""
-        </div>
-        
-        <div class="disclaimer">
-            <h4>⚠️ Important Disclaimer</h4>
-            <p>
-                This analysis is for informational purposes only and should not be considered as financial advice. 
-                The recommendations are based on technical and fundamental analysis algorithms and do not guarantee 
-                future performance. Always conduct your own research and consult with a qualified financial advisor 
-                before making investment decisions.
-            </p>
-        </div>
-        
-        <div class="footer">
-            <p><strong>Methodology:</strong> Technical (50%): RSI, MACD, MA, Bollinger | Fundamental (50%): P/E, ROE, Margin, Growth, Div, D/E</p>
-            <p style="margin-top: 8px; font-weight: 600;">Portfolio Analyzer v3.1 - Compact Mobile Edition | © 2026</p>
-            <p style="margin-top: 5px; font-size: 0.9em; opacity: 0.8;">
-                Updated: {ist_time.strftime('%d %b %Y at %I:%M %p IST')}
-            </p>
-        </div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-inner">
+    <div>
+      <div class="hdr-title">📊 <span>Portfolio</span> Analysis</div>
+      <div class="hdr-sub">SIP Entry Intelligence Edition · v4.0</div>
     </div>
+    <div class="time-badge">🕐 {ist.strftime('%d %b %Y · %I:%M %p IST')}</div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="ovr">
+  <div class="ovr-grid">
+    <div class="ov">
+      <div class="ov-lbl">Monthly SIP</div>
+      <div class="ov-val" style="color:var(--blue);">₹{monthly_investment:,}</div>
+      <div class="ov-sub">₹{total_alloc:,.0f} allocated</div>
+    </div>
+    <div class="ov">
+      <div class="ov-lbl">Stocks</div>
+      <div class="ov-val">{len(results)}</div>
+      <div class="ov-sub">{len(sectors)} sectors</div>
+    </div>
+    <div class="ov">
+      <div class="ov-lbl">Avg Score</div>
+      <div class="ov-val" style="color:{'var(--green)' if avg_score>=55 else 'var(--yellow)' if avg_score>=40 else 'var(--red)'};">{avg_score:.1f}</div>
+      <div class="ov-sub">Portfolio health</div>
+    </div>
+    <div class="ov">
+      <div class="ov-lbl">Good Entries</div>
+      <div class="ov-val" style="color:var(--green);">{sip_counts['ACCUMULATE NOW']+sip_counts['GOOD ENTRY']}</div>
+      <div class="ov-sub">Accumulate + Good</div>
+    </div>
+    <div class="ov">
+      <div class="ov-lbl">Wait/Skip</div>
+      <div class="ov-val" style="color:var(--red);">{sip_counts['WAIT THIS MONTH']}</div>
+      <div class="ov-sub">Deferred this month</div>
+    </div>
+  </div>
+
+  <!-- SIP INTELLIGENCE BANNER -->
+  <div class="sip-banner">
+    <div class="sip-banner-hd">🎯 SIP Entry Intelligence — This Month</div>
+    <div class="sip-banner-txt">
+      Each stock now has <strong>two separate signals</strong>: stock quality (is it worth owning?)
+      and <strong>SIP Entry Score</strong> (is NOW a good <em>price</em> to buy?).
+      Allocation is automatically higher for stocks at dips and lower for stocks near highs —
+      so your monthly SIP discipline is preserved but your money is deployed smarter.
+    </div>
+    <div class="sip-pills">
+      <div class="sp acc">🟢 ACCUMULATE NOW · {sip_counts['ACCUMULATE NOW']}</div>
+      <div class="sp good">✅ GOOD ENTRY · {sip_counts['GOOD ENTRY']}</div>
+      <div class="sp norm">🟡 INVEST NORMALLY · {sip_counts['INVEST NORMALLY']}</div>
+      <div class="sp less">🟠 INVEST LESS · {sip_counts['INVEST LESS']}</div>
+      <div class="sp wait">🔴 WAIT THIS MONTH · {sip_counts['WAIT THIS MONTH']}</div>
+    </div>
+  </div>
+
+  <!-- REC SUMMARY -->
+  <div class="rec-row">
+    <div class="rec-pill sb"><div class="rp-n" style="color:var(--green);">{strong_buy}</div><div class="rp-l">Strong Buy</div></div>
+    <div class="rec-pill b"> <div class="rp-n" style="color:#7ee787;">{buy}</div><div class="rp-l">Buy</div></div>
+    <div class="rec-pill h"> <div class="rp-n" style="color:var(--yellow);">{hold}</div><div class="rp-l">Hold</div></div>
+    <div class="rec-pill r"> <div class="rp-n" style="color:var(--orange);">{reduce}</div><div class="rp-l">Reduce</div></div>
+    <div class="rec-pill s"> <div class="rp-n" style="color:var(--red);">{sell}</div><div class="rp-l">Sell</div></div>
+  </div>
+</div>
+
+<!-- SIP GUIDE -->
+<div class="guide">
+  <div class="guide-inner">
+    <div class="guide-hd">📖 What each SIP verdict means — and what to do</div>
+    <div class="guide-grid">
+      <div class="gi" style="background:rgba(63,185,80,.04);border-color:rgba(63,185,80,.18);">
+        <div class="gi-v" style="color:#3fb950;">🟢 ACCUMULATE NOW</div>
+        <div class="gi-w">Invest full amount or slightly more</div>
+        <div class="gi-h">RSI below 45, price near/below SMA-50, lower 40% of 52W range. Ideal time to add.</div>
+      </div>
+      <div class="gi" style="background:rgba(100,200,100,.03);border-color:rgba(100,200,100,.12);">
+        <div class="gi-v" style="color:#7ee787;">✅ GOOD ENTRY</div>
+        <div class="gi-w">Invest as planned</div>
+        <div class="gi-h">Not a screaming deal but not stretched. Stick to your regular SIP amount.</div>
+      </div>
+      <div class="gi" style="background:rgba(210,153,34,.04);border-color:rgba(210,153,34,.12);">
+        <div class="gi-v" style="color:#d29922;">🟡 INVEST NORMALLY</div>
+        <div class="gi-w">Stick to regular SIP — discipline matters</div>
+        <div class="gi-h">Fair price, mid-range valuation. Your consistent investing habit matters more than timing here.</div>
+      </div>
+      <div class="gi" style="background:rgba(240,136,62,.04);border-color:rgba(240,136,62,.12);">
+        <div class="gi-v" style="color:#f0883e;">🟠 INVEST LESS</div>
+        <div class="gi-w">Invest 50–70% of planned amount</div>
+        <div class="gi-h">Price slightly stretched. Save the remaining 30–50% and deploy it when the stock dips next month.</div>
+      </div>
+      <div class="gi" style="background:rgba(248,81,73,.04);border-color:rgba(248,81,73,.12);">
+        <div class="gi-v" style="color:#f85149;">🔴 WAIT THIS MONTH</div>
+        <div class="gi-w">Save this month's amount for next dip</div>
+        <div class="gi-h">Price near recent highs, RSI elevated. Park in liquid fund. Deploy when RSI &lt; 50 or price falls 5%+.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTORS -->
+<div class="secs">
+"""
+
+    for sector, stocks in sectors.items():
+        sc = SECTOR_COLORS.get(sector, "#58a6ff")
+        si = SECTOR_ICONS.get(sector, "📊")
+        sa = sum(s.get('allocation_amount', 0) for s in stocks)
+
+        html += f"""
+  <div class="sec">
+    <div class="sec-hd" style="border-left:4px solid {sc};">
+      <span style="font-size:1.2em;">{si}</span>
+      <span class="sec-name" style="color:{sc};">{sector}</span>
+      <span class="sec-badge">{len(stocks)} stocks</span>
+      <span class="sec-alloc" style="background:{sc};">₹{sa:,.0f}</span>
+    </div>
+    <div class="sgrid">
+"""
+
+        for s in stocks:
+            combo     = s.get('combined_score',    0) or 0
+            tech      = s.get('technical_score',   0) or 0
+            fund      = s.get('fundamental_score', 0) or 0
+            sip_s     = s.get('sip_score',         0) or 0
+            sip_v     = s.get('sip_verdict',       'N/A')
+            sip_col   = s.get('sip_color',         '#7d8590')
+            sip_ic    = s.get('sip_icon',          '')
+            sip_adv   = s.get('sip_advice',        '')
+            cp        = s.get('current_price',     0) or 0
+            rsi       = s.get('rsi',               0) or 0
+            macd      = s.get('macd',              0) or 0
+            pe        = s.get('pe_ratio',          0) or 0
+            roe       = s.get('roe',               0) or 0
+            dy        = s.get('dividend_yield',    0) or 0
+            alloc_amt = s.get('allocation_amount',  0) or 0
+            alloc_pct = s.get('allocation_percent', 0) or 0
+
+            rc = 'rb-' + s['recommendation'].lower().replace(' ','-')
+
+            cb_col = '#3fb950' if combo >= 70 else '#d29922' if combo >= 45 else '#f85149'
+            tb_col = '#58a6ff' if tech  >= 55 else '#d29922' if tech  >= 35 else '#f85149'
+            fb_col = '#bc8cff' if fund  >= 55 else '#d29922' if fund  >= 35 else '#f85149'
+
+            html += f"""
+      <div class="card" style="border-top:3px solid {sc};">
+        <!-- top -->
+        <div class="ctop">
+          <div>
+            <div class="cticker">{s['ticker']}</div>
+            <div class="cprice">₹{cp:.2f}</div>
+          </div>
+          <span class="rec-b {rc}">{s['recommendation']}</span>
+        </div>
+        <!-- SIP verdict -->
+        <div class="sip-stripe">
+          <span class="sip-vbadge" style="background:color-mix(in srgb,{sip_col} 14%,transparent);color:{sip_col};border:1px solid color-mix(in srgb,{sip_col} 28%,transparent);">
+            {sip_ic} {sip_v}
+          </span>
+          <span class="sip-txt">{sip_adv}</span>
+        </div>
+        <!-- score bars -->
+        <div class="scores">
+          <div class="srow">
+            <span class="slbl">OVERALL</span>
+            <div class="sbar-w"><div class="sbar" style="width:{combo}%;background:{cb_col};"></div></div>
+            <span class="snum" style="color:{cb_col};">{combo:.0f}</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">TECHNICAL</span>
+            <div class="sbar-w"><div class="sbar" style="width:{tech}%;background:{tb_col};"></div></div>
+            <span class="snum" style="color:{tb_col};">{tech:.0f}</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">FUNDMNTL</span>
+            <div class="sbar-w"><div class="sbar" style="width:{fund}%;background:{fb_col};"></div></div>
+            <span class="snum" style="color:{fb_col};">{fund:.0f}</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">SIP ENTRY</span>
+            <div class="sbar-w"><div class="sbar" style="width:{sip_s}%;background:{sip_col};"></div></div>
+            <span class="snum" style="color:{sip_col};">{sip_s:.0f}</span>
+          </div>
+        </div>
+        <!-- metrics -->
+        <div class="mets">
+          <div class="met">
+            <span class="met-l">RSI</span>
+            <span class="met-v" style="color:{'#f85149' if rsi>70 else '#3fb950' if rsi<40 else 'var(--text)'};">{rsi:.0f}</span>
+          </div>
+          <div class="met">
+            <span class="met-l">MACD</span>
+            <span class="met-v" style="color:{'#3fb950' if macd>0 else '#f85149'};">{macd:.1f}</span>
+          </div>
+          <div class="met"><span class="met-l">P/E</span><span class="met-v">{pe:.1f}</span></div>
+          <div class="met"><span class="met-l">ROE</span><span class="met-v">{roe:.0f}%</span></div>
+          <div class="met"><span class="met-l">DIV</span><span class="met-v">{dy:.1f}%</span></div>
+        </div>
+        <!-- allocation footer -->
+        <div class="alloc-ft">
+          <div class="alloc-lbl">THIS MONTH'S SIP</div>
+          <div>
+            <div class="alloc-amt" style="color:{sc};">{'₹'+f'{alloc_amt:,.0f}' if alloc_amt>0 else '— Deferred'}</div>
+            <div class="alloc-pct">{'({:.1f}% of portfolio)'.format(alloc_pct) if alloc_pct>0 else 'Save for next dip'}</div>
+          </div>
+        </div>
+      </div>
+"""
+
+        html += "    </div>\n  </div>\n"
+
+    html += f"""
+</div>
+
+<!-- DISCLAIMER -->
+<div class="disc">
+  <div class="disc-inner">
+    <strong>⚠️ Disclaimer:</strong> For educational purposes only. Not financial advice.
+    SIP verdicts are algorithmic signals based on RSI, SMA-50, 52W range, and recent drawdown.
+    They do not guarantee future returns. A "WAIT" verdict means defer this stock's SIP — not sell.
+    Always consult a SEBI-registered advisor before investing.
+  </div>
+</div>
+
+<div class="footer">
+  Stock Quality: Technical (50%) — RSI · MACD · Moving Avg · Bollinger | Fundamental (50%) — P/E · ROE · Margin · Growth · Div · D/E<br>
+  SIP Entry Score: RSI Zone · Price vs SMA-50 · 52-Week Position · Recent Drawdown from 20-day high<br>
+  Portfolio Analyzer v4.0 — SIP Entry Intelligence Edition · {ist.strftime('%d %b %Y at %I:%M %p IST')}
+</div>
+
 </body>
-</html>
-    """
-    
+</html>"""
+
     return html
 
 
 def generate_email_html(results, monthly_investment, github_url=""):
-    """Generate HTML for email (same compact format)"""
     return generate_github_pages_html(results, monthly_investment, github_url)
 
 
 def send_email(html_content, recipient_email, sender_email, sender_password):
-    """Send HTML report via email"""
     try:
-        ist_time = get_ist_time()
-        print(f"\n📧 Preparing to send email to {recipient_email}...")
-        
+        ist = get_ist_time()
         msg = MIMEMultipart('alternative')
-        msg['Subject'] = f"📊 Portfolio Analysis Report - {ist_time.strftime('%d %B %Y, %I:%M %p IST')}"
-        msg['From'] = sender_email
-        msg['To'] = recipient_email
-        
-        text_content = f"""
-Portfolio Analysis Report - {ist_time.strftime('%d %B %Y')} at {ist_time.strftime('%I:%M %p IST')}
-
-This is an HTML email. Please view it in an email client that supports HTML to see the full report.
-
-Generated by Portfolio Analyzer v3.1 - Compact Mobile Edition
-        """
-        text_part = MIMEText(text_content, 'plain')
-        html_part = MIMEText(html_content, 'html')
-        
-        msg.attach(text_part)
-        msg.attach(html_part)
-        
-        print("  Connecting to Gmail SMTP server...")
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-            print("  Logging in...")
-            server.login(sender_email, sender_password)
-            print("  Sending email...")
-            server.send_message(msg)
-        
-        print(f"✅ Email sent successfully to {recipient_email}")
+        msg['Subject'] = f"📊 Portfolio SIP Report — {ist.strftime('%d %B %Y, %I:%M %p IST')}"
+        msg['From']    = sender_email
+        msg['To']      = recipient_email
+        msg.attach(MIMEText(html_content, 'html'))
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as srv:
+            srv.login(sender_email, sender_password)
+            srv.send_message(msg)
+        print(f"✅ Email sent to {recipient_email}")
         return True
-        
     except Exception as e:
-        print(f"❌ Error sending email: {e}")
+        print(f"❌ Email failed: {e}")
         return False
 
 
 def main():
-    """Main execution function"""
-    ist_time = get_ist_time()
-    
-    print("=" * 80)
-    print("Portfolio Stock Analyzer v3.1 - Compact Mobile Edition")
-    print("Responsive Design for Mobile & Desktop")
-    print("=" * 80)
-    print(f"Current IST Time: {ist_time.strftime('%d %B %Y, %I:%M %p IST')}")
-    print()
-    
+    ist = get_ist_time()
+    print("=" * 70)
+    print("Portfolio Analyzer v4.0 — SIP Entry Intelligence Edition")
+    print(f"Time: {ist.strftime('%d %B %Y, %I:%M %p IST')}")
+    print("=" * 70)
+
     results = analyze_portfolio(PORTFOLIO_STOCKS)
     results = calculate_allocation(results, MONTHLY_INVESTMENT)
-    
+
     github_url = f"https://{GITHUB_USERNAME}.github.io/{GITHUB_REPO}/"
-    print(f"\n📌 GitHub Pages URL: {github_url}")
-    
-    github_pages_html = generate_github_pages_html(results, MONTHLY_INVESTMENT, github_url)
+    html       = generate_github_pages_html(results, MONTHLY_INVESTMENT, github_url)
+
     with open('index.html', 'w', encoding='utf-8') as f:
-        f.write(github_pages_html)
-    print(f"✅ GitHub Pages HTML generated: index.html (compact, mobile-responsive)")
-    
-    email_html = generate_email_html(results, MONTHLY_INVESTMENT, github_url)
-    
-    report_filename = "portfolio_analysis.html"
-    with open(report_filename, 'w', encoding='utf-8') as f:
-        f.write(email_html)
-    print(f"✅ Email HTML report generated: {report_filename}")
-    
-    json_data = {
-        'generated_date_ist': ist_time.isoformat(),
-        'generated_date_display': ist_time.strftime('%d %B %Y, %I:%M %p IST'),
-        'monthly_investment': MONTHLY_INVESTMENT,
-        'github_pages_url': github_url,
-        'sectors': group_by_sector(results),
-        'stocks': results
-    }
-    
-    json_filename = "portfolio_data.json"
-    with open(json_filename, 'w') as f:
-        json.dump(json_data, f, indent=2)
-    print(f"✅ JSON data generated: {json_filename}")
-    
-    # Email handling
-    sender_email = os.environ.get('SENDER_EMAIL')
-    sender_password = os.environ.get('SENDER_PASSWORD')
-    recipient_email = os.environ.get('RECIPIENT_EMAIL')
-    
-    email_enabled = False
-    
-    if sender_email and sender_password and recipient_email:
-        email_enabled = True
-        print("\n" + "=" * 80)
-        print("EMAIL DELIVERY: ENABLED (via environment variables)")
-        print("=" * 80)
-    elif EMAIL_CONFIG['enabled']:
-        email_enabled = True
-        sender_email = EMAIL_CONFIG['sender_email']
-        sender_password = EMAIL_CONFIG['sender_password']
-        recipient_email = EMAIL_CONFIG['recipient_email']
-        print("\n" + "=" * 80)
-        print("EMAIL DELIVERY: ENABLED (via EMAIL_CONFIG)")
-        print("=" * 80)
-    
-    if email_enabled:
-        send_email(email_html, recipient_email, sender_email, sender_password)
-    
-    # Display sector-wise summary
-    print("\n" + "=" * 80)
-    print("📊 SECTOR-WISE INVESTMENT SUMMARY")
-    print("=" * 80)
-    print(f"Generated: {ist_time.strftime('%d %B %Y at %I:%M %p IST')}\n")
-    
+        f.write(html)
+    print("✅ index.html saved")
+
+    with open('portfolio_data.json', 'w') as f:
+        json.dump({'generated': ist.isoformat(),
+                   'monthly_investment': MONTHLY_INVESTMENT,
+                   'stocks': results}, f, indent=2)
+    print("✅ portfolio_data.json saved")
+
+    # Email
+    se = os.environ.get('SENDER_EMAIL')    or (EMAIL_CONFIG['sender_email']    if EMAIL_CONFIG['enabled'] else None)
+    sp = os.environ.get('SENDER_PASSWORD') or (EMAIL_CONFIG['sender_password'] if EMAIL_CONFIG['enabled'] else None)
+    re = os.environ.get('RECIPIENT_EMAIL') or (EMAIL_CONFIG['recipient_email'] if EMAIL_CONFIG['enabled'] else None)
+    if se and sp and re:
+        send_email(html, re, se, sp)
+
+    # Terminal summary
+    print("\n" + "=" * 70)
+    print("SIP SUMMARY — THIS MONTH")
+    print("=" * 70)
     sectors = group_by_sector(results)
-    for sector, stocks in sectors.items():
-        sector_total = sum(s.get('allocation_amount', 0) for s in stocks)
-        print(f"\n{sector} ({len(stocks)} stocks) - ₹{sector_total:,.0f}")
-        print("-" * 80)
-        for s in stocks:
-            combined = s.get('combined_score', 0) or 0
-            alloc_amt = s.get('allocation_amount', 0) or 0
-            alloc_pct = s.get('allocation_percent', 0) or 0
-            print(f"  {s['ticker']:15} | {s['recommendation']:12} | Score: {combined:5.1f} | ₹{alloc_amt:>10,.0f} ({alloc_pct:5.1f}%)")
-    
-    print("\n" + "=" * 80)
-    print("✅ Files Generated:")
-    print(f"   - index.html (compact, mobile-responsive)")
-    print(f"   - portfolio_analysis.html")
-    print(f"   - portfolio_data.json")
-    print("=" * 80)
-    
+    for sector, stks in sectors.items():
+        st = sum(s.get('allocation_amount', 0) for s in stks)
+        print(f"\n{sector} — ₹{st:,.0f}")
+        print("-" * 70)
+        for s in stks:
+            amt = s.get('allocation_amount', 0) or 0
+            pct = s.get('allocation_percent', 0) or 0
+            print(f"  {s['ticker']:15} | Score:{s['combined_score']:5.1f}"
+                  f" | SIP:{s.get('sip_score',0):5.1f}"
+                  f" | {s.get('sip_verdict','N/A'):18}"
+                  f" | ₹{amt:>9,.0f} ({pct:5.1f}%)")
+    print("\n✅ Done!")
     return results
 
 
 if __name__ == "__main__":
     try:
         main()
-        
-        if os.path.exists('index.html'):
-            print("\n✅ Portfolio analysis completed successfully!")
-            sys.exit(0)
-        else:
-            print("\n⚠️ Analysis ran but index.html not found!")
-            sys.exit(1)
-            
+        sys.exit(0)
     except Exception as e:
-        print(f"\n❌ Fatal error: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"\n❌ Fatal: {e}")
+        import traceback; traceback.print_exc()
         sys.exit(1)

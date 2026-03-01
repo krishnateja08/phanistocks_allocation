@@ -1,1339 +1,1315 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio Analysis - 01 March 2026</title>
-    <meta name="description" content="Sector-wise Stock Portfolio Analysis">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 10px;
-            line-height: 1.4;
-            min-height: 100vh;
-            font-size: 14px;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
-            overflow: hidden;
-        }
-        
-        /* Header - Compact */
-        .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 25px 20px 20px 20px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 1.8em;
-            margin-bottom: 8px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            font-weight: 700;
-        }
-        
-        .header .subtitle {
-            font-size: 1em;
-            opacity: 0.95;
-            margin-bottom: 8px;
-            font-weight: 300;
-        }
-        
-        .ist-time-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
-            margin-top: 10px;
-            font-size: 0.85em;
-            font-weight: 500;
-            backdrop-filter: blur(10px);
-            border: 1.5px solid rgba(255,255,255,0.3);
-        }
-        
-        /* Quick Stats - Compact */
-        .quick-stats {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 20px 15px;
-            border-bottom: 2px solid #dee2e6;
-        }
-        
-        .stats-title {
-            text-align: center;
-            font-size: 1.3em;
-            color: #1e3c72;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 12px 10px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            text-align: center;
-            transition: all 0.3s ease;
-            border-left: 3px solid #1e3c72;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.12);
-        }
-        
-        .stat-card.highlight {
-            border-left-color: #00a86b;
-            background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%);
-        }
-        
-        .stat-card .icon {
-            font-size: 1.5em;
-            margin-bottom: 6px;
-            opacity: 0.8;
-        }
-        
-        .stat-card h3 {
-            color: #6c757d;
-            font-size: 0.7em;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-        
-        .stat-card .value {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #1e3c72;
-            line-height: 1.2;
-        }
-        
-        .stat-card .subvalue {
-            font-size: 0.75em;
-            color: #6c757d;
-            margin-top: 4px;
-        }
-        
-        /* Health Bar - Compact */
-        .health-indicator {
-            text-align: center;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            margin-top: 12px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-        }
-        
-        .health-title {
-            font-size: 0.85em;
-            color: #6c757d;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        
-        .health-bar {
-            width: 100%;
-            height: 25px;
-            background: #e9ecef;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .health-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00a86b 0%, #4caf50 50%, #8bc34a 100%);
-            border-radius: 15px;
-            transition: width 1.5s ease;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
-            color: white;
-            font-weight: 700;
-            font-size: 0.9em;
-        }
-        
-        /* Recommendation Summary - Compact */
-        .recommendation-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-            gap: 10px;
-            padding: 15px;
-            background: white;
-            border-bottom: 2px solid #eee;
-        }
-        
-        .rec-item {
-            text-align: center;
-            padding: 12px 8px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-        
-        .rec-item:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        .rec-item .count {
-            font-size: 2em;
-            font-weight: 800;
-            margin-bottom: 4px;
-            line-height: 1;
-        }
-        
-        .rec-item .label {
-            font-size: 0.7em;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        
-        .rec-item.strong-buy { background: linear-gradient(135deg, #00a86b 0%, #00d084 100%); color: white; }
-        .rec-item.buy { background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%); color: white; }
-        .rec-item.hold { background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%); color: white; }
-        .rec-item.reduce { background: linear-gradient(135deg, #ff5722 0%, #ff7043 100%); color: white; }
-        .rec-item.sell { background: linear-gradient(135deg, #f44336 0%, #e57373 100%); color: white; }
-        
-        /* SECTOR-WISE LAYOUT - Compact */
-        .sectors-container {
-            padding: 20px 15px;
-        }
-        
-        .sector-section {
-            margin-bottom: 25px;
-        }
-        
-        .sector-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 15px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 10px;
-            margin-bottom: 12px;
-            border-left: 4px solid #1e3c72;
-            flex-wrap: wrap;
-        }
-        
-        .sector-icon {
-            font-size: 1.3em;
-        }
-        
-        .sector-title {
-            font-size: 1.1em;
-            font-weight: 700;
-            color: #1e3c72;
-            flex: 1;
-            min-width: 150px;
-        }
-        
-        .sector-count {
-            background: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-weight: 600;
-            color: #6c757d;
-            font-size: 0.75em;
-        }
-        
-        .sector-allocation {
-            background: #1e3c72;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-weight: 700;
-            font-size: 0.75em;
-        }
-        
-        /* Stock Cards - COMPACT */
-        .stock-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 12px;
-        }
-        
-        .stock-card {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-left: 4px solid #1e3c72;
-            transition: all 0.3s ease;
-        }
-        
-        .stock-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
-        }
-        
-        .stock-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f1f3f5;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        
-        .stock-ticker {
-            font-size: 1.1em;
-            font-weight: 700;
-            color: #1e3c72;
-        }
-        
-        .stock-recommendation {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 15px;
-            font-weight: 700;
-            font-size: 0.65em;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        
-        .stock-recommendation.strong-buy { background: #00a86b; color: white; }
-        .stock-recommendation.buy { background: #4caf50; color: white; }
-        .stock-recommendation.hold { background: #ff9800; color: white; }
-        .stock-recommendation.reduce { background: #ff5722; color: white; }
-        .stock-recommendation.sell { background: #f44336; color: white; }
-        
-        .stock-metrics {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-        
-        .metric {
-            background: #f8f9fa;
-            padding: 8px;
-            border-radius: 6px;
-        }
-        
-        .metric-label {
-            font-size: 0.65em;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 3px;
-        }
-        
-        .metric-value {
-            font-size: 1.1em;
-            font-weight: 700;
-            color: #1e3c72;
-        }
-        
-        .metric-value.excellent { color: #00a86b; }
-        .metric-value.good { color: #4caf50; }
-        .metric-value.average { color: #ff9800; }
-        .metric-value.poor { color: #f44336; }
-        
-        /* COMPACT Technical Indicators - Single Row */
-        .stock-details {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
-            font-size: 0.7em;
-            color: #495057;
-            margin-bottom: 10px;
-            padding: 8px;
-            background: #f8f9fa;
-            border-radius: 6px;
-        }
-        
-        .detail-item {
-            text-align: center;
-        }
-        
-        .detail-label {
-            font-weight: 700;
-            color: #6c757d;
-            display: block;
-            margin-bottom: 2px;
-            font-size: 0.9em;
-        }
-        
-        .detail-value {
-            font-weight: 600;
-            color: #1e3c72;
-            font-size: 1.1em;
-        }
-        
-        .allocation-badge {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            text-align: center;
-            margin-top: 10px;
-            font-weight: 700;
-        }
-        
-        .allocation-amount {
-            font-size: 1.3em;
-            margin-bottom: 3px;
-        }
-        
-        .allocation-percent {
-            font-size: 0.8em;
-            opacity: 0.9;
-        }
-        
-        .disclaimer {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            margin: 20px 15px;
-            border-radius: 8px;
-        }
-        
-        .disclaimer h4 {
-            color: #856404;
-            margin-bottom: 8px;
-            font-size: 1em;
-        }
-        
-        .disclaimer p {
-            color: #856404;
-            line-height: 1.6;
-            font-size: 0.85em;
-        }
-        
-        .footer {
-            background: #f8f9fa;
-            padding: 20px 15px;
-            text-align: center;
-            color: #6c757d;
-            font-size: 0.8em;
-            border-top: 2px solid #dee2e6;
-        }
-        
-        .footer p {
-            margin: 5px 0;
-        }
-        
-        /* MOBILE RESPONSIVE */
-        @media (max-width: 768px) {
-            body {
-                padding: 5px;
-                font-size: 13px;
-            }
-            
-            .header h1 {
-                font-size: 1.5em;
-            }
-            
-            .header .subtitle {
-                font-size: 0.9em;
-            }
-            
-            .ist-time-badge {
-                font-size: 0.75em;
-                padding: 6px 12px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-            
-            .stock-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stock-metrics {
-                grid-template-columns: 1fr;
-            }
-            
-            .stock-details {
-                grid-template-columns: repeat(3, 1fr);
-                font-size: 0.65em;
-            }
-            
-            .recommendation-summary {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
-                padding: 10px;
-            }
-            
-            .rec-item {
-                padding: 10px 6px;
-            }
-            
-            .rec-item .count {
-                font-size: 1.5em;
-            }
-            
-            .rec-item .label {
-                font-size: 0.65em;
-            }
-            
-            .sector-header {
-                padding: 10px 12px;
-            }
-            
-            .sector-title {
-                font-size: 1em;
-                width: 100%;
-            }
-        }
-        
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .stock-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        @media (min-width: 1025px) {
-            .stock-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Analysis — 02 Mar 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0d1117;
+  --surf:     #161b22;
+  --surf2:    #1c2128;
+  --border:   rgba(255,255,255,0.08);
+  --text:     #e6edf3;
+  --muted:    #7d8590;
+  --green:    #3fb950;
+  --yellow:   #d29922;
+  --orange:   #f0883e;
+  --red:      #f85149;
+  --blue:     #58a6ff;
+  --purple:   #bc8cff;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  font-size:14px;
+  line-height:1.5;
+}
+
+/* ── HEADER ─────────────────────────── */
+.hdr{
+  background:var(--surf);
+  border-bottom:1px solid var(--border);
+  padding:24px 20px 20px;
+}
+.hdr-inner{
+  max-width:1300px;
+  margin:0 auto;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+}
+.hdr-title{
+  font-family:'Syne',sans-serif;
+  font-size:1.7em;
+  font-weight:800;
+  letter-spacing:-.5px;
+}
+.hdr-title span{color:var(--blue);}
+.hdr-sub{font-size:.78em;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;}
+.time-badge{
+  background:var(--surf2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:8px 14px;
+  font-family:'DM Mono',monospace;
+  font-size:.75em;
+  color:var(--muted);
+  white-space:nowrap;
+}
+
+/* ── OVERVIEW ────────────────────────── */
+.ovr{max-width:1300px;margin:24px auto 0;padding:0 16px;}
+.ovr-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;
+  margin-bottom:20px;
+}
+.ov{
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+}
+.ov-lbl{
+  font-size:.65em;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--muted);
+  font-family:'DM Mono',monospace;
+  margin-bottom:8px;
+}
+.ov-val{
+  font-family:'Syne',sans-serif;
+  font-size:1.8em;
+  font-weight:700;
+  line-height:1;
+}
+.ov-sub{font-size:.72em;color:var(--muted);margin-top:4px;}
+
+/* ── REC PILLS ───────────────────────── */
+.rec-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:20px;
+}
+.rec-pill{
+  flex:1;
+  min-width:75px;
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px 8px;
+  text-align:center;
+}
+.rec-pill .rp-n{
+  font-family:'Syne',sans-serif;
+  font-size:1.9em;
+  font-weight:800;
+  line-height:1;
+}
+.rec-pill .rp-l{font-size:.62em;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}
+.rec-pill.sb{border-top:3px solid var(--green);}
+.rec-pill.b {border-top:3px solid #7ee787;}
+.rec-pill.h {border-top:3px solid var(--yellow);}
+.rec-pill.r {border-top:3px solid var(--orange);}
+.rec-pill.s {border-top:3px solid var(--red);}
+
+/* ── SIP INTELLIGENCE BANNER ─────────── */
+.sip-banner{
+  background:linear-gradient(135deg,rgba(63,185,80,.06) 0%,rgba(0,0,0,0) 60%,rgba(88,166,255,.04) 100%);
+  border:1px solid rgba(63,185,80,.2);
+  border-radius:16px;
+  padding:20px 22px;
+  margin-bottom:20px;
+}
+.sip-banner-hd{
+  font-family:'Syne',sans-serif;
+  font-size:1em;
+  font-weight:700;
+  color:var(--green);
+  margin-bottom:6px;
+}
+.sip-banner-txt{
+  font-size:.78em;
+  color:var(--muted);
+  max-width:780px;
+  line-height:1.6;
+  margin-bottom:14px;
+}
+.sip-banner-txt strong{color:var(--text);}
+.sip-pills{display:flex;flex-wrap:wrap;gap:8px;}
+.sp{
+  padding:5px 13px;
+  border-radius:20px;
+  font-family:'DM Mono',monospace;
+  font-size:.7em;
+  font-weight:500;
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.sp.acc{background:rgba(63,185,80,.12);color:#3fb950;border:1px solid rgba(63,185,80,.25);}
+.sp.good{background:rgba(100,200,100,.08);color:#7ee787;border:1px solid rgba(100,200,100,.15);}
+.sp.norm{background:rgba(210,153,34,.1);color:#d29922;border:1px solid rgba(210,153,34,.2);}
+.sp.less{background:rgba(240,136,62,.1);color:#f0883e;border:1px solid rgba(240,136,62,.2);}
+.sp.wait{background:rgba(248,81,73,.1);color:#f85149;border:1px solid rgba(248,81,73,.2);}
+
+/* ── SIP GUIDE ───────────────────────── */
+.guide{max-width:1300px;margin:0 auto 24px;padding:0 16px;}
+.guide-inner{
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:18px 22px;
+}
+.guide-hd{
+  font-family:'Syne',sans-serif;
+  font-size:.9em;
+  font-weight:700;
+  margin-bottom:14px;
+}
+.guide-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:10px;
+}
+.gi{
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+}
+.gi-v{font-family:'DM Mono',monospace;font-size:.68em;font-weight:700;margin-bottom:5px;}
+.gi-w{font-size:.74em;font-weight:600;margin-bottom:4px;}
+.gi-h{font-size:.7em;color:var(--muted);line-height:1.45;}
+
+/* ── SECTORS ─────────────────────────── */
+.secs{max-width:1300px;margin:0 auto;padding:0 16px 40px;}
+.sec{margin-bottom:28px;}
+.sec-hd{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 16px;
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:10px;
+  margin-bottom:12px;
+  flex-wrap:wrap;
+}
+.sec-name{
+  font-family:'Syne',sans-serif;
+  font-weight:700;
+  font-size:1em;
+  flex:1;
+}
+.sec-badge{
+  font-family:'DM Mono',monospace;
+  font-size:.68em;
+  padding:3px 9px;
+  border-radius:6px;
+  background:var(--surf2);
+  color:var(--muted);
+}
+.sec-alloc{
+  font-family:'DM Mono',monospace;
+  font-size:.72em;
+  padding:3px 10px;
+  border-radius:6px;
+  color:#fff;
+  font-weight:600;
+}
+.sgrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:14px;
+}
+
+/* ── STOCK CARD ───────────────────────── */
+.card{
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4);}
+
+/* card top row */
+.ctop{
+  padding:14px 16px 10px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+}
+.cticker{
+  font-family:'Syne',sans-serif;
+  font-size:1.1em;
+  font-weight:800;
+}
+.cprice{
+  font-family:'DM Mono',monospace;
+  font-size:.75em;
+  color:var(--muted);
+  margin-top:2px;
+}
+.rec-b{
+  font-family:'DM Mono',monospace;
+  font-size:.6em;
+  font-weight:700;
+  padding:3px 9px;
+  border-radius:5px;
+  letter-spacing:.3px;
+  white-space:nowrap;
+}
+.rb-strong-buy{background:rgba(63,185,80,.18);color:#3fb950;}
+.rb-buy{background:rgba(100,200,100,.12);color:#7ee787;}
+.rb-hold{background:rgba(210,153,34,.18);color:#d29922;}
+.rb-reduce{background:rgba(240,136,62,.18);color:#f0883e;}
+.rb-sell{background:rgba(248,81,73,.18);color:#f85149;}
+.rb-data-error{background:rgba(125,133,144,.18);color:#7d8590;}
+
+/* SIP verdict stripe */
+.sip-stripe{
+  padding:10px 16px;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  border-bottom:1px solid var(--border);
+}
+.sip-vbadge{
+  font-family:'DM Mono',monospace;
+  font-size:.64em;
+  font-weight:700;
+  padding:4px 10px;
+  border-radius:6px;
+  white-space:nowrap;
+  flex-shrink:0;
+  margin-top:1px;
+}
+.sip-txt{font-size:.72em;color:var(--muted);line-height:1.5;}
+
+/* score bars */
+.scores{padding:10px 16px;border-bottom:1px solid var(--border);}
+.srow{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.srow:last-child{margin-bottom:0;}
+.slbl{
+  font-size:.62em;
+  color:var(--muted);
+  font-family:'DM Mono',monospace;
+  width:58px;
+  flex-shrink:0;
+}
+.sbar-w{flex:1;background:var(--surf2);border-radius:3px;height:5px;overflow:hidden;}
+.sbar{height:100%;border-radius:3px;}
+.snum{font-family:'DM Mono',monospace;font-size:.65em;width:26px;text-align:right;}
+
+/* metrics row */
+.mets{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  border-top:1px solid var(--border);
+}
+.met{padding:7px 4px;text-align:center;border-right:1px solid var(--border);}
+.met:last-child{border-right:none;}
+.met-l{font-size:.55em;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;display:block;margin-bottom:2px;}
+.met-v{font-family:'DM Mono',monospace;font-size:.78em;font-weight:600;}
+
+/* allocation footer */
+.alloc-ft{
+  padding:10px 16px;
+  background:var(--surf2);
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.alloc-lbl{font-size:.65em;color:var(--muted);font-family:'DM Mono',monospace;}
+.alloc-amt{
+  font-family:'Syne',sans-serif;
+  font-size:1.05em;
+  font-weight:700;
+  text-align:right;
+}
+.alloc-pct{font-size:.68em;color:var(--muted);text-align:right;}
+
+/* disclaimer */
+.disc{max-width:1300px;margin:0 auto 24px;padding:0 16px;}
+.disc-inner{
+  background:rgba(210,153,34,.04);
+  border:1px solid rgba(210,153,34,.2);
+  border-radius:10px;
+  padding:14px 18px;
+  font-size:.75em;
+  color:var(--muted);
+  line-height:1.6;
+}
+.disc-inner strong{color:var(--yellow);}
+
+.footer{
+  border-top:1px solid var(--border);
+  padding:16px 20px;
+  text-align:center;
+  font-size:.7em;
+  color:var(--muted);
+  font-family:'DM Mono',monospace;
+}
+
+/* responsive */
+@media(max-width:600px){
+  .ovr-grid{grid-template-columns:repeat(2,1fr);}
+  .sgrid{grid-template-columns:1fr;}
+  .guide-grid{grid-template-columns:1fr 1fr;}
+  .mets{grid-template-columns:repeat(3,1fr);}
+  .hdr-inner{flex-direction:column;}
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>📊 Portfolio Analysis</h1>
-            <div class="subtitle">Sector-wise Analysis</div>
-            <div class="ist-time-badge">
-                <span>🕐</span>
-                <span>01 Mar 2026 · 07:31 AM IST</span>
-            </div>
-        </div>
-        
-        <!-- Quick Stats -->
-        <div class="quick-stats">
-            <h2 class="stats-title">📈 Portfolio Overview</h2>
-            
-            <div class="stats-grid">
-                <div class="stat-card highlight">
-                    <div class="icon">💰</div>
-                    <h3>Investment</h3>
-                    <div class="value">₹48,000</div>
-                    <div class="subvalue">₹48,000 allocated</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="icon">📊</div>
-                    <h3>Stocks</h3>
-                    <div class="value">12</div>
-                    <div class="subvalue">5 sectors</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="icon">⭐</div>
-                    <h3>Avg Score</h3>
-                    <div class="value">40.0</div>
-                    <div class="subvalue">Health</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="icon">🎯</div>
-                    <h3>Strong Buys</h3>
-                    <div class="value">0</div>
-                    <div class="subvalue">Top picks</div>
-                </div>
-            </div>
-            
-            <div class="health-indicator">
-                <div class="health-title">Portfolio Health Score</div>
-                <div class="health-bar">
-                    <div class="health-fill" style="width: 40.0%;">
-                        40.0%
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Recommendation Summary -->
-        <div class="recommendation-summary">
-            <div class="rec-item strong-buy">
-                <div class="count">0</div>
-                <div class="label">Strong Buy</div>
-            </div>
-            <div class="rec-item buy">
-                <div class="count">1</div>
-                <div class="label">Buy</div>
-            </div>
-            <div class="rec-item hold">
-                <div class="count">6</div>
-                <div class="label">Hold</div>
-            </div>
-            <div class="rec-item reduce">
-                <div class="count">4</div>
-                <div class="label">Reduce</div>
-            </div>
-            <div class="rec-item sell">
-                <div class="count">1</div>
-                <div class="label">Sell</div>
-            </div>
-        </div>
-        
-        <!-- SECTOR-WISE STOCKS -->
-        <div class="sectors-container">
-    
-            <div class="sector-section">
-                <div class="sector-header" style="border-left-color: #1e88e5;">
-                    <span class="sector-icon">🏦</span>
-                    <span class="sector-title" style="color: #1e88e5;">Banking & Finance</span>
-                    <span class="sector-count">2 stocks</span>
-                    <span class="sector-allocation" style="background: #1e88e5;">₹14,436</span>
-                </div>
-                
-                <div class="stock-grid">
-        
-                    <div class="stock-card" style="border-left-color: #1e88e5;">
-                        <div class="stock-header">
-                            <div class="stock-ticker">HDFCBANK.NS</div>
-                            <div class="stock-recommendation hold">HOLD</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Score</div>
-                                <div class="metric-value average">52.5</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Price</div>
-                                <div class="metric-value">₹887.75</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">20.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">85.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-item">
-                                <span class="detail-label">RSI</span>
-                                <span class="detail-value">29</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">MACD</span>
-                                <span class="detail-value">-11.6</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">P/E</span>
-                                <span class="detail-value">19.8</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">ROE</span>
-                                <span class="detail-value">14%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Div</span>
-                                <span class="detail-value">124.0%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, #1e88e5 0%, #1e88e5dd 100%);">
-                            <div class="allocation-amount">₹7,579</div>
-                            <div class="allocation-percent">15.8% of portfolio</div>
-                        </div>
-                    </div>
-            
-                    <div class="stock-card" style="border-left-color: #1e88e5;">
-                        <div class="stock-header">
-                            <div class="stock-ticker">BANKBEES.NS</div>
-                            <div class="stock-recommendation hold">HOLD</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Score</div>
-                                <div class="metric-value average">47.5</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Price</div>
-                                <div class="metric-value">₹623.97</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">65.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">30.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-item">
-                                <span class="detail-label">RSI</span>
-                                <span class="detail-value">49</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">MACD</span>
-                                <span class="detail-value">3.5</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">P/E</span>
-                                <span class="detail-value">15.9</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">ROE</span>
-                                <span class="detail-value">0%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Div</span>
-                                <span class="detail-value">0.0%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, #1e88e5 0%, #1e88e5dd 100%);">
-                            <div class="allocation-amount">₹6,857</div>
-                            <div class="allocation-percent">14.3% of portfolio</div>
-                        </div>
-                    </div>
-            
-                </div>
-            </div>
-        
-            <div class="sector-section">
-                <div class="sector-header" style="border-left-color: #43a047;">
-                    <span class="sector-icon">💻</span>
-                    <span class="sector-title" style="color: #43a047;">Information Technology</span>
-                    <span class="sector-count">4 stocks</span>
-                    <span class="sector-allocation" style="background: #43a047;">₹12,632</span>
-                </div>
-                
-                <div class="stock-grid">
-        
-                    <div class="stock-card" style="border-left-color: #43a047;">
-                        <div class="stock-header">
-                            <div class="stock-ticker">TCS.NS</div>
-                            <div class="stock-recommendation hold">HOLD</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Score</div>
-                                <div class="metric-value average">47.5</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Price</div>
-                                <div class="metric-value">₹2637.40</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">30.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">65.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-item">
-                                <span class="detail-label">RSI</span>
-                                <span class="detail-value">24</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">MACD</span>
-                                <span class="detail-value">-126.7</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">P/E</span>
-                                <span class="detail-value">20.0</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">ROE</span>
-                                <span class="detail-value">43%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Div</span>
-                                <span class="detail-value">239.0%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, #43a047 0%, #43a047dd 100%);">
-                            <div class="allocation-amount">₹6,857</div>
-                            <div class="allocation-percent">14.3% of portfolio</div>
-                        </div>
-                    </div>
-            
-                    <div class="stock-card" style="border-left-color: #43a047;">
-                        <div class="stock-header">
-                            <div class="stock-ticker">INFY.NS</div>
-                            <div class="stock-recommendation hold">HOLD</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Score</div>
-                                <div class="metric-value average">40.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Price</div>
-                                <div class="metric-value">₹1300.10</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">15.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">65.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-item">
-                                <span class="detail-label">RSI</span>
-                                <span class="detail-value">17</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">MACD</span>
-                                <span class="detail-value">-80.9</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">P/E</span>
-                                <span class="detail-value">18.6</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">ROE</span>
-                                <span class="detail-value">33%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Div</span>
-                                <span class="detail-value">346.0%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, #43a047 0%, #43a047dd 100%);">
-                            <div class="allocation-amount">₹5,774</div>
-                            <div class="allocation-percent">12.0% of portfolio</div>
-                        </div>
-                    </div>
-            
-                    <div class="stock-card" style="border-left-color: #43a047;">
-                        <div class="stock-header">
-                            <div class="stock-ticker">ITBEES.NS</div>
-                            <div class="stock-recommendation reduce">REDUCE</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Score</div>
-                                <div class="metric-value poor">27.5</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Price</div>
-                                <div class="metric-value">₹33.82</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">25.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">30.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-item">
-                                <span class="detail-label">RSI</span>
-                                <span class="detail-value">16</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">MACD</span>
-                                <span class="detail-value">-2.0</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">P/E</span>
-                                <span class="detail-value">21.6</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">ROE</span>
-                                <span class="detail-value">0%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Div</span>
-                                <span class="detail-value">0.0%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, #43a047 0%, #43a047dd 100%);">
-                            <div class="allocation-amount">₹0</div>
-                            <div class="allocation-percent">0.0% of portfolio</div>
-                        </div>
-                    </div>
-            
-                    <div class="stock-card" style="border-left-color: #43a047;">
-                        <div class="stock-header">
-                            <div class="stock-ticker">TECHM.NS</div>
-                            <div class="stock-recommendation sell">SELL</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Score</div>
-                                <div class="metric-value poor">17.5</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Price</div>
-                                <div class="metric-value">₹1357.80</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">0.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">35.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-item">
-                                <span class="detail-label">RSI</span>
-                                <span class="detail-value">14</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">MACD</span>
-                                <span class="detail-value">-74.5</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">P/E</span>
-                                <span class="detail-value">26.0</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">ROE</span>
-                                <span class="detail-value">0%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Div</span>
-                                <span class="detail-value">331.0%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, #43a047 0%, #43a047dd 100%);">
-                            <div class="allocation-amount">₹0</div>
-                            <div class="allocation-percent">0.0% of portfolio</div>
-                        </div>
-                    </div>
-            
-                </div>
-            </div>
-        
-            <div class="sector-section">
-                <div class="sector-header" style="border-left-color: #fb8c00;">
-                    <span class="sector-icon">📈</span>
-                    <span class="sector-title" style="color: #fb8c00;">Index & Diversified</span>
-                    <span class="sector-count">3 stocks</span>
-                    <span class="sector-allocation" style="background: #fb8c00;">₹8,301</span>
-                </div>
-                
-                <div class="stock-grid">
-        
-                    <div class="stock-card" style="border-left-color: #fb8c00;">
-                        <div class="stock-header">
-                            <div class="stock-ticker">TMPV.NS</div>
-                            <div class="stock-recommendation buy">BUY</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Score</div>
-                                <div class="metric-value good">57.5</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Price</div>
-                                <div class="metric-value">₹382.65</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">85.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">30.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-item">
-                                <span class="detail-label">RSI</span>
-                                <span class="detail-value">55</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">MACD</span>
-                                <span class="detail-value">6.3</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">P/E</span>
-                                <span class="detail-value">36.0</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">ROE</span>
-                                <span class="detail-value">0%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Div</span>
-                                <span class="detail-value">157.0%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, #fb8c00 0%, #fb8c00dd 100%);">
-                            <div class="allocation-amount">₹8,301</div>
-                            <div class="allocation-percent">17.3% of portfolio</div>
-                        </div>
-                    </div>
-            
-                    <div class="stock-card" style="border-left-color: #fb8c00;">
-                        <div class="stock-header">
-                            <div class="stock-ticker">RELIANCE.NS</div>
-                            <div class="stock-recommendation reduce">REDUCE</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Score</div>
-                                <div class="metric-value poor">35.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Price</div>
-                                <div class="metric-value">₹1393.90</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">25.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">45.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-item">
-                                <span class="detail-label">RSI</span>
-                                <span class="detail-value">34</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">MACD</span>
-                                <span class="detail-value">-13.1</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">P/E</span>
-                                <span class="detail-value">22.7</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">ROE</span>
-                                <span class="detail-value">0%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Div</span>
-                                <span class="detail-value">39.0%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, #fb8c00 0%, #fb8c00dd 100%);">
-                            <div class="allocation-amount">₹0</div>
-                            <div class="allocation-percent">0.0% of portfolio</div>
-                        </div>
-                    </div>
-            
-                    <div class="stock-card" style="border-left-color: #fb8c00;">
-                        <div class="stock-header">
-                            <div class="stock-ticker">NIFTYBEES.NS</div>
-                            <div class="stock-recommendation reduce">REDUCE</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Score</div>
-                                <div class="metric-value poor">32.5</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Price</div>
-                                <div class="metric-value">₹285.29</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">35.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">30.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-item">
-                                <span class="detail-label">RSI</span>
-                                <span class="detail-value">34</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">MACD</span>
-                                <span class="detail-value">-0.7</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">P/E</span>
-                                <span class="detail-value">23.3</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">ROE</span>
-                                <span class="detail-value">0%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Div</span>
-                                <span class="detail-value">0.0%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, #fb8c00 0%, #fb8c00dd 100%);">
-                            <div class="allocation-amount">₹0</div>
-                            <div class="allocation-percent">0.0% of portfolio</div>
-                        </div>
-                    </div>
-            
-                </div>
-            </div>
-        
-            <div class="sector-section">
-                <div class="sector-header" style="border-left-color: #8e24aa;">
-                    <span class="sector-icon">🚗</span>
-                    <span class="sector-title" style="color: #8e24aa;">Automobile</span>
-                    <span class="sector-count">1 stocks</span>
-                    <span class="sector-allocation" style="background: #8e24aa;">₹0</span>
-                </div>
-                
-                <div class="stock-grid">
-        
-                    <div class="stock-card" style="border-left-color: #8e24aa;">
-                        <div class="stock-header">
-                            <div class="stock-ticker">M&M.NS</div>
-                            <div class="stock-recommendation reduce">REDUCE</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Score</div>
-                                <div class="metric-value poor">35.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Price</div>
-                                <div class="metric-value">₹3397.40</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">20.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">50.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-item">
-                                <span class="detail-label">RSI</span>
-                                <span class="detail-value">33</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">MACD</span>
-                                <span class="detail-value">-40.2</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">P/E</span>
-                                <span class="detail-value">24.3</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">ROE</span>
-                                <span class="detail-value">0%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Div</span>
-                                <span class="detail-value">74.0%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, #8e24aa 0%, #8e24aadd 100%);">
-                            <div class="allocation-amount">₹0</div>
-                            <div class="allocation-percent">0.0% of portfolio</div>
-                        </div>
-                    </div>
-            
-                </div>
-            </div>
-        
-            <div class="sector-section">
-                <div class="sector-header" style="border-left-color: #fdd835;">
-                    <span class="sector-icon">🥇</span>
-                    <span class="sector-title" style="color: #fdd835;">Commodities</span>
-                    <span class="sector-count">2 stocks</span>
-                    <span class="sector-allocation" style="background: #fdd835;">₹12,632</span>
-                </div>
-                
-                <div class="stock-grid">
-        
-                    <div class="stock-card" style="border-left-color: #fdd835;">
-                        <div class="stock-header">
-                            <div class="stock-ticker">GOLDBEES.NS</div>
-                            <div class="stock-recommendation hold">HOLD</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Score</div>
-                                <div class="metric-value average">45.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Price</div>
-                                <div class="metric-value">₹131.60</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">75.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">15.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-item">
-                                <span class="detail-label">RSI</span>
-                                <span class="detail-value">61</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">MACD</span>
-                                <span class="detail-value">2.2</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">P/E</span>
-                                <span class="detail-value">0.0</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">ROE</span>
-                                <span class="detail-value">0%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Div</span>
-                                <span class="detail-value">0.0%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, #fdd835 0%, #fdd835dd 100%);">
-                            <div class="allocation-amount">₹6,496</div>
-                            <div class="allocation-percent">13.5% of portfolio</div>
-                        </div>
-                    </div>
-            
-                    <div class="stock-card" style="border-left-color: #fdd835;">
-                        <div class="stock-header">
-                            <div class="stock-ticker">SILVERBEES.NS</div>
-                            <div class="stock-recommendation hold">HOLD</div>
-                        </div>
-                        
-                        <div class="stock-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Score</div>
-                                <div class="metric-value average">42.5</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Price</div>
-                                <div class="metric-value">₹252.81</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Technical</div>
-                                <div class="metric-value">70.0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Fundamental</div>
-                                <div class="metric-value">15.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="stock-details">
-                            <div class="detail-item">
-                                <span class="detail-label">RSI</span>
-                                <span class="detail-value">56</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">MACD</span>
-                                <span class="detail-value">-0.9</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">P/E</span>
-                                <span class="detail-value">0.0</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">ROE</span>
-                                <span class="detail-value">0%</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Div</span>
-                                <span class="detail-value">0.0%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="allocation-badge" style="background: linear-gradient(135deg, #fdd835 0%, #fdd835dd 100%);">
-                            <div class="allocation-amount">₹6,135</div>
-                            <div class="allocation-percent">12.8% of portfolio</div>
-                        </div>
-                    </div>
-            
-                </div>
-            </div>
-        
-        </div>
-        
-        <div class="disclaimer">
-            <h4>⚠️ Important Disclaimer</h4>
-            <p>
-                This analysis is for informational purposes only and should not be considered as financial advice. 
-                The recommendations are based on technical and fundamental analysis algorithms and do not guarantee 
-                future performance. Always conduct your own research and consult with a qualified financial advisor 
-                before making investment decisions.
-            </p>
-        </div>
-        
-        <div class="footer">
-            <p><strong>Methodology:</strong> Technical (50%): RSI, MACD, MA, Bollinger | Fundamental (50%): P/E, ROE, Margin, Growth, Div, D/E</p>
-            <p style="margin-top: 8px; font-weight: 600;">Portfolio Analyzer v3.1 - Compact Mobile Edition | © 2026</p>
-            <p style="margin-top: 5px; font-size: 0.9em; opacity: 0.8;">
-                Updated: 01 Mar 2026 at 07:31 AM IST
-            </p>
-        </div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-inner">
+    <div>
+      <div class="hdr-title">📊 <span>Portfolio</span> Analysis</div>
+      <div class="hdr-sub">SIP Entry Intelligence Edition · v4.0</div>
     </div>
+    <div class="time-badge">🕐 02 Mar 2026 · 04:01 AM IST</div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="ovr">
+  <div class="ovr-grid">
+    <div class="ov">
+      <div class="ov-lbl">Monthly SIP</div>
+      <div class="ov-val" style="color:var(--blue);">₹48,000</div>
+      <div class="ov-sub">₹48,000 allocated</div>
+    </div>
+    <div class="ov">
+      <div class="ov-lbl">Stocks</div>
+      <div class="ov-val">12</div>
+      <div class="ov-sub">5 sectors</div>
+    </div>
+    <div class="ov">
+      <div class="ov-lbl">Avg Score</div>
+      <div class="ov-val" style="color:var(--yellow);">40.0</div>
+      <div class="ov-sub">Portfolio health</div>
+    </div>
+    <div class="ov">
+      <div class="ov-lbl">Good Entries</div>
+      <div class="ov-val" style="color:var(--green);">7</div>
+      <div class="ov-sub">Accumulate + Good</div>
+    </div>
+    <div class="ov">
+      <div class="ov-lbl">Wait/Skip</div>
+      <div class="ov-val" style="color:var(--red);">2</div>
+      <div class="ov-sub">Deferred this month</div>
+    </div>
+  </div>
+
+  <!-- SIP INTELLIGENCE BANNER -->
+  <div class="sip-banner">
+    <div class="sip-banner-hd">🎯 SIP Entry Intelligence — This Month</div>
+    <div class="sip-banner-txt">
+      Each stock now has <strong>two separate signals</strong>: stock quality (is it worth owning?)
+      and <strong>SIP Entry Score</strong> (is NOW a good <em>price</em> to buy?).
+      Allocation is automatically higher for stocks at dips and lower for stocks near highs —
+      so your monthly SIP discipline is preserved but your money is deployed smarter.
+    </div>
+    <div class="sip-pills">
+      <div class="sp acc">🟢 ACCUMULATE NOW · 6</div>
+      <div class="sp good">✅ GOOD ENTRY · 1</div>
+      <div class="sp norm">🟡 INVEST NORMALLY · 1</div>
+      <div class="sp less">🟠 INVEST LESS · 2</div>
+      <div class="sp wait">🔴 WAIT THIS MONTH · 2</div>
+    </div>
+  </div>
+
+  <!-- REC SUMMARY -->
+  <div class="rec-row">
+    <div class="rec-pill sb"><div class="rp-n" style="color:var(--green);">0</div><div class="rp-l">Strong Buy</div></div>
+    <div class="rec-pill b"> <div class="rp-n" style="color:#7ee787;">1</div><div class="rp-l">Buy</div></div>
+    <div class="rec-pill h"> <div class="rp-n" style="color:var(--yellow);">6</div><div class="rp-l">Hold</div></div>
+    <div class="rec-pill r"> <div class="rp-n" style="color:var(--orange);">4</div><div class="rp-l">Reduce</div></div>
+    <div class="rec-pill s"> <div class="rp-n" style="color:var(--red);">1</div><div class="rp-l">Sell</div></div>
+  </div>
+</div>
+
+<!-- SIP GUIDE -->
+<div class="guide">
+  <div class="guide-inner">
+    <div class="guide-hd">📖 What each SIP verdict means — and what to do</div>
+    <div class="guide-grid">
+      <div class="gi" style="background:rgba(63,185,80,.04);border-color:rgba(63,185,80,.18);">
+        <div class="gi-v" style="color:#3fb950;">🟢 ACCUMULATE NOW</div>
+        <div class="gi-w">Invest full amount or slightly more</div>
+        <div class="gi-h">RSI below 45, price near/below SMA-50, lower 40% of 52W range. Ideal time to add.</div>
+      </div>
+      <div class="gi" style="background:rgba(100,200,100,.03);border-color:rgba(100,200,100,.12);">
+        <div class="gi-v" style="color:#7ee787;">✅ GOOD ENTRY</div>
+        <div class="gi-w">Invest as planned</div>
+        <div class="gi-h">Not a screaming deal but not stretched. Stick to your regular SIP amount.</div>
+      </div>
+      <div class="gi" style="background:rgba(210,153,34,.04);border-color:rgba(210,153,34,.12);">
+        <div class="gi-v" style="color:#d29922;">🟡 INVEST NORMALLY</div>
+        <div class="gi-w">Stick to regular SIP — discipline matters</div>
+        <div class="gi-h">Fair price, mid-range valuation. Your consistent investing habit matters more than timing here.</div>
+      </div>
+      <div class="gi" style="background:rgba(240,136,62,.04);border-color:rgba(240,136,62,.12);">
+        <div class="gi-v" style="color:#f0883e;">🟠 INVEST LESS</div>
+        <div class="gi-w">Invest 50–70% of planned amount</div>
+        <div class="gi-h">Price slightly stretched. Save the remaining 30–50% and deploy it when the stock dips next month.</div>
+      </div>
+      <div class="gi" style="background:rgba(248,81,73,.04);border-color:rgba(248,81,73,.12);">
+        <div class="gi-v" style="color:#f85149;">🔴 WAIT THIS MONTH</div>
+        <div class="gi-w">Save this month's amount for next dip</div>
+        <div class="gi-h">Price near recent highs, RSI elevated. Park in liquid fund. Deploy when RSI &lt; 50 or price falls 5%+.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTORS -->
+<div class="secs">
+
+  <div class="sec">
+    <div class="sec-hd" style="border-left:4px solid #1e88e5;">
+      <span style="font-size:1.2em;">🏦</span>
+      <span class="sec-name" style="color:#1e88e5;">Banking & Finance</span>
+      <span class="sec-badge">2 stocks</span>
+      <span class="sec-alloc" style="background:#1e88e5;">₹12,295</span>
+    </div>
+    <div class="sgrid">
+
+      <div class="card" style="border-top:3px solid #1e88e5;">
+        <!-- top -->
+        <div class="ctop">
+          <div>
+            <div class="cticker">HDFCBANK.NS</div>
+            <div class="cprice">₹887.75</div>
+          </div>
+          <span class="rec-b rb-hold">HOLD</span>
+        </div>
+        <!-- SIP verdict -->
+        <div class="sip-stripe">
+          <span class="sip-vbadge" style="background:color-mix(in srgb,#00c853 14%,transparent);color:#00c853;border:1px solid color-mix(in srgb,#00c853 28%,transparent);">
+            🟢 ACCUMULATE NOW
+          </span>
+          <span class="sip-txt">Price is in the value zone. Price is at 28% of its 52-week range. 5.9% below SMA-50. RSI: 29. Strong buying opportunity — consider investing your full SIP amount or slightly more this month.</span>
+        </div>
+        <!-- score bars -->
+        <div class="scores">
+          <div class="srow">
+            <span class="slbl">OVERALL</span>
+            <div class="sbar-w"><div class="sbar" style="width:52.5%;background:#d29922;"></div></div>
+            <span class="snum" style="color:#d29922;">52</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">TECHNICAL</span>
+            <div class="sbar-w"><div class="sbar" style="width:20%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">20</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">FUNDMNTL</span>
+            <div class="sbar-w"><div class="sbar" style="width:85%;background:#bc8cff;"></div></div>
+            <span class="snum" style="color:#bc8cff;">85</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">SIP ENTRY</span>
+            <div class="sbar-w"><div class="sbar" style="width:91%;background:#00c853;"></div></div>
+            <span class="snum" style="color:#00c853;">91</span>
+          </div>
+        </div>
+        <!-- metrics -->
+        <div class="mets">
+          <div class="met">
+            <span class="met-l">RSI</span>
+            <span class="met-v" style="color:#3fb950;">29</span>
+          </div>
+          <div class="met">
+            <span class="met-l">MACD</span>
+            <span class="met-v" style="color:#f85149;">-11.6</span>
+          </div>
+          <div class="met"><span class="met-l">P/E</span><span class="met-v">19.8</span></div>
+          <div class="met"><span class="met-l">ROE</span><span class="met-v">14%</span></div>
+          <div class="met"><span class="met-l">DIV</span><span class="met-v">124.0%</span></div>
+        </div>
+        <!-- allocation footer -->
+        <div class="alloc-ft">
+          <div class="alloc-lbl">THIS MONTH'S SIP</div>
+          <div>
+            <div class="alloc-amt" style="color:#1e88e5;">₹7,469</div>
+            <div class="alloc-pct">(15.6% of portfolio)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-top:3px solid #1e88e5;">
+        <!-- top -->
+        <div class="ctop">
+          <div>
+            <div class="cticker">BANKBEES.NS</div>
+            <div class="cprice">₹623.97</div>
+          </div>
+          <span class="rec-b rb-hold">HOLD</span>
+        </div>
+        <!-- SIP verdict -->
+        <div class="sip-stripe">
+          <span class="sip-vbadge" style="background:color-mix(in srgb,#fb8c00 14%,transparent);color:#fb8c00;border:1px solid color-mix(in srgb,#fb8c00 28%,transparent);">
+            🟡 INVEST NORMALLY
+          </span>
+          <span class="sip-txt">Fair price. Price is at 90% of its 52-week range. 0.9% above SMA-50. RSI: 49. Stick to your regular SIP. Discipline matters more than timing here.</span>
+        </div>
+        <!-- score bars -->
+        <div class="scores">
+          <div class="srow">
+            <span class="slbl">OVERALL</span>
+            <div class="sbar-w"><div class="sbar" style="width:47.5%;background:#d29922;"></div></div>
+            <span class="snum" style="color:#d29922;">48</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">TECHNICAL</span>
+            <div class="sbar-w"><div class="sbar" style="width:65%;background:#58a6ff;"></div></div>
+            <span class="snum" style="color:#58a6ff;">65</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">FUNDMNTL</span>
+            <div class="sbar-w"><div class="sbar" style="width:30%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">30</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">SIP ENTRY</span>
+            <div class="sbar-w"><div class="sbar" style="width:41%;background:#fb8c00;"></div></div>
+            <span class="snum" style="color:#fb8c00;">41</span>
+          </div>
+        </div>
+        <!-- metrics -->
+        <div class="mets">
+          <div class="met">
+            <span class="met-l">RSI</span>
+            <span class="met-v" style="color:var(--text);">49</span>
+          </div>
+          <div class="met">
+            <span class="met-l">MACD</span>
+            <span class="met-v" style="color:#3fb950;">3.5</span>
+          </div>
+          <div class="met"><span class="met-l">P/E</span><span class="met-v">15.9</span></div>
+          <div class="met"><span class="met-l">ROE</span><span class="met-v">0%</span></div>
+          <div class="met"><span class="met-l">DIV</span><span class="met-v">0.0%</span></div>
+        </div>
+        <!-- allocation footer -->
+        <div class="alloc-ft">
+          <div class="alloc-lbl">THIS MONTH'S SIP</div>
+          <div>
+            <div class="alloc-amt" style="color:#1e88e5;">₹4,827</div>
+            <div class="alloc-pct">(10.1% of portfolio)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd" style="border-left:4px solid #43a047;">
+      <span style="font-size:1.2em;">💻</span>
+      <span class="sec-name" style="color:#43a047;">Information Technology</span>
+      <span class="sec-badge">4 stocks</span>
+      <span class="sec-alloc" style="background:#43a047;">₹16,360</span>
+    </div>
+    <div class="sgrid">
+
+      <div class="card" style="border-top:3px solid #43a047;">
+        <!-- top -->
+        <div class="ctop">
+          <div>
+            <div class="cticker">TCS.NS</div>
+            <div class="cprice">₹2637.40</div>
+          </div>
+          <span class="rec-b rb-hold">HOLD</span>
+        </div>
+        <!-- SIP verdict -->
+        <div class="sip-stripe">
+          <span class="sip-vbadge" style="background:color-mix(in srgb,#00c853 14%,transparent);color:#00c853;border:1px solid color-mix(in srgb,#00c853 28%,transparent);">
+            🟢 ACCUMULATE NOW
+          </span>
+          <span class="sip-txt">Price is in the value zone. Price is at 7% of its 52-week range. 13.1% below SMA-50. RSI: 24. Strong buying opportunity — consider investing your full SIP amount or slightly more this month.</span>
+        </div>
+        <!-- score bars -->
+        <div class="scores">
+          <div class="srow">
+            <span class="slbl">OVERALL</span>
+            <div class="sbar-w"><div class="sbar" style="width:47.5%;background:#d29922;"></div></div>
+            <span class="snum" style="color:#d29922;">48</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">TECHNICAL</span>
+            <div class="sbar-w"><div class="sbar" style="width:30%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">30</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">FUNDMNTL</span>
+            <div class="sbar-w"><div class="sbar" style="width:65%;background:#bc8cff;"></div></div>
+            <span class="snum" style="color:#bc8cff;">65</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">SIP ENTRY</span>
+            <div class="sbar-w"><div class="sbar" style="width:100%;background:#00c853;"></div></div>
+            <span class="snum" style="color:#00c853;">100</span>
+          </div>
+        </div>
+        <!-- metrics -->
+        <div class="mets">
+          <div class="met">
+            <span class="met-l">RSI</span>
+            <span class="met-v" style="color:#3fb950;">24</span>
+          </div>
+          <div class="met">
+            <span class="met-l">MACD</span>
+            <span class="met-v" style="color:#f85149;">-126.7</span>
+          </div>
+          <div class="met"><span class="met-l">P/E</span><span class="met-v">20.0</span></div>
+          <div class="met"><span class="met-l">ROE</span><span class="met-v">43%</span></div>
+          <div class="met"><span class="met-l">DIV</span><span class="met-v">239.0%</span></div>
+        </div>
+        <!-- allocation footer -->
+        <div class="alloc-ft">
+          <div class="alloc-lbl">THIS MONTH'S SIP</div>
+          <div>
+            <div class="alloc-amt" style="color:#43a047;">₹6,757</div>
+            <div class="alloc-pct">(14.1% of portfolio)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-top:3px solid #43a047;">
+        <!-- top -->
+        <div class="ctop">
+          <div>
+            <div class="cticker">INFY.NS</div>
+            <div class="cprice">₹1300.10</div>
+          </div>
+          <span class="rec-b rb-hold">HOLD</span>
+        </div>
+        <!-- SIP verdict -->
+        <div class="sip-stripe">
+          <span class="sip-vbadge" style="background:color-mix(in srgb,#00c853 14%,transparent);color:#00c853;border:1px solid color-mix(in srgb,#00c853 28%,transparent);">
+            🟢 ACCUMULATE NOW
+          </span>
+          <span class="sip-txt">Price is in the value zone. Price is at 8% of its 52-week range. 16.3% below SMA-50. RSI: 17. Strong buying opportunity — consider investing your full SIP amount or slightly more this month.</span>
+        </div>
+        <!-- score bars -->
+        <div class="scores">
+          <div class="srow">
+            <span class="slbl">OVERALL</span>
+            <div class="sbar-w"><div class="sbar" style="width:40.0%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">40</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">TECHNICAL</span>
+            <div class="sbar-w"><div class="sbar" style="width:15%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">15</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">FUNDMNTL</span>
+            <div class="sbar-w"><div class="sbar" style="width:65%;background:#bc8cff;"></div></div>
+            <span class="snum" style="color:#bc8cff;">65</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">SIP ENTRY</span>
+            <div class="sbar-w"><div class="sbar" style="width:100%;background:#00c853;"></div></div>
+            <span class="snum" style="color:#00c853;">100</span>
+          </div>
+        </div>
+        <!-- metrics -->
+        <div class="mets">
+          <div class="met">
+            <span class="met-l">RSI</span>
+            <span class="met-v" style="color:#3fb950;">17</span>
+          </div>
+          <div class="met">
+            <span class="met-l">MACD</span>
+            <span class="met-v" style="color:#f85149;">-80.9</span>
+          </div>
+          <div class="met"><span class="met-l">P/E</span><span class="met-v">18.5</span></div>
+          <div class="met"><span class="met-l">ROE</span><span class="met-v">33%</span></div>
+          <div class="met"><span class="met-l">DIV</span><span class="met-v">346.0%</span></div>
+        </div>
+        <!-- allocation footer -->
+        <div class="alloc-ft">
+          <div class="alloc-lbl">THIS MONTH'S SIP</div>
+          <div>
+            <div class="alloc-amt" style="color:#43a047;">₹5,690</div>
+            <div class="alloc-pct">(11.9% of portfolio)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-top:3px solid #43a047;">
+        <!-- top -->
+        <div class="ctop">
+          <div>
+            <div class="cticker">ITBEES.NS</div>
+            <div class="cprice">₹33.82</div>
+          </div>
+          <span class="rec-b rb-reduce">REDUCE</span>
+        </div>
+        <!-- SIP verdict -->
+        <div class="sip-stripe">
+          <span class="sip-vbadge" style="background:color-mix(in srgb,#00c853 14%,transparent);color:#00c853;border:1px solid color-mix(in srgb,#00c853 28%,transparent);">
+            🟢 ACCUMULATE NOW
+          </span>
+          <span class="sip-txt">Price is in the value zone. Price is at 8% of its 52-week range. 15.8% below SMA-50. RSI: 16. Strong buying opportunity — consider investing your full SIP amount or slightly more this month.</span>
+        </div>
+        <!-- score bars -->
+        <div class="scores">
+          <div class="srow">
+            <span class="slbl">OVERALL</span>
+            <div class="sbar-w"><div class="sbar" style="width:27.5%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">28</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">TECHNICAL</span>
+            <div class="sbar-w"><div class="sbar" style="width:25%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">25</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">FUNDMNTL</span>
+            <div class="sbar-w"><div class="sbar" style="width:30%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">30</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">SIP ENTRY</span>
+            <div class="sbar-w"><div class="sbar" style="width:100%;background:#00c853;"></div></div>
+            <span class="snum" style="color:#00c853;">100</span>
+          </div>
+        </div>
+        <!-- metrics -->
+        <div class="mets">
+          <div class="met">
+            <span class="met-l">RSI</span>
+            <span class="met-v" style="color:#3fb950;">16</span>
+          </div>
+          <div class="met">
+            <span class="met-l">MACD</span>
+            <span class="met-v" style="color:#f85149;">-2.0</span>
+          </div>
+          <div class="met"><span class="met-l">P/E</span><span class="met-v">21.5</span></div>
+          <div class="met"><span class="met-l">ROE</span><span class="met-v">0%</span></div>
+          <div class="met"><span class="met-l">DIV</span><span class="met-v">0.0%</span></div>
+        </div>
+        <!-- allocation footer -->
+        <div class="alloc-ft">
+          <div class="alloc-lbl">THIS MONTH'S SIP</div>
+          <div>
+            <div class="alloc-amt" style="color:#43a047;">₹3,912</div>
+            <div class="alloc-pct">(8.2% of portfolio)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-top:3px solid #43a047;">
+        <!-- top -->
+        <div class="ctop">
+          <div>
+            <div class="cticker">TECHM.NS</div>
+            <div class="cprice">₹1357.80</div>
+          </div>
+          <span class="rec-b rb-sell">SELL</span>
+        </div>
+        <!-- SIP verdict -->
+        <div class="sip-stripe">
+          <span class="sip-vbadge" style="background:color-mix(in srgb,#ef4444 14%,transparent);color:#ef4444;border:1px solid color-mix(in srgb,#ef4444 28%,transparent);">
+            ⛔ SKIP
+          </span>
+          <span class="sip-txt">Stock quality is weak (score: 18/100). Skip this month and re-evaluate the stock.</span>
+        </div>
+        <!-- score bars -->
+        <div class="scores">
+          <div class="srow">
+            <span class="slbl">OVERALL</span>
+            <div class="sbar-w"><div class="sbar" style="width:17.5%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">18</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">TECHNICAL</span>
+            <div class="sbar-w"><div class="sbar" style="width:0%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">0</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">FUNDMNTL</span>
+            <div class="sbar-w"><div class="sbar" style="width:35%;background:#d29922;"></div></div>
+            <span class="snum" style="color:#d29922;">35</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">SIP ENTRY</span>
+            <div class="sbar-w"><div class="sbar" style="width:100%;background:#ef4444;"></div></div>
+            <span class="snum" style="color:#ef4444;">100</span>
+          </div>
+        </div>
+        <!-- metrics -->
+        <div class="mets">
+          <div class="met">
+            <span class="met-l">RSI</span>
+            <span class="met-v" style="color:#3fb950;">14</span>
+          </div>
+          <div class="met">
+            <span class="met-l">MACD</span>
+            <span class="met-v" style="color:#f85149;">-74.5</span>
+          </div>
+          <div class="met"><span class="met-l">P/E</span><span class="met-v">26.0</span></div>
+          <div class="met"><span class="met-l">ROE</span><span class="met-v">0%</span></div>
+          <div class="met"><span class="met-l">DIV</span><span class="met-v">331.0%</span></div>
+        </div>
+        <!-- allocation footer -->
+        <div class="alloc-ft">
+          <div class="alloc-lbl">THIS MONTH'S SIP</div>
+          <div>
+            <div class="alloc-amt" style="color:#43a047;">— Deferred</div>
+            <div class="alloc-pct">Save for next dip</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd" style="border-left:4px solid #fb8c00;">
+      <span style="font-size:1.2em;">📈</span>
+      <span class="sec-name" style="color:#fb8c00;">Index & Diversified</span>
+      <span class="sec-badge">3 stocks</span>
+      <span class="sec-alloc" style="background:#fb8c00;">₹11,990</span>
+    </div>
+    <div class="sgrid">
+
+      <div class="card" style="border-top:3px solid #fb8c00;">
+        <!-- top -->
+        <div class="ctop">
+          <div>
+            <div class="cticker">TMPV.NS</div>
+            <div class="cprice">₹382.65</div>
+          </div>
+          <span class="rec-b rb-buy">BUY</span>
+        </div>
+        <!-- SIP verdict -->
+        <div class="sip-stripe">
+          <span class="sip-vbadge" style="background:color-mix(in srgb,#ff7043 14%,transparent);color:#ff7043;border:1px solid color-mix(in srgb,#ff7043 28%,transparent);">
+            🟠 INVEST LESS
+          </span>
+          <span class="sip-txt">Price is slightly stretched. Price is at 56% of its 52-week range. 5.1% above SMA-50. RSI: 55. Consider investing 50–70% of your planned amount and saving the rest for when the price dips.</span>
+        </div>
+        <!-- score bars -->
+        <div class="scores">
+          <div class="srow">
+            <span class="slbl">OVERALL</span>
+            <div class="sbar-w"><div class="sbar" style="width:57.5%;background:#d29922;"></div></div>
+            <span class="snum" style="color:#d29922;">58</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">TECHNICAL</span>
+            <div class="sbar-w"><div class="sbar" style="width:85%;background:#58a6ff;"></div></div>
+            <span class="snum" style="color:#58a6ff;">85</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">FUNDMNTL</span>
+            <div class="sbar-w"><div class="sbar" style="width:30%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">30</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">SIP ENTRY</span>
+            <div class="sbar-w"><div class="sbar" style="width:38%;background:#ff7043;"></div></div>
+            <span class="snum" style="color:#ff7043;">38</span>
+          </div>
+        </div>
+        <!-- metrics -->
+        <div class="mets">
+          <div class="met">
+            <span class="met-l">RSI</span>
+            <span class="met-v" style="color:var(--text);">55</span>
+          </div>
+          <div class="met">
+            <span class="met-l">MACD</span>
+            <span class="met-v" style="color:#3fb950;">6.3</span>
+          </div>
+          <div class="met"><span class="met-l">P/E</span><span class="met-v">36.0</span></div>
+          <div class="met"><span class="met-l">ROE</span><span class="met-v">0%</span></div>
+          <div class="met"><span class="met-l">DIV</span><span class="met-v">157.0%</span></div>
+        </div>
+        <!-- allocation footer -->
+        <div class="alloc-ft">
+          <div class="alloc-lbl">THIS MONTH'S SIP</div>
+          <div>
+            <div class="alloc-amt" style="color:#fb8c00;">₹3,214</div>
+            <div class="alloc-pct">(6.7% of portfolio)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-top:3px solid #fb8c00;">
+        <!-- top -->
+        <div class="ctop">
+          <div>
+            <div class="cticker">RELIANCE.NS</div>
+            <div class="cprice">₹1393.90</div>
+          </div>
+          <span class="rec-b rb-reduce">REDUCE</span>
+        </div>
+        <!-- SIP verdict -->
+        <div class="sip-stripe">
+          <span class="sip-vbadge" style="background:color-mix(in srgb,#00c853 14%,transparent);color:#00c853;border:1px solid color-mix(in srgb,#00c853 28%,transparent);">
+            🟢 ACCUMULATE NOW
+          </span>
+          <span class="sip-txt">Price is in the value zone. Price is at 56% of its 52-week range. 4.8% below SMA-50. RSI: 34. Strong buying opportunity — consider investing your full SIP amount or slightly more this month.</span>
+        </div>
+        <!-- score bars -->
+        <div class="scores">
+          <div class="srow">
+            <span class="slbl">OVERALL</span>
+            <div class="sbar-w"><div class="sbar" style="width:35.0%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">35</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">TECHNICAL</span>
+            <div class="sbar-w"><div class="sbar" style="width:25%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">25</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">FUNDMNTL</span>
+            <div class="sbar-w"><div class="sbar" style="width:45%;background:#d29922;"></div></div>
+            <span class="snum" style="color:#d29922;">45</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">SIP ENTRY</span>
+            <div class="sbar-w"><div class="sbar" style="width:70%;background:#00c853;"></div></div>
+            <span class="snum" style="color:#00c853;">70</span>
+          </div>
+        </div>
+        <!-- metrics -->
+        <div class="mets">
+          <div class="met">
+            <span class="met-l">RSI</span>
+            <span class="met-v" style="color:#3fb950;">34</span>
+          </div>
+          <div class="met">
+            <span class="met-l">MACD</span>
+            <span class="met-v" style="color:#f85149;">-13.1</span>
+          </div>
+          <div class="met"><span class="met-l">P/E</span><span class="met-v">22.7</span></div>
+          <div class="met"><span class="met-l">ROE</span><span class="met-v">0%</span></div>
+          <div class="met"><span class="met-l">DIV</span><span class="met-v">39.0%</span></div>
+        </div>
+        <!-- allocation footer -->
+        <div class="alloc-ft">
+          <div class="alloc-lbl">THIS MONTH'S SIP</div>
+          <div>
+            <div class="alloc-amt" style="color:#fb8c00;">₹4,979</div>
+            <div class="alloc-pct">(10.4% of portfolio)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-top:3px solid #fb8c00;">
+        <!-- top -->
+        <div class="ctop">
+          <div>
+            <div class="cticker">NIFTYBEES.NS</div>
+            <div class="cprice">₹285.29</div>
+          </div>
+          <span class="rec-b rb-reduce">REDUCE</span>
+        </div>
+        <!-- SIP verdict -->
+        <div class="sip-stripe">
+          <span class="sip-vbadge" style="background:color-mix(in srgb,#43a047 14%,transparent);color:#43a047;border:1px solid color-mix(in srgb,#43a047 28%,transparent);">
+            ✅ GOOD ENTRY
+          </span>
+          <span class="sip-txt">Decent entry point. Price is at 76% of its 52-week range. 1.9% below SMA-50. RSI: 34. Invest your planned amount.</span>
+        </div>
+        <!-- score bars -->
+        <div class="scores">
+          <div class="srow">
+            <span class="slbl">OVERALL</span>
+            <div class="sbar-w"><div class="sbar" style="width:32.5%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">32</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">TECHNICAL</span>
+            <div class="sbar-w"><div class="sbar" style="width:35%;background:#d29922;"></div></div>
+            <span class="snum" style="color:#d29922;">35</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">FUNDMNTL</span>
+            <div class="sbar-w"><div class="sbar" style="width:30%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">30</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">SIP ENTRY</span>
+            <div class="sbar-w"><div class="sbar" style="width:60%;background:#43a047;"></div></div>
+            <span class="snum" style="color:#43a047;">60</span>
+          </div>
+        </div>
+        <!-- metrics -->
+        <div class="mets">
+          <div class="met">
+            <span class="met-l">RSI</span>
+            <span class="met-v" style="color:#3fb950;">34</span>
+          </div>
+          <div class="met">
+            <span class="met-l">MACD</span>
+            <span class="met-v" style="color:#f85149;">-0.7</span>
+          </div>
+          <div class="met"><span class="met-l">P/E</span><span class="met-v">23.3</span></div>
+          <div class="met"><span class="met-l">ROE</span><span class="met-v">0%</span></div>
+          <div class="met"><span class="met-l">DIV</span><span class="met-v">0.0%</span></div>
+        </div>
+        <!-- allocation footer -->
+        <div class="alloc-ft">
+          <div class="alloc-lbl">THIS MONTH'S SIP</div>
+          <div>
+            <div class="alloc-amt" style="color:#fb8c00;">₹3,798</div>
+            <div class="alloc-pct">(7.9% of portfolio)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd" style="border-left:4px solid #8e24aa;">
+      <span style="font-size:1.2em;">🚗</span>
+      <span class="sec-name" style="color:#8e24aa;">Automobile</span>
+      <span class="sec-badge">1 stocks</span>
+      <span class="sec-alloc" style="background:#8e24aa;">₹4,979</span>
+    </div>
+    <div class="sgrid">
+
+      <div class="card" style="border-top:3px solid #8e24aa;">
+        <!-- top -->
+        <div class="ctop">
+          <div>
+            <div class="cticker">M&M.NS</div>
+            <div class="cprice">₹3397.40</div>
+          </div>
+          <span class="rec-b rb-reduce">REDUCE</span>
+        </div>
+        <!-- SIP verdict -->
+        <div class="sip-stripe">
+          <span class="sip-vbadge" style="background:color-mix(in srgb,#00c853 14%,transparent);color:#00c853;border:1px solid color-mix(in srgb,#00c853 28%,transparent);">
+            🟢 ACCUMULATE NOW
+          </span>
+          <span class="sip-txt">Price is in the value zone. Price is at 69% of its 52-week range. 5.2% below SMA-50. RSI: 33. Strong buying opportunity — consider investing your full SIP amount or slightly more this month.</span>
+        </div>
+        <!-- score bars -->
+        <div class="scores">
+          <div class="srow">
+            <span class="slbl">OVERALL</span>
+            <div class="sbar-w"><div class="sbar" style="width:35.0%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">35</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">TECHNICAL</span>
+            <div class="sbar-w"><div class="sbar" style="width:20%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">20</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">FUNDMNTL</span>
+            <div class="sbar-w"><div class="sbar" style="width:50%;background:#d29922;"></div></div>
+            <span class="snum" style="color:#d29922;">50</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">SIP ENTRY</span>
+            <div class="sbar-w"><div class="sbar" style="width:75%;background:#00c853;"></div></div>
+            <span class="snum" style="color:#00c853;">75</span>
+          </div>
+        </div>
+        <!-- metrics -->
+        <div class="mets">
+          <div class="met">
+            <span class="met-l">RSI</span>
+            <span class="met-v" style="color:#3fb950;">33</span>
+          </div>
+          <div class="met">
+            <span class="met-l">MACD</span>
+            <span class="met-v" style="color:#f85149;">-40.2</span>
+          </div>
+          <div class="met"><span class="met-l">P/E</span><span class="met-v">24.4</span></div>
+          <div class="met"><span class="met-l">ROE</span><span class="met-v">0%</span></div>
+          <div class="met"><span class="met-l">DIV</span><span class="met-v">74.0%</span></div>
+        </div>
+        <!-- allocation footer -->
+        <div class="alloc-ft">
+          <div class="alloc-lbl">THIS MONTH'S SIP</div>
+          <div>
+            <div class="alloc-amt" style="color:#8e24aa;">₹4,979</div>
+            <div class="alloc-pct">(10.4% of portfolio)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd" style="border-left:4px solid #f9a825;">
+      <span style="font-size:1.2em;">🥇</span>
+      <span class="sec-name" style="color:#f9a825;">Commodities</span>
+      <span class="sec-badge">2 stocks</span>
+      <span class="sec-alloc" style="background:#f9a825;">₹2,375</span>
+    </div>
+    <div class="sgrid">
+
+      <div class="card" style="border-top:3px solid #f9a825;">
+        <!-- top -->
+        <div class="ctop">
+          <div>
+            <div class="cticker">GOLDBEES.NS</div>
+            <div class="cprice">₹131.60</div>
+          </div>
+          <span class="rec-b rb-hold">HOLD</span>
+        </div>
+        <!-- SIP verdict -->
+        <div class="sip-stripe">
+          <span class="sip-vbadge" style="background:color-mix(in srgb,#e53935 14%,transparent);color:#e53935;border:1px solid color-mix(in srgb,#e53935 28%,transparent);">
+            🔴 WAIT THIS MONTH
+          </span>
+          <span class="sip-txt">Price is near recent highs. Price is at 80% of its 52-week range. 7.7% above SMA-50. RSI: 61. Save this month's amount in a liquid fund and deploy it when RSI drops below 50 or price pulls back 5%+ from current level.</span>
+        </div>
+        <!-- score bars -->
+        <div class="scores">
+          <div class="srow">
+            <span class="slbl">OVERALL</span>
+            <div class="sbar-w"><div class="sbar" style="width:45.0%;background:#d29922;"></div></div>
+            <span class="snum" style="color:#d29922;">45</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">TECHNICAL</span>
+            <div class="sbar-w"><div class="sbar" style="width:75%;background:#58a6ff;"></div></div>
+            <span class="snum" style="color:#58a6ff;">75</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">FUNDMNTL</span>
+            <div class="sbar-w"><div class="sbar" style="width:15%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">15</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">SIP ENTRY</span>
+            <div class="sbar-w"><div class="sbar" style="width:22%;background:#e53935;"></div></div>
+            <span class="snum" style="color:#e53935;">22</span>
+          </div>
+        </div>
+        <!-- metrics -->
+        <div class="mets">
+          <div class="met">
+            <span class="met-l">RSI</span>
+            <span class="met-v" style="color:var(--text);">61</span>
+          </div>
+          <div class="met">
+            <span class="met-l">MACD</span>
+            <span class="met-v" style="color:#3fb950;">2.2</span>
+          </div>
+          <div class="met"><span class="met-l">P/E</span><span class="met-v">0.0</span></div>
+          <div class="met"><span class="met-l">ROE</span><span class="met-v">0%</span></div>
+          <div class="met"><span class="met-l">DIV</span><span class="met-v">0.0%</span></div>
+        </div>
+        <!-- allocation footer -->
+        <div class="alloc-ft">
+          <div class="alloc-lbl">THIS MONTH'S SIP</div>
+          <div>
+            <div class="alloc-amt" style="color:#f9a825;">— Deferred</div>
+            <div class="alloc-pct">Save for next dip</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-top:3px solid #f9a825;">
+        <!-- top -->
+        <div class="ctop">
+          <div>
+            <div class="cticker">SILVERBEES.NS</div>
+            <div class="cprice">₹252.81</div>
+          </div>
+          <span class="rec-b rb-hold">HOLD</span>
+        </div>
+        <!-- SIP verdict -->
+        <div class="sip-stripe">
+          <span class="sip-vbadge" style="background:color-mix(in srgb,#ff7043 14%,transparent);color:#ff7043;border:1px solid color-mix(in srgb,#ff7043 28%,transparent);">
+            🟠 INVEST LESS
+          </span>
+          <span class="sip-txt">Price is slightly stretched. Price is at 62% of its 52-week range. 2.9% above SMA-50. RSI: 56. Consider investing 50–70% of your planned amount and saving the rest for when the price dips.</span>
+        </div>
+        <!-- score bars -->
+        <div class="scores">
+          <div class="srow">
+            <span class="slbl">OVERALL</span>
+            <div class="sbar-w"><div class="sbar" style="width:42.5%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">42</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">TECHNICAL</span>
+            <div class="sbar-w"><div class="sbar" style="width:70%;background:#58a6ff;"></div></div>
+            <span class="snum" style="color:#58a6ff;">70</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">FUNDMNTL</span>
+            <div class="sbar-w"><div class="sbar" style="width:15%;background:#f85149;"></div></div>
+            <span class="snum" style="color:#f85149;">15</span>
+          </div>
+          <div class="srow">
+            <span class="slbl">SIP ENTRY</span>
+            <div class="sbar-w"><div class="sbar" style="width:38%;background:#ff7043;"></div></div>
+            <span class="snum" style="color:#ff7043;">38</span>
+          </div>
+        </div>
+        <!-- metrics -->
+        <div class="mets">
+          <div class="met">
+            <span class="met-l">RSI</span>
+            <span class="met-v" style="color:var(--text);">56</span>
+          </div>
+          <div class="met">
+            <span class="met-l">MACD</span>
+            <span class="met-v" style="color:#f85149;">-0.9</span>
+          </div>
+          <div class="met"><span class="met-l">P/E</span><span class="met-v">0.0</span></div>
+          <div class="met"><span class="met-l">ROE</span><span class="met-v">0%</span></div>
+          <div class="met"><span class="met-l">DIV</span><span class="met-v">0.0%</span></div>
+        </div>
+        <!-- allocation footer -->
+        <div class="alloc-ft">
+          <div class="alloc-lbl">THIS MONTH'S SIP</div>
+          <div>
+            <div class="alloc-amt" style="color:#f9a825;">₹2,375</div>
+            <div class="alloc-pct">(4.9% of portfolio)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- DISCLAIMER -->
+<div class="disc">
+  <div class="disc-inner">
+    <strong>⚠️ Disclaimer:</strong> For educational purposes only. Not financial advice.
+    SIP verdicts are algorithmic signals based on RSI, SMA-50, 52W range, and recent drawdown.
+    They do not guarantee future returns. A "WAIT" verdict means defer this stock's SIP — not sell.
+    Always consult a SEBI-registered advisor before investing.
+  </div>
+</div>
+
+<div class="footer">
+  Stock Quality: Technical (50%) — RSI · MACD · Moving Avg · Bollinger | Fundamental (50%) — P/E · ROE · Margin · Growth · Div · D/E<br>
+  SIP Entry Score: RSI Zone · Price vs SMA-50 · 52-Week Position · Recent Drawdown from 20-day high<br>
+  Portfolio Analyzer v4.0 — SIP Entry Intelligence Edition · 02 Mar 2026 at 04:01 AM IST
+</div>
+
 </body>
 </html>
-    
