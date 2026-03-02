@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIP Entry Intelligence — Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Clash+Display:wght@500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c14;
+    --panel: #0e1420;
+    --card: #131b28;
+    --border: rgba(99,179,237,0.12);
+    --glow: rgba(99,179,237,0.06);
+    --text: #cdd9e5;
+    --muted: #546e7a;
+    --accent: #63b3ed;
+    --green: #48bb78;
+    --yellow: #ecc94b;
+    --orange: #ed8936;
+    --red: #fc8181;
+    --purple: #b794f4;
+    --teal: #38b2ac;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(99,179,237,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,179,237,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  .header-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7em;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    border: 1px solid rgba(99,179,237,0.3);
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    background: rgba(99,179,237,0.05);
+  }
+  .header h1 {
+    font-family: 'Clash Display', 'Outfit', sans-serif;
+    font-size: clamp(1.8em, 4vw, 2.8em);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #e2e8f0 0%, #63b3ed 50%, #b794f4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header p {
+    font-size: 0.95em;
+    color: var(--muted);
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65em;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* THE PROBLEM */
+  .problem-block {
+    margin-bottom: 60px;
+  }
+  .problem-timeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0;
+    border: 1px solid rgba(252,129,129,0.2);
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(252,129,129,0.03);
+  }
+  .pt-step {
+    padding: 20px;
+    border-right: 1px solid rgba(252,129,129,0.1);
+    position: relative;
+  }
+  .pt-step:last-child { border-right: none; }
+  .pt-month {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65em;
+    color: var(--red);
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+  }
+  .pt-event {
+    font-size: 0.85em;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .pt-result {
+    font-size: 0.75em;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .pt-arrow {
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(252,129,129,0.4);
+    font-size: 1.2em;
+    z-index: 2;
+  }
+
+  /* MAIN FLOW */
+  .flow-section { margin-bottom: 60px; }
+
+  /* START NODE */
+  .node-start {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .start-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #1a2744, #1e3a5f);
+    border: 2px solid var(--accent);
+    border-radius: 50px;
+    padding: 14px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--accent);
+    box-shadow: 0 0 30px rgba(99,179,237,0.15);
+  }
+
+  /* CONNECTOR */
+  .connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 4px 0;
+  }
+  .conn-line {
+    width: 2px;
+    height: 28px;
+    background: linear-gradient(to bottom, var(--accent), rgba(99,179,237,0.3));
+  }
+  .conn-arrow {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid rgba(99,179,237,0.5);
+  }
+  .conn-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6em;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin: 4px 0;
+  }
+
+  /* DECISION DIAMOND */
+  .decision-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 8px 0;
+  }
+  .diamond-outer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .diamond {
+    position: relative;
+    width: 200px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .diamond::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1a2038, #0e1828);
+    border: 1.5px solid rgba(99,179,237,0.3);
+    transform: skewX(-20deg);
+    border-radius: 6px;
+  }
+  .diamond-text {
+    position: relative;
+    z-index: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72em;
+    font-weight: 600;
+    color: var(--accent);
+    text-align: center;
+    line-height: 1.4;
+    padding: 0 20px;
+  }
+
+  /* TWO TRACK LAYOUT */
+  .two-track {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr;
+    gap: 0;
+    margin: 0;
+    align-items: start;
+  }
+  .track { display: flex; flex-direction: column; }
+  .track-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+  }
+  .track-divider-line {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+    min-height: 200px;
+  }
+
+  .track-label {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62em;
+    padding: 6px 14px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    letter-spacing: 1px;
+  }
+  .track-label.yes { background: rgba(72,187,120,0.12); color: var(--green); border: 1px solid rgba(72,187,120,0.2); }
+  .track-label.no  { background: rgba(252,129,129,0.08); color: var(--red);   border: 1px solid rgba(252,129,129,0.15); }
+
+  /* SCORE COMPONENT */
+  .score-component {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .sc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .sc-header:hover { background: rgba(99,179,237,0.04); }
+  .sc-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72em;
+    font-weight: 600;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sc-pts {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68em;
+    color: var(--muted);
+    background: rgba(99,179,237,0.08);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .sc-toggle {
+    color: var(--muted);
+    font-size: 0.8em;
+    transition: transform 0.3s;
+  }
+  .sc-toggle.open { transform: rotate(180deg); }
+  .sc-body {
+    display: none;
+    padding: 12px 16px;
+  }
+  .sc-body.open { display: block; }
+  .sc-rule {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-size: 0.78em;
+  }
+  .sc-rule:last-child { border-bottom: none; }
+  .sc-condition {
+    flex: 1;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9em;
+  }
+  .sc-condition code {
+    color: var(--text);
+    background: rgba(255,255,255,0.05);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  .sc-score-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    min-width: 44px;
+    text-align: center;
+  }
+  .pts-30 { background:rgba(72,187,120,0.15);  color:#68d391; }
+  .pts-25 { background:rgba(72,187,120,0.12);  color:#68d391; }
+  .pts-20 { background:rgba(56,178,172,0.12);  color:#4fd1c5; }
+  .pts-15 { background:rgba(99,179,237,0.12);  color:#90cdf4; }
+  .pts-10 { background:rgba(183,148,244,0.12); color:#d6bcfa; }
+  .pts-8  { background:rgba(237,137,54,0.12);  color:#f6ad55; }
+  .pts-5  { background:rgba(237,137,54,0.08);  color:#f6ad55; }
+  .pts-3  { background:rgba(252,129,129,0.1);  color:#feb2b2; }
+  .pts-0  { background:rgba(113,128,150,0.1);  color:#718096; }
+
+  /* VERDICT SECTION */
+  .verdicts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .verdict-card {
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid;
+    position: relative;
+    overflow: hidden;
+  }
+  .verdict-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .v-acc   { background:rgba(72,187,120,0.07);  border-color:rgba(72,187,120,0.2);  }
+  .v-acc::before   { background:#48bb78; }
+  .v-good  { background:rgba(72,187,120,0.04);  border-color:rgba(72,187,120,0.12); }
+  .v-good::before  { background:#9ae6b4; }
+  .v-norm  { background:rgba(236,201,75,0.05);  border-color:rgba(236,201,75,0.15); }
+  .v-norm::before  { background:#ecc94b; }
+  .v-less  { background:rgba(237,137,54,0.05);  border-color:rgba(237,137,54,0.15); }
+  .v-less::before  { background:#ed8936; }
+  .v-wait  { background:rgba(252,129,129,0.05); border-color:rgba(252,129,129,0.15);}
+  .v-wait::before  { background:#fc8181; }
+
+  .v-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .v-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78em;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .v-acc   .v-label { color: #68d391; }
+  .v-good  .v-label { color: #9ae6b4; }
+  .v-norm  .v-label { color: #f6e05e; }
+  .v-less  .v-label { color: #f6ad55; }
+  .v-wait  .v-label { color: #feb2b2; }
+  .v-action {
+    font-size: 0.75em;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* ALLOCATION LOGIC */
+  .alloc-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 60px;
+  }
+  .alloc-hd {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .alloc-hd-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78em;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .alloc-formula {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68em;
+    color: var(--purple);
+    background: rgba(183,148,244,0.08);
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(183,148,244,0.15);
+  }
+  .alloc-row {
+    display: grid;
+    grid-template-columns: 200px 80px 80px 1fr;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background 0.2s;
+  }
+  .alloc-row:last-child { border-bottom: none; }
+  .alloc-row:hover { background: var(--glow); }
+  .alloc-verdict {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7em;
+    font-weight: 600;
+  }
+  .alloc-mod {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8em;
+    font-weight: 700;
+    text-align: center;
+  }
+  .alloc-bar-wrap { flex: 1; background: rgba(255,255,255,0.04); border-radius: 4px; height: 8px; overflow: hidden; }
+  .alloc-bar { height: 100%; border-radius: 4px; }
+  .alloc-note { font-size: 0.72em; color: var(--muted); }
+
+  /* EXAMPLE SCENARIO */
+  .example-block {
+    margin-bottom: 60px;
+  }
+  .example-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .ex-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .ex-top {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ex-ticker { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; font-weight: 700; color: var(--accent); }
+  .ex-rec {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-top: 4px;
+  }
+  .ex-metrics { padding: 12px 16px; }
+  .ex-metric { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.75em; }
+  .ex-metric-l { color: var(--muted); }
+  .ex-metric-v { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+  .ex-bottom {
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ex-sip-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62em;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 5px;
+  }
+  .ex-alloc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    font-weight: 700;
+    text-align: right;
+  }
+  .ex-alloc small { display: block; font-size: 0.7em; color: var(--muted); font-weight: 400; }
+
+  /* OLD VS NEW */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 60px;
+  }
+  .compare-col {
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid;
+  }
+  .compare-col.old { background: rgba(252,129,129,0.04); border-color: rgba(252,129,129,0.15); }
+  .compare-col.new { background: rgba(72,187,120,0.04);  border-color: rgba(72,187,120,0.15); }
+  .compare-hd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72em;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .compare-col.old .compare-hd { color: #fc8181; }
+  .compare-col.new .compare-hd { color: #68d391; }
+  .compare-item {
+    font-size: 0.78em;
+    color: var(--muted);
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    line-height: 1.5;
+    display: flex;
+    gap: 8px;
+  }
+  .compare-item:last-child { border-bottom: none; }
+  .ci-icon { flex-shrink: 0; }
+
+  @media (max-width: 640px) {
+    .two-track { grid-template-columns: 1fr; }
+    .track-divider { display: none; }
+    .compare { grid-template-columns: 1fr; }
+    .alloc-row { grid-template-columns: 1fr 60px; }
+    .alloc-bar-wrap, .alloc-note { display: none; }
+    .problem-timeline { grid-template-columns: 1fr; }
+    .pt-arrow { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-tag">SIP Entry Intelligence · v4.0</div>
+    <h1>How the Logic Works</h1>
+    <p>A visual walkthrough of the two-signal system that separates stock quality from entry timing — so you invest more at dips and less at peaks.</p>
+  </div>
+
+  <!-- THE PROBLEM -->
+  <div class="problem-block">
+    <div class="section-label">The problem this solves</div>
+    <div class="problem-timeline">
+      <div class="pt-step">
+        <div class="pt-month">MONTH 1</div>
+        <div class="pt-event">📈 Stock is bullish, script says BUY</div>
+        <div class="pt-result">You invest ₹5,000 at ₹500 (near the top)</div>
+        <div class="pt-arrow">›</div>
+      </div>
+      <div class="pt-step">
+        <div class="pt-month">WEEK 2–3</div>
+        <div class="pt-event">📉 Stock dips to ₹440</div>
+        <div class="pt-result">The real opportunity — but you have no money left this month</div>
+        <div class="pt-arrow">›</div>
+      </div>
+      <div class="pt-step">
+        <div class="pt-month">MONTH 2</div>
+        <div class="pt-event">📊 Stock recovered, now shows BEARISH</div>
+        <div class="pt-result">Script skips it entirely — you miss the dip again</div>
+        <div class="pt-arrow">›</div>
+      </div>
+      <div class="pt-step">
+        <div class="pt-month">RESULT</div>
+        <div class="pt-event" style="color:#fc8181;">❌ Always buying high, missing dips</div>
+        <div class="pt-result">SIP discipline lost. Portfolio underperforms.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN FLOW -->
+  <div class="flow-section">
+    <div class="section-label">The complete decision flow</div>
+
+    <!-- START -->
+    <div class="node-start">
+      <div class="start-box">
+        📥 &nbsp; Stock data fetched from Yahoo Finance
+      </div>
+    </div>
+
+    <div class="connector"><div class="conn-line"></div><div class="conn-label">calculate</div><div class="conn-arrow"></div></div>
+
+    <!-- TWO PARALLEL TRACKS -->
+    <div class="two-track">
+
+      <!-- LEFT TRACK: Stock Quality -->
+      <div class="track">
+        <div class="track-label yes">TRACK 1 — STOCK QUALITY</div>
+
+        <div class="score-component">
+          <div class="sc-header" onclick="toggle(this)">
+            <span class="sc-title">📊 Technical Score</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="sc-pts">max 80 pts</span>
+              <span class="sc-toggle">▼</span>
+            </div>
+          </div>
+          <div class="sc-body">
+            <div class="sc-rule">
+              <span class="sc-condition">RSI <code>30–70</code></span>
+              <span class="sc-score-badge pts-20">+20</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">RSI <code>20–30</code> (oversold)</span>
+              <span class="sc-score-badge pts-15">+15</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">MACD histogram <code>&gt; 0</code></span>
+              <span class="sc-score-badge pts-20">+20</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Price <code>&gt; SMA-20</code></span>
+              <span class="sc-score-badge pts-10">+10</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Price <code>&gt; SMA-50</code></span>
+              <span class="sc-score-badge pts-10">+10</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Price <code>&gt; SMA-200</code></span>
+              <span class="sc-score-badge pts-10">+10</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Bollinger Band position (20–50%)</span>
+              <span class="sc-score-badge pts-15">+15</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">30-day price change <code>&gt; 5%</code></span>
+              <span class="sc-score-badge pts-15">+15</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-component">
+          <div class="sc-header" onclick="toggle(this)">
+            <span class="sc-title">📈 Fundamental Score</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="sc-pts">max 100 pts</span>
+              <span class="sc-toggle">▼</span>
+            </div>
+          </div>
+          <div class="sc-body">
+            <div class="sc-rule">
+              <span class="sc-condition">P/E ratio <code>0–15</code> (cheap)</span>
+              <span class="sc-score-badge pts-20">+20</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Dividend yield <code>&gt; 3%</code></span>
+              <span class="sc-score-badge pts-15">+15</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">ROE <code>&gt; 20%</code></span>
+              <span class="sc-score-badge pts-20">+20</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Profit margin <code>&gt; 20%</code></span>
+              <span class="sc-score-badge pts-15">+15</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Revenue growth <code>&gt; 20%</code></span>
+              <span class="sc-score-badge pts-15">+15</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Debt/Equity <code>&lt; 0.5</code></span>
+              <span class="sc-score-badge pts-15">+15</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Combined score box -->
+        <div style="background:rgba(99,179,237,0.06);border:1px solid rgba(99,179,237,0.2);border-radius:12px;padding:14px 16px;margin-bottom:12px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.68em;color:var(--accent);margin-bottom:8px;">COMBINED QUALITY SCORE</div>
+          <div style="font-size:0.78em;color:var(--muted);line-height:1.6;">
+            = Technical × 50% + Fundamental × 50%
+          </div>
+          <div style="margin-top:10px;display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">
+            <div style="font-size:0.72em;padding:6px 10px;border-radius:6px;background:rgba(72,187,120,0.1);color:#68d391;">≥ 70 → STRONG BUY</div>
+            <div style="font-size:0.72em;padding:6px 10px;border-radius:6px;background:rgba(99,179,237,0.1);color:#90cdf4;">55–70 → BUY</div>
+            <div style="font-size:0.72em;padding:6px 10px;border-radius:6px;background:rgba(236,201,75,0.1);color:#f6e05e;">40–55 → HOLD</div>
+            <div style="font-size:0.72em;padding:6px 10px;border-radius:6px;background:rgba(237,137,54,0.1);color:#f6ad55;">25–40 → REDUCE</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIVIDER -->
+      <div class="track-divider">
+        <div class="track-divider-line"></div>
+      </div>
+
+      <!-- RIGHT TRACK: SIP Entry Score -->
+      <div class="track">
+        <div class="track-label no" style="background:rgba(72,187,120,0.08);color:var(--green);border-color:rgba(72,187,120,0.15);">TRACK 2 — SIP ENTRY SCORE (NEW)</div>
+
+        <div class="score-component">
+          <div class="sc-header" onclick="toggle(this)">
+            <span class="sc-title" style="color:#68d391;">1. RSI Zone</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="sc-pts" style="background:rgba(72,187,120,0.08);color:var(--green);">max 30 pts</span>
+              <span class="sc-toggle">▼</span>
+            </div>
+          </div>
+          <div class="sc-body">
+            <div class="sc-rule">
+              <span class="sc-condition">RSI <code>&lt; 30</code> (very oversold)</span>
+              <span class="sc-score-badge pts-30">+30</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">RSI <code>30–40</code> (oversold)</span>
+              <span class="sc-score-badge pts-25">+27</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">RSI <code>40–50</code> (below midpoint)</span>
+              <span class="sc-score-badge pts-20">+22</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">RSI <code>50–55</code> (neutral)</span>
+              <span class="sc-score-badge pts-15">+15</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">RSI <code>55–65</code> (slight premium)</span>
+              <span class="sc-score-badge pts-8">+8</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">RSI <code>65–70</code> (overbought)</span>
+              <span class="sc-score-badge pts-3">+3</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">RSI <code>&gt; 70</code> (very overbought)</span>
+              <span class="sc-score-badge pts-0">+0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-component">
+          <div class="sc-header" onclick="toggle(this)">
+            <span class="sc-title" style="color:#68d391;">2. Price vs SMA-50</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="sc-pts" style="background:rgba(72,187,120,0.08);color:var(--green);">max 25 pts</span>
+              <span class="sc-toggle">▼</span>
+            </div>
+          </div>
+          <div class="sc-body">
+            <div class="sc-rule">
+              <span class="sc-condition">Price <code>&gt; 5%</code> below SMA-50</span>
+              <span class="sc-score-badge pts-25">+25</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Price <code>0–5%</code> below SMA-50</span>
+              <span class="sc-score-badge pts-20">+20</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Price <code>0–3%</code> above SMA-50</span>
+              <span class="sc-score-badge pts-10">+12</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Price <code>3–8%</code> above SMA-50</span>
+              <span class="sc-score-badge pts-5">+5</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Price <code>&gt; 8%</code> above SMA-50</span>
+              <span class="sc-score-badge pts-0">+0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-component">
+          <div class="sc-header" onclick="toggle(this)">
+            <span class="sc-title" style="color:#68d391;">3. 52-Week Position</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="sc-pts" style="background:rgba(72,187,120,0.08);color:var(--green);">max 25 pts</span>
+              <span class="sc-toggle">▼</span>
+            </div>
+          </div>
+          <div class="sc-body">
+            <div style="font-size:0.72em;color:var(--muted);margin-bottom:10px;padding:6px 8px;background:rgba(255,255,255,0.03);border-radius:6px;font-family:'JetBrains Mono',monospace;">
+              position = (price − 52W_low) / (52W_high − 52W_low) × 100
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Position <code>&lt; 25%</code> (near annual low)</span>
+              <span class="sc-score-badge pts-25">+25</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Position <code>25–40%</code> (lower half)</span>
+              <span class="sc-score-badge pts-20">+20</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Position <code>40–55%</code> (mid range)</span>
+              <span class="sc-score-badge pts-15">+14</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Position <code>55–70%</code> (upper half)</span>
+              <span class="sc-score-badge pts-8">+7</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Position <code>70–85%</code> (near highs)</span>
+              <span class="sc-score-badge pts-3">+2</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Position <code>&gt; 85%</code> (at 52W high)</span>
+              <span class="sc-score-badge pts-0">+0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-component">
+          <div class="sc-header" onclick="toggle(this)">
+            <span class="sc-title" style="color:#68d391;">4. Recent Drawdown (20-day)</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="sc-pts" style="background:rgba(72,187,120,0.08);color:var(--green);">max 20 pts</span>
+              <span class="sc-toggle">▼</span>
+            </div>
+          </div>
+          <div class="sc-body">
+            <div style="font-size:0.72em;color:var(--muted);margin-bottom:10px;padding:6px 8px;background:rgba(255,255,255,0.03);border-radius:6px;font-family:'JetBrains Mono',monospace;">
+              drawdown = (price − 20d_high) / 20d_high × 100
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Drawdown <code>&lt; −10%</code> (big dip)</span>
+              <span class="sc-score-badge pts-20">+20</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Drawdown <code>−5% to −10%</code></span>
+              <span class="sc-score-badge pts-15">+16</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Drawdown <code>−2% to −5%</code></span>
+              <span class="sc-score-badge pts-10">+11</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">Drawdown <code>0% to −2%</code></span>
+              <span class="sc-score-badge pts-5">+7</span>
+            </div>
+            <div class="sc-rule">
+              <span class="sc-condition">At/above 20-day high</span>
+              <span class="sc-score-badge pts-3">+2</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total -->
+        <div style="background:rgba(72,187,120,0.05);border:1px solid rgba(72,187,120,0.2);border-radius:12px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.68em;color:var(--green);margin-bottom:6px;">SIP ENTRY SCORE TOTAL</div>
+          <div style="font-size:0.78em;color:var(--muted);">= RSI (30) + SMA-50 (25) + 52W Position (25) + Drawdown (20)</div>
+          <div style="font-size:0.78em;color:var(--muted);margin-top:4px;">Max possible = <strong style="color:var(--text);">100 points</strong></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- COMBINE INTO VERDICT -->
+  <div class="flow-section">
+    <div class="section-label">Step 2 — SIP Entry Score → Verdict</div>
+    <div class="verdicts">
+      <div class="verdict-card v-acc">
+        <div class="v-score">SIP Score ≥ 70</div>
+        <div class="v-label">🟢 ACCUMULATE NOW</div>
+        <div class="v-action">Price in value zone. Invest full amount or slightly more this month.</div>
+      </div>
+      <div class="verdict-card v-good">
+        <div class="v-score">SIP Score 55–69</div>
+        <div class="v-label">✅ GOOD ENTRY</div>
+        <div class="v-action">Decent price. Invest your planned SIP amount as normal.</div>
+      </div>
+      <div class="verdict-card v-norm">
+        <div class="v-score">SIP Score 40–54</div>
+        <div class="v-label">🟡 INVEST NORMALLY</div>
+        <div class="v-action">Fair price. Stick to SIP. Discipline beats timing here.</div>
+      </div>
+      <div class="verdict-card v-less">
+        <div class="v-score">SIP Score 25–39</div>
+        <div class="v-label">🟠 INVEST LESS</div>
+        <div class="v-action">Price stretched. Invest 50–70% and save rest for next dip.</div>
+      </div>
+      <div class="verdict-card v-wait">
+        <div class="v-score">SIP Score &lt; 25</div>
+        <div class="v-label">🔴 WAIT THIS MONTH</div>
+        <div class="v-action">Near highs. Park in liquid fund, deploy when RSI &lt; 50 or price drops 5%+.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALLOCATION LOGIC -->
+  <div class="flow-section">
+    <div class="section-label">Step 3 — How allocation is calculated</div>
+    <div class="alloc-block">
+      <div class="alloc-hd">
+        <span class="alloc-hd-title">Allocation Weight per Stock</span>
+        <span class="alloc-formula">weight = quality_score × sip_modifier</span>
+      </div>
+      <div class="alloc-row" style="background:var(--surf2);border-bottom:1px solid var(--border);">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.65em;color:var(--muted);">SIP VERDICT</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.65em;color:var(--muted);text-align:center;">MODIFIER</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.65em;color:var(--muted);">VISUAL</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.65em;color:var(--muted);">MEANING</span>
+      </div>
+      <div class="alloc-row">
+        <span class="alloc-verdict" style="color:#68d391;">🟢 ACCUMULATE NOW</span>
+        <span class="alloc-mod" style="color:#68d391;">×1.4</span>
+        <div class="alloc-bar-wrap"><div class="alloc-bar" style="width:100%;background:#48bb78;"></div></div>
+        <span class="alloc-note">Boosted — you get 40% more allocation than standard</span>
+      </div>
+      <div class="alloc-row">
+        <span class="alloc-verdict" style="color:#9ae6b4;">✅ GOOD ENTRY</span>
+        <span class="alloc-mod" style="color:#9ae6b4;">×1.15</span>
+        <div class="alloc-bar-wrap"><div class="alloc-bar" style="width:82%;background:#68d391;"></div></div>
+        <span class="alloc-note">Slight boost — price is still attractive</span>
+      </div>
+      <div class="alloc-row">
+        <span class="alloc-verdict" style="color:#f6e05e;">🟡 INVEST NORMALLY</span>
+        <span class="alloc-mod" style="color:#f6e05e;">×1.0</span>
+        <div class="alloc-bar-wrap"><div class="alloc-bar" style="width:71%;background:#ecc94b;"></div></div>
+        <span class="alloc-note">Standard allocation — no adjustment</span>
+      </div>
+      <div class="alloc-row">
+        <span class="alloc-verdict" style="color:#f6ad55;">🟠 INVEST LESS</span>
+        <span class="alloc-mod" style="color:#f6ad55;">×0.55</span>
+        <div class="alloc-bar-wrap"><div class="alloc-bar" style="width:39%;background:#ed8936;"></div></div>
+        <span class="alloc-note">Reduced — invest ~half, save rest for next dip</span>
+      </div>
+      <div class="alloc-row">
+        <span class="alloc-verdict" style="color:#feb2b2;">🔴 WAIT THIS MONTH</span>
+        <span class="alloc-mod" style="color:#feb2b2;">×0</span>
+        <div class="alloc-bar-wrap"><div class="alloc-bar" style="width:0%;background:#fc8181;"></div></div>
+        <span class="alloc-note">Zero — amount redistributed to stocks at dips</span>
+      </div>
+    </div>
+    <div style="background:rgba(183,148,244,0.06);border:1px solid rgba(183,148,244,0.15);border-radius:12px;padding:14px 18px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.7em;color:var(--purple);margin-bottom:8px;">HOW THE MATH WORKS</div>
+      <div style="font-size:0.78em;color:var(--muted);line-height:1.7;">
+        For each eligible stock: <code style="color:var(--text);background:rgba(255,255,255,0.05);padding:1px 5px;border-radius:3px;">weight = quality_score × modifier</code><br>
+        Allocation = <code style="color:var(--text);background:rgba(255,255,255,0.05);padding:1px 5px;border-radius:3px;">monthly_investment × (weight / sum_of_all_weights)</code><br>
+        <br>
+        So if TCS has quality=65 and ACCUMULATE (×1.4), it gets <strong style="color:var(--text);">65 × 1.4 = 91</strong> weight.<br>
+        If INFY has quality=60 and WAIT (×0), it gets <strong style="color:var(--text);">0</strong> — and TCS gets that extra share.
+      </div>
+    </div>
+  </div>
+
+  <!-- EXAMPLE -->
+  <div class="example-block">
+    <div class="section-label">Example — same stocks, different entry scores</div>
+    <div class="example-cards">
+
+      <div class="ex-card" style="border-top:3px solid #48bb78;">
+        <div class="ex-top">
+          <div class="ex-ticker">TCS.NS</div>
+          <div class="ex-rec" style="background:rgba(72,187,120,0.15);color:#68d391;">BUY · Score 62</div>
+        </div>
+        <div class="ex-metrics">
+          <div class="ex-metric"><span class="ex-metric-l">RSI</span><span class="ex-metric-v" style="color:#68d391;">38 ← oversold</span></div>
+          <div class="ex-metric"><span class="ex-metric-l">vs SMA-50</span><span class="ex-metric-v" style="color:#68d391;">−4.2% below</span></div>
+          <div class="ex-metric"><span class="ex-metric-l">52W position</span><span class="ex-metric-v" style="color:#68d391;">28% — near low</span></div>
+          <div class="ex-metric"><span class="ex-metric-l">SIP Entry Score</span><span class="ex-metric-v" style="color:#68d391;">74 / 100</span></div>
+        </div>
+        <div class="ex-bottom" style="background:rgba(72,187,120,0.06);">
+          <span class="ex-sip-badge" style="background:rgba(72,187,120,0.15);color:#68d391;">🟢 ACCUMULATE NOW</span>
+          <div class="ex-alloc" style="color:#48bb78;">₹7,200 <small>boosted ×1.4</small></div>
+        </div>
+      </div>
+
+      <div class="ex-card" style="border-top:3px solid #ecc94b;">
+        <div class="ex-top">
+          <div class="ex-ticker">INFY.NS</div>
+          <div class="ex-rec" style="background:rgba(99,179,237,0.15);color:#90cdf4;">BUY · Score 58</div>
+        </div>
+        <div class="ex-metrics">
+          <div class="ex-metric"><span class="ex-metric-l">RSI</span><span class="ex-metric-v" style="color:#f6e05e;">52 — neutral</span></div>
+          <div class="ex-metric"><span class="ex-metric-l">vs SMA-50</span><span class="ex-metric-v" style="color:#f6e05e;">+1.5% above</span></div>
+          <div class="ex-metric"><span class="ex-metric-l">52W position</span><span class="ex-metric-v" style="color:#f6e05e;">49% — mid range</span></div>
+          <div class="ex-metric"><span class="ex-metric-l">SIP Entry Score</span><span class="ex-metric-v" style="color:#f6e05e;">44 / 100</span></div>
+        </div>
+        <div class="ex-bottom" style="background:rgba(236,201,75,0.05);">
+          <span class="ex-sip-badge" style="background:rgba(236,201,75,0.12);color:#f6e05e;">🟡 INVEST NORMALLY</span>
+          <div class="ex-alloc" style="color:#ecc94b;">₹4,800 <small>standard ×1.0</small></div>
+        </div>
+      </div>
+
+      <div class="ex-card" style="border-top:3px solid #fc8181;">
+        <div class="ex-top">
+          <div class="ex-ticker">TECHM.NS</div>
+          <div class="ex-rec" style="background:rgba(99,179,237,0.15);color:#90cdf4;">BUY · Score 55</div>
+        </div>
+        <div class="ex-metrics">
+          <div class="ex-metric"><span class="ex-metric-l">RSI</span><span class="ex-metric-v" style="color:#feb2b2;">74 ← overbought</span></div>
+          <div class="ex-metric"><span class="ex-metric-l">vs SMA-50</span><span class="ex-metric-v" style="color:#feb2b2;">+11% above</span></div>
+          <div class="ex-metric"><span class="ex-metric-l">52W position</span><span class="ex-metric-v" style="color:#feb2b2;">88% — near high</span></div>
+          <div class="ex-metric"><span class="ex-metric-l">SIP Entry Score</span><span class="ex-metric-v" style="color:#feb2b2;">14 / 100</span></div>
+        </div>
+        <div class="ex-bottom" style="background:rgba(252,129,129,0.05);">
+          <span class="ex-sip-badge" style="background:rgba(252,129,129,0.12);color:#feb2b2;">🔴 WAIT THIS MONTH</span>
+          <div class="ex-alloc" style="color:#fc8181;">₹0 <small>deferred ×0</small></div>
+        </div>
+      </div>
+
+    </div>
+    <div style="margin-top:12px;font-size:0.78em;color:var(--muted);text-align:center;font-style:italic;">
+      All three stocks are rated "BUY" — but TCS gets ₹7,200 while TECHM gets ₹0 because the entry price matters.
+    </div>
+  </div>
+
+  <!-- OLD VS NEW -->
+  <div class="flow-section">
+    <div class="section-label">Old v3 vs New v4</div>
+    <div class="compare">
+      <div class="compare-col old">
+        <div class="compare-hd">❌ Old Logic (v3)</div>
+        <div class="compare-item"><span class="ci-icon">→</span> Only asked "is this a good stock?"</div>
+        <div class="compare-item"><span class="ci-icon">→</span> Recommended BUY when stock was already rallying</div>
+        <div class="compare-item"><span class="ci-icon">→</span> You bought at high prices</div>
+        <div class="compare-item"><span class="ci-icon">→</span> Dips were ignored because next month = "BEARISH"</div>
+        <div class="compare-item"><span class="ci-icon">→</span> Allocation was based purely on quality score</div>
+        <div class="compare-item"><span class="ci-icon">→</span> Same stocks got same allocation regardless of price</div>
+      </div>
+      <div class="compare-col new">
+        <div class="compare-hd">✅ New Logic (v4)</div>
+        <div class="compare-item"><span class="ci-icon">→</span> Asks two questions: quality AND price level</div>
+        <div class="compare-item"><span class="ci-icon">→</span> SIP Entry Score is HIGH when price is LOW</div>
+        <div class="compare-item"><span class="ci-icon">→</span> Stocks at dips get boosted allocation (×1.4)</div>
+        <div class="compare-item"><span class="ci-icon">→</span> Stocks near highs get zero or reduced allocation</div>
+        <div class="compare-item"><span class="ci-icon">→</span> Deferred money is redirected to better-priced stocks</div>
+        <div class="compare-item"><span class="ci-icon">→</span> Monthly SIP discipline preserved — just smarter deployment</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggle(header) {
+  const body   = header.nextElementSibling;
+  const toggle = header.querySelector('.sc-toggle');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  toggle.classList.toggle('open', !isOpen);
+}
+
+// Open first item in each component by default
+document.querySelectorAll('.sc-header').forEach((h, i) => {
+  if (i % 3 === 0) toggle(h);
+});
+</script>
+</body>
+</html>
