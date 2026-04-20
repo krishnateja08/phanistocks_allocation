@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-19T07:54:59.570072+05:30",
+  "generated": "2026-04-20T07:55:31.222729+05:30",
   "monthly_investment": 48000,
   "stocks": [
     {
@@ -16,7 +16,7 @@
       "sma_20": 555.6099975585937,
       "sma_50": 589.7279968261719,
       "sma_200": 0,
-      "pe_ratio": 14.29941,
+      "pe_ratio": 14.307998,
       "dividend_yield": 0,
       "market_cap": 0,
       "roe": 0,
@@ -30,16 +30,16 @@
       "sip_icon": "\ud83d\udfe1",
       "sip_advice": "Fair price. Price is at 54% of its 52-week range. 1.2% below SMA-50. RSI: 65. Stick to your regular SIP. Discipline matters more than timing here.",
       "sip_modifier_used": 1.0,
-      "allocation_amount": 3592.339863526304,
-      "allocation_percent": 7.484041382346467
+      "allocation_amount": 3660.0134559318235,
+      "allocation_percent": 7.625028033191299
     },
     {
       "ticker": "HDFCBANK.NS",
       "sector": "Banking & Finance",
-      "recommendation": "STRONG BUY",
-      "combined_score": 72.5,
+      "recommendation": "BUY",
+      "combined_score": 65.0,
       "technical_score": 60,
-      "fundamental_score": 85,
+      "fundamental_score": 70,
       "current_price": 799.9000244140625,
       "rsi": 57.49786089208645,
       "macd": -13.649635712644454,
@@ -47,12 +47,12 @@
       "sma_20": 785.3175048828125,
       "sma_50": 853.5459997558594,
       "sma_200": 0,
-      "pe_ratio": 17.858898,
+      "pe_ratio": 17.86113,
       "dividend_yield": 138.0,
-      "market_cap": 12313069355008,
-      "roe": 14.015001,
-      "profit_margin": 26.186999999999998,
-      "revenue_growth": 26.400000000000002,
+      "market_cap": 12314608664576,
+      "roe": 13.818,
+      "profit_margin": 26.834000000000003,
+      "revenue_growth": -1.7999999999999998,
       "52w_high": 1020.5,
       "52w_low": 726.65,
       "sip_score": 74,
@@ -61,8 +61,8 @@
       "sip_icon": "\ud83d\udfe2",
       "sip_advice": "Price is in the value zone. Price is at 25% of its 52-week range. 6.3% below SMA-50. RSI: 57. Strong buying opportunity \u2014 consider investing your full SIP amount or slightly more this month.",
       "sip_modifier_used": 1.4,
-      "allocation_amount": 8579.352850539291,
-      "allocation_percent": 17.873651771956855
+      "allocation_amount": 7836.73469387755,
+      "allocation_percent": 16.3265306122449
     },
     {
       "ticker": "ITBEES.NS",
@@ -78,7 +78,7 @@
       "sma_20": 33.391999912261966,
       "sma_50": 34.82059993743896,
       "sma_200": 0,
-      "pe_ratio": 22.126026,
+      "pe_ratio": 22.13233,
       "dividend_yield": 0,
       "market_cap": 0,
       "roe": 0,
@@ -92,8 +92,8 @@
       "sip_icon": "\ud83d\udfe0",
       "sip_advice": "Price is slightly stretched. Price is at 29% of its 52-week range. 0.8% above SMA-50. RSI: 70. Consider investing 50\u201370% of your planned amount and saving the rest for when the price dips.",
       "sip_modifier_used": 0.55,
-      "allocation_amount": 2324.4552058111385,
-      "allocation_percent": 4.842615012106538
+      "allocation_amount": 2368.2440008970625,
+      "allocation_percent": 4.933841668535547
     },
     {
       "ticker": "TECHM.NS",
@@ -109,9 +109,9 @@
       "sma_20": 1424.8450012207031,
       "sma_50": 1451.1340087890626,
       "sma_200": 0,
-      "pe_ratio": 28.987343,
+      "pe_ratio": 29.004604,
       "dividend_yield": 298.0,
-      "market_cap": 1339202600960,
+      "market_cap": 1340000174080,
       "roe": 0,
       "profit_margin": 8.387999,
       "revenue_growth": 8.3,
@@ -123,8 +123,8 @@
       "sip_icon": "\ud83d\udfe0",
       "sip_advice": "Price is slightly stretched. Price is at 38% of its 52-week range. 4.2% above SMA-50. RSI: 64. Consider investing 50\u201370% of your planned amount and saving the rest for when the price dips.",
       "sip_modifier_used": 0.55,
-      "allocation_amount": 2556.900726392252,
-      "allocation_percent": 5.326876513317192
+      "allocation_amount": 2605.0684009867687,
+      "allocation_percent": 5.427225835389101
     },
     {
       "ticker": "TCS.NS",
@@ -140,9 +140,9 @@
       "sma_20": 2460.939990234375,
       "sma_50": 2611.667998046875,
       "sma_200": 0,
-      "pe_ratio": 18.974642,
+      "pe_ratio": 18.990078,
       "dividend_yield": 244.0,
-      "market_cap": 9340093202432,
+      "market_cap": 9347691184128,
       "roe": 48.395002,
       "profit_margin": 18.429000000000002,
       "revenue_growth": 9.6,
@@ -154,8 +154,8 @@
       "sip_icon": "\u2705",
       "sip_advice": "Decent entry point. Price is at 18% of its 52-week range. 1.2% below SMA-50. RSI: 68. Invest your planned amount.",
       "sip_modifier_used": 1.15,
-      "allocation_amount": 5832.269425489764,
-      "allocation_percent": 12.150561303103675
+      "allocation_amount": 5942.139493159902,
+      "allocation_percent": 12.379457277416462
     },
     {
       "ticker": "INFY.NS",
@@ -171,9 +171,9 @@
       "sma_20": 1286.179998779297,
       "sma_50": 1339.8380004882813,
       "sma_200": 0,
-      "pe_ratio": 18.348406,
+      "pe_ratio": 18.366495,
       "dividend_yield": 341.0,
-      "market_cap": 5336302354432,
+      "market_cap": 5341563060224,
       "roe": 32.683,
       "profit_margin": 16.153999,
       "revenue_growth": 3.2,
@@ -185,8 +185,8 @@
       "sip_icon": "\u2705",
       "sip_advice": "Decent entry point. Price is at 20% of its 52-week range. 1.6% below SMA-50. RSI: 59. Invest your planned amount.",
       "sip_modifier_used": 1.15,
-      "allocation_amount": 6561.303103675986,
-      "allocation_percent": 13.669381465991638
+      "allocation_amount": 6684.906929804888,
+      "allocation_percent": 13.926889437093518
     },
     {
       "ticker": "RELIANCE.NS",
@@ -202,9 +202,9 @@
       "sma_20": 1362.7049987792968,
       "sma_50": 1395.2880029296875,
       "sma_200": 0,
-      "pe_ratio": 22.220413,
+      "pe_ratio": 22.218786,
       "dividend_yield": 40.0,
-      "market_cap": 18471823867904,
+      "market_cap": 18470471204864,
       "roe": 0,
       "profit_margin": 8.122,
       "revenue_growth": 10.4,
@@ -216,8 +216,8 @@
       "sip_icon": "\ud83d\udfe2",
       "sip_advice": "Price is in the value zone. Price is at 28% of its 52-week range. 2.2% below SMA-50. RSI: 43. Strong buying opportunity \u2014 consider investing your full SIP amount or slightly more this month.",
       "sip_modifier_used": 1.4,
-      "allocation_amount": 6804.314329738058,
-      "allocation_percent": 14.175654853620955
+      "allocation_amount": 6932.496075353219,
+      "allocation_percent": 14.442700156985872
     },
     {
       "ticker": "TMPV.NS",
@@ -233,9 +233,9 @@
       "sma_20": 322.695002746582,
       "sma_50": 348.332001953125,
       "sma_200": 0,
-      "pe_ratio": 33.907722,
+      "pe_ratio": 33.992466,
       "dividend_yield": 167.0,
-      "market_cap": 1326024097792,
+      "market_cap": 1329338253312,
       "roe": 0,
       "profit_margin": 21.158001000000002,
       "revenue_growth": -38.3,
@@ -264,7 +264,7 @@
       "sma_20": 264.75799865722655,
       "sma_50": 276.5510003662109,
       "sma_200": 0,
-      "pe_ratio": 22.770855,
+      "pe_ratio": 22.781586,
       "dividend_yield": 0,
       "market_cap": 0,
       "roe": 0,
@@ -278,8 +278,8 @@
       "sip_icon": "\ud83d\udfe0",
       "sip_advice": "Price is slightly stretched. Price is at 48% of its 52-week range. 0.2% below SMA-50. RSI: 67. Consider investing 50\u201370% of your planned amount and saving the rest for when the price dips.",
       "sip_modifier_used": 0.55,
-      "allocation_amount": 1975.7869249394676,
-      "allocation_percent": 4.116222760290557
+      "allocation_amount": 2013.007400762503,
+      "allocation_percent": 4.193765418255214
     },
     {
       "ticker": "M&M.NS",
@@ -295,9 +295,9 @@
       "sma_20": 3108.6750244140626,
       "sma_50": 3290.6000146484375,
       "sma_200": 0,
-      "pe_ratio": 22.883087,
+      "pe_ratio": 22.89596,
       "dividend_yield": 79.0,
-      "market_cap": 3842679242752,
+      "market_cap": 3844840620032,
       "roe": 0,
       "profit_margin": 8.326,
       "revenue_growth": 26.400000000000002,
@@ -309,8 +309,8 @@
       "sip_icon": "\ud83d\udfe1",
       "sip_advice": "Fair price. Price is at 46% of its 52-week range. 2.7% below SMA-50. RSI: 60. Stick to your regular SIP. Discipline matters more than timing here.",
       "sip_modifier_used": 1.0,
-      "allocation_amount": 4860.22452124147,
-      "allocation_percent": 10.125467752586397
+      "allocation_amount": 4951.7829109665845,
+      "allocation_percent": 10.316214397847052
     },
     {
       "ticker": "GOLDBEES.NS",
@@ -340,8 +340,8 @@
       "sip_icon": "\ud83d\udfe1",
       "sip_advice": "Fair price. Price is at 67% of its 52-week range. 1.1% below SMA-50. RSI: 69. Stick to your regular SIP. Discipline matters more than timing here.",
       "sip_modifier_used": 1.0,
-      "allocation_amount": 3169.711644287915,
-      "allocation_percent": 6.603565925599823
+      "allocation_amount": 3229.423637586903,
+      "allocation_percent": 6.727965911639382
     },
     {
       "ticker": "SILVERBEES.NS",
@@ -371,8 +371,8 @@
       "sip_icon": "\ud83d\udfe0",
       "sip_advice": "Price is slightly stretched. Price is at 55% of its 52-week range. 1.0% above SMA-50. RSI: 66. Consider investing 50\u201370% of your planned amount and saving the rest for when the price dips.",
       "sip_modifier_used": 0.55,
-      "allocation_amount": 1743.3414043583534,
-      "allocation_percent": 3.631961259079903
+      "allocation_amount": 1776.1830006727967,
+      "allocation_percent": 3.7003812514016596
     }
   ]
 }
