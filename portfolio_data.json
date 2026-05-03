@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-02T07:57:36.097701+05:30",
+  "generated": "2026-05-03T08:06:16.863064+05:30",
   "monthly_investment": 48000,
   "stocks": [
     {
@@ -49,7 +49,7 @@
       "sma_200": 0,
       "pe_ratio": 17.2781,
       "dividend_yield": 168.0,
-      "market_cap": 11927311876096,
+      "market_cap": 11927608623104,
       "roe": 13.818,
       "profit_margin": 26.834000000000003,
       "revenue_growth": -1.7999999999999998,
