@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-03T09:06:54.978819+05:30",
+  "generated": "2026-10-04T09:37:24.762328+05:30",
   "monthly_investment": 48000,
   "stocks": [
     {
@@ -239,7 +239,7 @@
       "roe": 0,
       "profit_margin": 22.814,
       "revenue_growth": -8.200000000000001,
-      "52w_high": 739.7,
+      "52w_high": 718.5,
       "52w_low": 272.2,
       "sip_score": 97,
       "sip_verdict": "ACCUMULATE NOW",
